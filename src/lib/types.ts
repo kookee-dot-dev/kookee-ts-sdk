@@ -38,7 +38,7 @@ export interface BlogPostListItem {
   coverImageUrl: string | null;
   status: string;
   publishedAt: string | null;
-  metadata: Record<string, unknown> | null;
+  metadata: Record<string, NonNullable<unknown>> | null;
   createdAt: string;
   author: BlogPostAuthor;
   tags: BlogTag[];
