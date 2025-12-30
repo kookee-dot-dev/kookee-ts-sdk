@@ -1,8 +1,8 @@
 # @kookee/sdk
 
-Official SDK for Kookee - Access your blog content via a simple API.
+Official TypeScript SDK for [Kookee](https://kookee.dev) - the headless CMS for your blog, changelog, and help center.
 
-## Why @kookee/sdk?
+## Features
 
 - **Lightweight** - Only ~1.5 KB minified (ESM), no bloat
 - **Zero dependencies** - Uses native `fetch`, nothing else
