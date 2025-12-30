@@ -2,6 +2,14 @@
 
 Official SDK for Kookee - Access your blog content via a simple API.
 
+## Why @kookee/sdk?
+
+- **Lightweight** - Only ~1.5 KB minified (ESM), no bloat
+- **Zero dependencies** - Uses native `fetch`, nothing else
+- **TypeScript-first** - Full type definitions out of the box
+- **Tree-shakeable** - Import only what you need
+- **Open source** - [MIT licensed](https://github.com/kookee-dot-dev/kookee-ts-sdk)
+
 ## Installation
 
 ```bash
