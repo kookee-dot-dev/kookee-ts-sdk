@@ -1,0 +1,52 @@
+{
+  "name": "@kookee/sdk",
+  "version": "0.0.2",
+  "description": "Official Kookee SDK - Access your blog, changelog, help center, and more",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "tsc --noEmit && eslint .",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "kookee",
+    "sdk",
+    "blog",
+    "changelog",
+    "help-center",
+    "cms",
+    "headless"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kookee-dot-dev/kookee-ts-sdk"
+  },
+  "homepage": "https://kookee.dev",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module"
+}
