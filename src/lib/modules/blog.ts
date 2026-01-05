@@ -2,7 +2,7 @@ import type { HttpClient } from '../http-client';
 import type { BlogPost, BlogPostListItem, BlogTagWithCount, PaginatedResponse, PaginationParams } from '../types';
 
 export interface BlogListParams extends PaginationParams {
-  tag?: string;
+  tags?: string[];
   search?: string;
 }
 

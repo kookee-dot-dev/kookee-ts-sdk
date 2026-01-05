@@ -40,6 +40,7 @@ export interface BlogPostListItem {
   publishedAt: string | null;
   metadata: Record<string, NonNullable<unknown>> | null;
   createdAt: string;
+  views: number;
   author: BlogPostAuthor;
   tags: BlogTag[];
 }
