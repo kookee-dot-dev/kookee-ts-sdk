@@ -56,3 +56,18 @@ export interface ApiError {
   code: string;
   message: string;
 }
+
+export interface PageListItem {
+  id: string;
+  slug: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Page extends PageListItem {
+  contentHtml: string;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  views: number;
+}
