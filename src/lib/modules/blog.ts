@@ -1,10 +1,21 @@
 import type { HttpClient } from '../http-client';
-import type { BlogPost, BlogPostListItem, BlogTagWithCount, PaginatedResponse, PaginationParams } from '../types';
+import type {
+  BlogPost,
+  BlogPostListItem,
+  BlogTagWithCount,
+  LocaleOptions,
+  PaginatedResponse,
+  PaginationParams,
+} from '../types';
 
-export interface BlogListParams extends PaginationParams {
+export interface BlogListParams extends PaginationParams, LocaleOptions {
   tags?: string[];
   search?: string;
 }
+
+export interface BlogGetBySlugParams extends LocaleOptions {}
+
+export interface BlogGetByIdParams extends LocaleOptions {}
 
 export class BlogModule {
   constructor(private readonly http: HttpClient) {}
@@ -13,15 +24,27 @@ export class BlogModule {
     return this.http.get<PaginatedResponse<BlogPostListItem>>('/v1/blog/posts', params);
   }
 
-  async getBySlug(slug: string): Promise<BlogPost> {
-    return this.http.get<BlogPost>(`/v1/blog/posts/${encodeURIComponent(slug)}`);
+  async getBySlug(slug: string, params?: BlogGetBySlugParams): Promise<BlogPost> {
+    return this.http.get<BlogPost>(`/v1/blog/posts/${encodeURIComponent(slug)}`, params);
   }
 
-  async getById(id: string): Promise<BlogPost> {
-    return this.http.get<BlogPost>(`/v1/blog/posts/by-id/${encodeURIComponent(id)}`);
+  async getById(id: string, params?: BlogGetByIdParams): Promise<BlogPost> {
+    return this.http.get<BlogPost>(`/v1/blog/posts/by-id/${encodeURIComponent(id)}`, params);
   }
 
   async getTags(): Promise<BlogTagWithCount[]> {
     return this.http.get<BlogTagWithCount[]>('/v1/blog/tags');
+  }
+
+  async getTranslationsById(postId: string): Promise<Record<string, BlogPost>> {
+    return this.http.get<Record<string, BlogPost>>(
+      `/v1/blog/posts/by-id/${encodeURIComponent(postId)}/translations`
+    );
+  }
+
+  async getTranslationsBySlug(slug: string): Promise<Record<string, BlogPost>> {
+    return this.http.get<Record<string, BlogPost>>(
+      `/v1/blog/posts/${encodeURIComponent(slug)}/translations`
+    );
   }
 }

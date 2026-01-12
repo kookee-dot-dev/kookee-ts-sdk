@@ -8,6 +8,11 @@ export interface PaginationParams {
   limit?: number;
 }
 
+export interface LocaleOptions {
+  locale?: string;
+  fallback?: boolean;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
@@ -43,6 +48,8 @@ export interface BlogPostListItem {
   views: number;
   author: BlogPostAuthor;
   tags: BlogTag[];
+  locale: string;
+  translationGroupId: string;
 }
 
 export interface BlogPost extends BlogPostListItem {
@@ -63,6 +70,8 @@ export interface PageListItem {
   title: string;
   createdAt: string;
   updatedAt: string;
+  locale: string;
+  translationGroupId: string;
 }
 
 export interface Page extends PageListItem {
@@ -70,4 +79,101 @@ export interface Page extends PageListItem {
   metaTitle: string | null;
   metaDescription: string | null;
   views: number;
+}
+
+export interface HelpCategory {
+  slug: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  articleCount: number;
+}
+
+export interface HelpArticleListItem {
+  id: string;
+  slug: string;
+  title: string;
+  excerptHtml: string | null;
+  category: { name: string; slug: string };
+  createdAt: string;
+  views: number;
+  locale: string;
+  translationGroupId: string;
+}
+
+export interface HelpArticle extends HelpArticleListItem {
+  contentHtml: string;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  updatedAt: string;
+}
+
+export interface HelpSearchResult {
+  id: string;
+  slug: string;
+  title: string;
+  excerptHtml: string | null;
+  category: { name: string; slug: string };
+  locale: string;
+}
+
+export type ChangelogType = 'feature' | 'fix' | 'improvement' | 'breaking' | 'security' | 'deprecated' | 'other';
+
+export type ChangelogOrderBy = 'createdAt' | 'publishedAt' | 'version';
+
+export type OrderDirection = 'asc' | 'desc';
+
+export interface ChangelogAuthor {
+  name: string;
+}
+
+export interface ChangelogEntryListItem {
+  id: string;
+  slug: string;
+  title: string;
+  type: ChangelogType;
+  version: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  locale: string;
+  translationGroupId: string;
+  metadata: Record<string, NonNullable<unknown>> | null;
+  author: ChangelogAuthor;
+}
+
+export interface ChangelogEntry extends ChangelogEntryListItem {
+  contentHtml: string;
+  link: string | null;
+  updatedAt: string;
+}
+
+export type AnnouncementType = 'info' | 'warning' | 'critical' | 'promotion' | 'maintenance' | 'newFeature';
+
+export type AnnouncementOrderBy = 'createdAt' | 'publishedAt';
+
+export interface AnnouncementAuthor {
+  name: string;
+}
+
+export interface AnnouncementListItem {
+  id: string;
+  title: string;
+  type: AnnouncementType;
+  publishedAt: string | null;
+  unpublishAt: string | null;
+  createdAt: string;
+  locale: string;
+  translationGroupId: string;
+  metadata: Record<string, NonNullable<unknown>> | null;
+  author: AnnouncementAuthor;
+}
+
+export interface Announcement extends AnnouncementListItem {
+  contentHtml: string;
+  updatedAt: string;
+}
+
+export interface PublicConfig {
+  key: string;
+  value: unknown;
 }
