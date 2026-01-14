@@ -1,0 +1,133 @@
+/**
+ * Kookee SDK - Code Block Syntax Highlighting
+ * Based on VS Code Dark+ theme
+ *
+ * Usage:
+ *   import '@kookee/sdk/styles/code.css';
+ *
+ * Or via CDN:
+ *   <link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/code.css">
+ */
+
+/* Base code block styles */
+pre {
+  background: #1e1e1e;
+  border-radius: 0.5rem;
+  color: #d4d4d4;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco,
+    'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  padding: 0;
+  border: none;
+}
+
+/* Inline code - Slack-style */
+:not(pre) > code {
+  background-color: #f8e8ea;
+  color: #c41e3a;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco,
+    'Courier New', monospace;
+  font-size: 0.875em;
+  border: 1px solid #f0d0d4;
+}
+
+/* Remove Tailwind prose backticks if using Tailwind Typography */
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}
+
+/* Syntax highlighting - VS Code Dark+ theme */
+.hljs-comment,
+.hljs-quote {
+  color: #6a9955;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  color: #569cd6;
+}
+
+.hljs-number,
+.hljs-string,
+.hljs-meta .hljs-meta-string,
+.hljs-literal,
+.hljs-doctag,
+.hljs-regexp {
+  color: #ce9178;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #dcdcaa;
+}
+
+.hljs-attribute,
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-class .hljs-title,
+.hljs-type {
+  color: #4ec9b0;
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-subst,
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-link {
+  color: #d7ba7d;
+}
+
+.hljs-built_in,
+.hljs-deletion {
+  color: #ce9178;
+}
+
+.hljs-formula {
+  background: #1e1e1e;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-property {
+  color: #9cdcfe;
+}
+
+.hljs-punctuation {
+  color: #d4d4d4;
+}
+
+.hljs-template-tag {
+  color: #569cd6;
+}
+
+.hljs-params {
+  color: #d4d4d4;
+}
