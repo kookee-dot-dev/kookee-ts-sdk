@@ -177,3 +177,9 @@ export interface PublicConfig {
   key: string;
   value: unknown;
 }
+
+export interface HealthCheckResponse {
+  status: 'ok';
+  projectId: string;
+  timestamp: string;
+}

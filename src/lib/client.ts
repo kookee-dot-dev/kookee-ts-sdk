@@ -5,7 +5,7 @@ import { ChangelogModule } from './modules/changelog';
 import { ConfigModule } from './modules/config';
 import { HelpModule } from './modules/help';
 import { PagesModule } from './modules/pages';
-import type { KookeeConfig } from './types';
+import type { KookeeConfig, HealthCheckResponse } from './types';
 
 export class Kookee {
   private readonly http: HttpClient;
@@ -30,5 +30,9 @@ export class Kookee {
     this.config = new ConfigModule(this.http);
     this.help = new HelpModule(this.http);
     this.pages = new PagesModule(this.http);
+  }
+
+  async health(): Promise<HealthCheckResponse> {
+    return this.http.get<HealthCheckResponse>('/v1/health');
   }
 }
