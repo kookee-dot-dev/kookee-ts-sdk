@@ -115,6 +115,7 @@ export interface HelpSearchResult {
   excerptHtml: string | null;
   category: { name: string; slug: string };
   locale: string;
+  matchedChunk?: string;
 }
 
 export type ChangelogType = 'feature' | 'fix' | 'improvement' | 'breaking' | 'security' | 'deprecated' | 'other';

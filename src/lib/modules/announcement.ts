@@ -23,7 +23,9 @@ export class AnnouncementModule {
   constructor(private readonly http: HttpClient) {}
 
   async list(params?: AnnouncementListParams): Promise<PaginatedResponse<AnnouncementListItem>> {
-    return this.http.get<PaginatedResponse<AnnouncementListItem>>('/v1/announcements', params);
+    const { excludeIds, ...rest } = params ?? {};
+    const queryParams = excludeIds?.length ? { ...rest, excludeIds: excludeIds.join(',') } : rest;
+    return this.http.get<PaginatedResponse<AnnouncementListItem>>('/v1/announcements', queryParams);
   }
 
   async getById(id: string, params?: AnnouncementGetByIdParams): Promise<Announcement> {
