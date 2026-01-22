@@ -61,10 +61,14 @@ export class HelpModule {
     );
   }
 
-  async voteUsefulness(articleId: string, vote: 'yes' | 'no'): Promise<VoteUsefulnessResponse> {
+  async voteUsefulness(
+    articleId: string,
+    vote: 'yes' | 'no' | null,
+    previousVote?: 'yes' | 'no' | null,
+  ): Promise<VoteUsefulnessResponse> {
     return this.http.post<VoteUsefulnessResponse>(
       `/v1/help/articles/by-id/${encodeURIComponent(articleId)}/vote-usefulness`,
-      { vote }
+      { vote, previousVote }
     );
   }
 }
