@@ -99,6 +99,8 @@ export interface HelpArticleListItem {
   views: number;
   locale: string;
   translationGroupId: string;
+  usefulYesCount: number;
+  usefulNoCount: number;
 }
 
 export interface HelpArticle extends HelpArticleListItem {
@@ -116,6 +118,8 @@ export interface HelpSearchResult {
   category: { name: string; slug: string };
   locale: string;
   matchedChunk?: string;
+  usefulYesCount: number;
+  usefulNoCount: number;
 }
 
 export type ChangelogType = 'feature' | 'fix' | 'improvement' | 'breaking' | 'security' | 'deprecated' | 'other';
@@ -183,4 +187,9 @@ export interface HealthCheckResponse {
   status: 'ok';
   projectId: string;
   timestamp: string;
+}
+
+export interface VoteUsefulnessResponse {
+  usefulYesCount: number;
+  usefulNoCount: number;
 }

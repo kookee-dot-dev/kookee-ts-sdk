@@ -7,6 +7,7 @@ import type {
   LocaleOptions,
   PaginatedResponse,
   PaginationParams,
+  VoteUsefulnessResponse,
 } from '../types';
 
 export interface HelpCategoriesParams extends LocaleOptions {}
@@ -57,6 +58,13 @@ export class HelpModule {
   async getTranslationsBySlug(slug: string): Promise<Record<string, HelpArticle>> {
     return this.http.get<Record<string, HelpArticle>>(
       `/v1/help/articles/${encodeURIComponent(slug)}/translations`
+    );
+  }
+
+  async voteUsefulness(articleId: string, vote: 'yes' | 'no'): Promise<VoteUsefulnessResponse> {
+    return this.http.post<VoteUsefulnessResponse>(
+      `/v1/help/articles/by-id/${encodeURIComponent(articleId)}/vote-usefulness`,
+      { vote }
     );
   }
 }
