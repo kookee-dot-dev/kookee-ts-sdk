@@ -6,6 +6,8 @@ import type {
   LocaleOptions,
   PaginatedResponse,
   PaginationParams,
+  ReactParams,
+  ReactResponse,
 } from '../types';
 
 export interface BlogListParams extends PaginationParams, LocaleOptions {
@@ -45,6 +47,13 @@ export class BlogModule {
   async getTranslationsBySlug(slug: string): Promise<Record<string, BlogPost>> {
     return this.http.get<Record<string, BlogPost>>(
       `/v1/blog/posts/${encodeURIComponent(slug)}/translations`
+    );
+  }
+
+  async react(postId: string, params: ReactParams): Promise<ReactResponse> {
+    return this.http.post<ReactResponse>(
+      `/v1/blog/posts/${encodeURIComponent(postId)}/reactions`,
+      params
     );
   }
 }

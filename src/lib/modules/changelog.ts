@@ -7,6 +7,8 @@ import type {
   OrderDirection,
   PaginatedResponse,
   PaginationParams,
+  ReactParams,
+  ReactResponse,
 } from '../types';
 
 export interface ChangelogListParams extends PaginationParams, LocaleOptions {
@@ -44,6 +46,13 @@ export class ChangelogModule {
   async getTranslationsBySlug(slug: string): Promise<Record<string, ChangelogEntry>> {
     return this.http.get<Record<string, ChangelogEntry>>(
       `/v1/changelog/${encodeURIComponent(slug)}/translations`
+    );
+  }
+
+  async react(changelogId: string, params: ReactParams): Promise<ReactResponse> {
+    return this.http.post<ReactResponse>(
+      `/v1/changelog/${encodeURIComponent(changelogId)}/reactions`,
+      params
     );
   }
 }

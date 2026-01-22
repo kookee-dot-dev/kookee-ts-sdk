@@ -50,6 +50,7 @@ export interface BlogPostListItem {
   tags: BlogTag[];
   locale: string;
   translationGroupId: string;
+  reactions: Record<string, number>;
 }
 
 export interface BlogPost extends BlogPostListItem {
@@ -144,6 +145,7 @@ export interface ChangelogEntryListItem {
   translationGroupId: string;
   metadata: Record<string, NonNullable<unknown>> | null;
   author: ChangelogAuthor;
+  reactions: Record<string, number>;
 }
 
 export interface ChangelogEntry extends ChangelogEntryListItem {
@@ -192,4 +194,15 @@ export interface HealthCheckResponse {
 export interface VoteUsefulnessResponse {
   usefulYesCount: number;
   usefulNoCount: number;
+}
+
+export type ReactionType = 'fire' | 'heart' | 'rocket' | 'eyes' | 'mindblown';
+
+export interface ReactParams {
+  reactionType: ReactionType;
+  action: 'add' | 'remove';
+}
+
+export interface ReactResponse {
+  reactions: Record<string, number>;
 }
