@@ -137,6 +137,7 @@ export interface ChangelogEntryListItem {
   id: string;
   slug: string;
   title: string;
+  contentHtml: string;
   type: ChangelogType;
   version: string | null;
   publishedAt: string | null;
