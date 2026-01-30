@@ -221,5 +221,17 @@ export interface HelpChatParams {
 
 export interface HelpChatResponse {
   message: string;
-  sources: Array<{ id: string; slug: string; title: string }>;
+  sources: HelpChatSource[];
 }
+
+export interface HelpChatSource {
+  id: string;
+  slug: string;
+  title: string;
+}
+
+export type HelpChatStreamChunk =
+  | { type: 'delta'; content: string }
+  | { type: 'sources'; sources: HelpChatSource[] }
+  | { type: 'done' }
+  | { type: 'error'; message: string };

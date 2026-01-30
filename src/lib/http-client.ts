@@ -65,6 +65,62 @@ export class HttpClient {
     return this.handleResponse<T>(response);
   }
 
+  async *streamPost<T>(path: string, body?: unknown): AsyncIterable<T> {
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: 'POST',
+      headers: {
+        ...this.getHeaders(),
+        Accept: 'text/event-stream',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      let errorData: ApiError | null = null;
+      try {
+        errorData = (await response.json()) as ApiError;
+      } catch {
+        // Response body is not JSON
+      }
+      throw new KookeeApiError(
+        errorData?.code ?? 'UNKNOWN_ERROR',
+        errorData?.message ?? `Request failed with status ${response.status}`,
+        response.status
+      );
+    }
+
+    if (!response.body) {
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith(':')) continue;
+          if (trimmed.startsWith('data: ')) {
+            const data = trimmed.slice(6);
+            if (data === '[DONE]') return;
+            yield JSON.parse(data) as T;
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
       let errorData: ApiError | null = null;

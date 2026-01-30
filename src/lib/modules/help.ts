@@ -5,6 +5,7 @@ import type {
   HelpCategory,
   HelpChatParams,
   HelpChatResponse,
+  HelpChatStreamChunk,
   HelpSearchResult,
   LocaleOptions,
   PaginatedResponse,
@@ -65,6 +66,10 @@ export class HelpModule {
 
   async chat(params: HelpChatParams): Promise<HelpChatResponse> {
     return this.http.post<HelpChatResponse>('/v1/help/chat', params);
+  }
+
+  chatStream(params: HelpChatParams): AsyncIterable<HelpChatStreamChunk> {
+    return this.http.streamPost<HelpChatStreamChunk>('/v1/help/chat/stream', params);
   }
 
   async voteUsefulness(
