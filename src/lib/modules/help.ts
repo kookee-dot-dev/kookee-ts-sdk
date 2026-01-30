@@ -3,6 +3,8 @@ import type {
   HelpArticle,
   HelpArticleListItem,
   HelpCategory,
+  HelpChatParams,
+  HelpChatResponse,
   HelpSearchResult,
   LocaleOptions,
   PaginatedResponse,
@@ -59,6 +61,10 @@ export class HelpModule {
     return this.http.get<Record<string, HelpArticle>>(
       `/v1/help/articles/${encodeURIComponent(slug)}/translations`
     );
+  }
+
+  async chat(params: HelpChatParams): Promise<HelpChatResponse> {
+    return this.http.post<HelpChatResponse>('/v1/help/chat', params);
   }
 
   async voteUsefulness(

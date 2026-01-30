@@ -207,3 +207,19 @@ export interface ReactParams {
 export interface ReactResponse {
   reactions: Record<string, number>;
 }
+
+export interface HelpChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface HelpChatParams {
+  messages: HelpChatMessage[];
+  locale?: string;
+  sessionId?: string;
+}
+
+export interface HelpChatResponse {
+  message: string;
+  sources: Array<{ id: string; slug: string; title: string }>;
+}
