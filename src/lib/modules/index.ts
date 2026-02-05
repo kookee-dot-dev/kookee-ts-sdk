@@ -12,6 +12,12 @@ export {
 } from './changelog';
 export { ConfigModule, type ConfigListParams } from './config';
 export {
+  FeedbackModule,
+  type FeedbackListParams,
+  type FeedbackVoteParams,
+  type FeedbackTopContributorsParams,
+} from './feedback';
+export {
   HelpModule,
   type HelpCategoriesParams,
   type HelpListParams,

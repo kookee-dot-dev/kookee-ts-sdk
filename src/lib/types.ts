@@ -1,5 +1,6 @@
 export interface KookeeConfig {
-  apiKey: string;
+  apiKey?: string;
+  projectId?: string;
   baseUrl?: string;
 }
 
@@ -35,13 +36,15 @@ export interface BlogPostAuthor {
   name: string;
 }
 
+export type BlogPostStatus = 'draft' | 'published' | 'archived';
+
 export interface BlogPostListItem {
   id: string;
   slug: string;
   title: string;
   excerptHtml: string | null;
   coverImageUrl: string | null;
-  status: string;
+  status: BlogPostStatus;
   publishedAt: string | null;
   metadata: Record<string, NonNullable<unknown>> | null;
   createdAt: string;
@@ -69,6 +72,7 @@ export interface PageListItem {
   id: string;
   slug: string;
   title: string;
+  views: number;
   createdAt: string;
   updatedAt: string;
   locale: string;
@@ -79,7 +83,6 @@ export interface Page extends PageListItem {
   contentHtml: string;
   metaTitle: string | null;
   metaDescription: string | null;
-  views: number;
 }
 
 export interface HelpCategory {
@@ -90,12 +93,20 @@ export interface HelpCategory {
   articleCount: number;
 }
 
+export interface HelpArticleAuthor {
+  name: string;
+}
+
 export interface HelpArticleListItem {
   id: string;
   slug: string;
   title: string;
   excerptHtml: string | null;
+  status: string;
+  position: number;
+  metadata: Record<string, unknown>;
   category: { name: string; slug: string };
+  author: HelpArticleAuthor;
   createdAt: string;
   views: number;
   locale: string;
@@ -166,6 +177,7 @@ export interface AnnouncementAuthor {
 export interface AnnouncementListItem {
   id: string;
   title: string;
+  contentHtml: string;
   type: AnnouncementType;
   publishedAt: string | null;
   unpublishAt: string | null;
@@ -177,7 +189,6 @@ export interface AnnouncementListItem {
 }
 
 export interface Announcement extends AnnouncementListItem {
-  contentHtml: string;
   updatedAt: string;
 }
 
@@ -224,10 +235,20 @@ export interface HelpChatResponse {
   sources: HelpChatSource[];
 }
 
+export type HelpArticleVisibility = 'public' | 'chatbot_only';
+
+export interface HelpChatSourceCategory {
+  slug: string;
+  name: string;
+}
+
 export interface HelpChatSource {
   id: string;
   slug: string;
   title: string;
+  visibility: HelpArticleVisibility;
+  metadata: Record<string, unknown> | null;
+  category: HelpChatSourceCategory;
 }
 
 export type HelpChatStreamChunk =
@@ -235,3 +256,62 @@ export type HelpChatStreamChunk =
   | { type: 'sources'; sources: HelpChatSource[] }
   | { type: 'done' }
   | { type: 'error'; message: string };
+
+// Feedback Types
+
+export type FeedbackPostStatus = 'open' | 'under_review' | 'planned' | 'in_progress' | 'completed' | 'declined';
+
+export type FeedbackPostCategory = 'feature' | 'improvement' | 'bug' | 'other';
+
+export type FeedbackSortOption = 'newest' | 'top' | 'trending';
+
+export interface FeedbackAuthor {
+  id: string;
+  name: string;
+  image: string | null;
+  isTeamMember?: boolean;
+}
+
+export interface FeedbackAssignee {
+  id: string;
+  name: string | null;
+  image: string | null;
+}
+
+export interface FeedbackComment {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  isOfficial: boolean;
+  author: FeedbackAuthor;
+}
+
+export interface FeedbackPostListItem {
+  id: string;
+  title: string;
+  contentText: string | null;
+  status: FeedbackPostStatus;
+  category: FeedbackPostCategory;
+  voteCount: number;
+  commentCount: number;
+  createdAt: string;
+  author: FeedbackAuthor;
+  assignee: FeedbackAssignee | null;
+}
+
+export interface FeedbackPost extends FeedbackPostListItem {
+  contentHtml: string | null;
+  comments: FeedbackComment[];
+}
+
+export interface FeedbackTopContributor {
+  id: string;
+  name: string;
+  image: string | null;
+  totalVotes: number;
+}
+
+export interface FeedbackVoteResponse {
+  voteCount: number;
+}

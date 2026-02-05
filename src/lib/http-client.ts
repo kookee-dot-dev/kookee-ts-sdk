@@ -2,6 +2,7 @@ import type { ApiError } from './types';
 
 const DEFAULT_BASE_URL = 'https://api.kookee.dev';
 const API_KEY_HEADER = 'Kookee-API-Key';
+const PROJECT_ID_HEADER = 'Kookee-Project-Id';
 
 export class KookeeApiError extends Error {
   constructor(
@@ -11,23 +12,32 @@ export class KookeeApiError extends Error {
   ) {
     super(message);
     this.name = 'KookeeApiError';
+    Object.setPrototypeOf(this, KookeeApiError.prototype);
   }
 }
 
 export class HttpClient {
   private readonly baseUrl: string;
-  private readonly apiKey: string;
+  private readonly apiKey?: string;
+  private readonly projectId?: string;
 
-  constructor(apiKey: string, baseUrl?: string) {
-    this.apiKey = apiKey;
-    this.baseUrl = baseUrl ?? DEFAULT_BASE_URL;
+  constructor(options: { apiKey?: string; projectId?: string; baseUrl?: string }) {
+    this.apiKey = options.apiKey;
+    this.projectId = options.projectId;
+    this.baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   }
 
   private getHeaders(): Record<string, string> {
-    return {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      [API_KEY_HEADER]: this.apiKey,
     };
+    if (this.apiKey) {
+      headers[API_KEY_HEADER] = this.apiKey;
+    }
+    if (this.projectId) {
+      headers[PROJECT_ID_HEADER] = this.projectId;
+    }
+    return headers;
   }
 
   async get<T>(path: string, params?: object): Promise<T> {
