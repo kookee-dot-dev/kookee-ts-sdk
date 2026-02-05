@@ -104,7 +104,7 @@ export interface HelpArticleListItem {
   excerptHtml: string | null;
   status: string;
   position: number;
-  metadata: Record<string, unknown>;
+  metadata: Record<string, NonNullable<unknown>>;
   category: { name: string; slug: string };
   author: HelpArticleAuthor;
   createdAt: string;
@@ -247,7 +247,7 @@ export interface HelpChatSource {
   slug: string;
   title: string;
   visibility: HelpArticleVisibility;
-  metadata: Record<string, unknown> | null;
+  metadata: Record<string, NonNullable<unknown>> | null;
   category: HelpChatSourceCategory;
 }
 
