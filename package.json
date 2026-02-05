@@ -40,6 +40,9 @@
     "url": "https://github.com/kookee-dot-dev/kookee-ts-sdk"
   },
   "homepage": "https://kookee.dev",
+  "sideEffects": [
+    "./styles/code.css"
+  ],
   "devDependencies": {
     "@types/node": "^22.10.2",
     "eslint": "^9.17.0",
