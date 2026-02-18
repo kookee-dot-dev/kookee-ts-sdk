@@ -75,6 +75,16 @@ export class HttpClient {
     return this.handleResponse<T>(response);
   }
 
+  async delete<T>(path: string, body?: unknown): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    return this.handleResponse<T>(response);
+  }
+
   async *streamPost<T>(path: string, body?: unknown): AsyncIterable<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'POST',

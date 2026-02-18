@@ -359,3 +359,21 @@ export interface CreatedFeedbackComment {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ListMyFeedbackPostsParams {
+  externalId: string;
+  page?: number;
+  limit?: number;
+  status?: FeedbackPostStatus;
+  category?: FeedbackPostCategory;
+  search?: string;
+  sort?: FeedbackSortOption;
+}
+
+export interface DeleteFeedbackPostParams {
+  externalId: string;
+}
+
+export interface DeleteFeedbackPostResponse {
+  success: boolean;
+}

@@ -4,6 +4,8 @@ import type {
   CreateFeedbackPostParams,
   CreatedFeedbackComment,
   CreatedFeedbackPost,
+  DeleteFeedbackPostParams,
+  DeleteFeedbackPostResponse,
   FeedbackPost,
   FeedbackPostCategory,
   FeedbackPostListItem,
@@ -11,6 +13,7 @@ import type {
   FeedbackSortOption,
   FeedbackTopContributor,
   FeedbackVoteResponse,
+  ListMyFeedbackPostsParams,
   PaginatedResponse,
   PaginationParams,
 } from '../types';
@@ -58,5 +61,13 @@ export class FeedbackModule {
 
   async createComment(postId: string, params: CreateFeedbackCommentParams): Promise<CreatedFeedbackComment> {
     return this.http.post<CreatedFeedbackComment>(`/v1/feedback/${encodeURIComponent(postId)}/comments`, params);
+  }
+
+  async listMyPosts(params: ListMyFeedbackPostsParams): Promise<PaginatedResponse<FeedbackPostListItem>> {
+    return this.http.get<PaginatedResponse<FeedbackPostListItem>>('/v1/feedback/mine', params);
+  }
+
+  async deletePost(postId: string, params: DeleteFeedbackPostParams): Promise<DeleteFeedbackPostResponse> {
+    return this.http.delete<DeleteFeedbackPostResponse>(`/v1/feedback/${encodeURIComponent(postId)}`, params);
   }
 }
