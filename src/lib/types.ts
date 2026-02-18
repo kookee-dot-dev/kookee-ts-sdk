@@ -270,6 +270,7 @@ export interface FeedbackAuthor {
   name: string;
   image: string | null;
   isTeamMember?: boolean;
+  externalId?: string | null;
 }
 
 export interface FeedbackAssignee {
