@@ -1,5 +1,9 @@
 import type { HttpClient } from '../http-client';
 import type {
+  CreateFeedbackCommentParams,
+  CreateFeedbackPostParams,
+  CreatedFeedbackComment,
+  CreatedFeedbackPost,
   FeedbackPost,
   FeedbackPostCategory,
   FeedbackPostListItem,
@@ -46,5 +50,13 @@ export class FeedbackModule {
 
   async getTopContributors(params?: FeedbackTopContributorsParams): Promise<FeedbackTopContributor[]> {
     return this.http.get<FeedbackTopContributor[]>('/v1/feedback/top-contributors', params);
+  }
+
+  async createPost(params: CreateFeedbackPostParams): Promise<CreatedFeedbackPost> {
+    return this.http.post<CreatedFeedbackPost>('/v1/feedback', params);
+  }
+
+  async createComment(postId: string, params: CreateFeedbackCommentParams): Promise<CreatedFeedbackComment> {
+    return this.http.post<CreatedFeedbackComment>(`/v1/feedback/${encodeURIComponent(postId)}/comments`, params);
   }
 }

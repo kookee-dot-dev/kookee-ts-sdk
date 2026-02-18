@@ -315,3 +315,46 @@ export interface FeedbackTopContributor {
 export interface FeedbackVoteResponse {
   voteCount: number;
 }
+
+// External User Types
+
+export interface ExternalUser {
+  externalId: string;
+  name: string;
+  email?: string;
+  avatarUrl?: string;
+}
+
+export interface CreateFeedbackPostParams {
+  title: string;
+  description?: string;
+  category?: FeedbackPostCategory;
+  externalUser: ExternalUser;
+}
+
+export interface CreateFeedbackCommentParams {
+  content: string;
+  externalUser: ExternalUser;
+}
+
+export interface CreatedFeedbackPost {
+  id: string;
+  title: string;
+  contentHtml: string | null;
+  contentText: string | null;
+  status: FeedbackPostStatus;
+  category: FeedbackPostCategory;
+  voteCount: number;
+  commentCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatedFeedbackComment {
+  id: string;
+  postId: string;
+  content: string;
+  isOfficial: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
