@@ -377,3 +377,11 @@ export interface DeleteFeedbackPostParams {
 export interface DeleteFeedbackPostResponse {
   success: boolean;
 }
+
+export interface DeleteFeedbackCommentParams {
+  externalId: string;
+}
+
+export interface DeleteFeedbackCommentResponse {
+  success: boolean;
+}

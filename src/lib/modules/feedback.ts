@@ -4,6 +4,8 @@ import type {
   CreateFeedbackPostParams,
   CreatedFeedbackComment,
   CreatedFeedbackPost,
+  DeleteFeedbackCommentParams,
+  DeleteFeedbackCommentResponse,
   DeleteFeedbackPostParams,
   DeleteFeedbackPostResponse,
   FeedbackPost,
@@ -69,5 +71,12 @@ export class FeedbackModule {
 
   async deletePost(postId: string, params: DeleteFeedbackPostParams): Promise<DeleteFeedbackPostResponse> {
     return this.http.delete<DeleteFeedbackPostResponse>(`/v1/feedback/${encodeURIComponent(postId)}`, params);
+  }
+
+  async deleteComment(commentId: string, params: DeleteFeedbackCommentParams): Promise<DeleteFeedbackCommentResponse> {
+    return this.http.delete<DeleteFeedbackCommentResponse>(
+      `/v1/feedback/comments/${encodeURIComponent(commentId)}`,
+      params,
+    );
   }
 }
