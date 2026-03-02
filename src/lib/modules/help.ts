@@ -1,8 +1,8 @@
 import type { HttpClient } from '../http-client';
 import type {
-  HelpArticle,
-  HelpArticleListItem,
-  HelpCategory,
+  EntryCategory,
+  EntryComment,
+  HelpArticleEntry,
   HelpChatParams,
   HelpChatResponse,
   HelpChatStreamChunk,
@@ -12,6 +12,7 @@ import type {
   PaginationParams,
   VoteUsefulnessResponse,
 } from '../types';
+import type { EntriesModule } from './entries';
 
 export interface HelpCategoriesParams extends LocaleOptions {}
 
@@ -29,39 +30,47 @@ export interface HelpGetBySlugParams extends LocaleOptions {}
 
 export interface HelpGetByIdParams extends LocaleOptions {}
 
+export interface HelpGetCommentsParams extends PaginationParams {}
+
 export class HelpModule {
-  constructor(private readonly http: HttpClient) {}
+  private readonly http: HttpClient;
+  private readonly entries: EntriesModule;
 
-  async categories(params?: HelpCategoriesParams): Promise<HelpCategory[]> {
-    return this.http.get<HelpCategory[]>('/v1/help/categories', params);
+  constructor(http: HttpClient, entries: EntriesModule) {
+    this.http = http;
+    this.entries = entries;
   }
 
-  async list(params?: HelpListParams): Promise<PaginatedResponse<HelpArticleListItem>> {
-    return this.http.get<PaginatedResponse<HelpArticleListItem>>('/v1/help/articles', params);
+  async categories(params?: HelpCategoriesParams): Promise<EntryCategory[]> {
+    return this.entries.getCategories('help_article', params);
   }
 
-  async getBySlug(slug: string, params?: HelpGetBySlugParams): Promise<HelpArticle> {
-    return this.http.get<HelpArticle>(`/v1/help/articles/${encodeURIComponent(slug)}`, params);
+  async list(params?: HelpListParams): Promise<PaginatedResponse<HelpArticleEntry>> {
+    return this.entries.list({ type: 'help_article', ...params }) as Promise<PaginatedResponse<HelpArticleEntry>>;
   }
 
-  async getById(id: string, params?: HelpGetByIdParams): Promise<HelpArticle> {
-    return this.http.get<HelpArticle>(`/v1/help/articles/by-id/${encodeURIComponent(id)}`, params);
+  async getBySlug(slug: string, params?: HelpGetBySlugParams): Promise<HelpArticleEntry> {
+    return this.entries.getBySlug(slug, { type: 'help_article', ...params }) as Promise<HelpArticleEntry>;
+  }
+
+  async getById(id: string, params?: HelpGetByIdParams): Promise<HelpArticleEntry> {
+    return this.entries.getById(id, params) as Promise<HelpArticleEntry>;
   }
 
   async search(params: HelpSearchParams): Promise<HelpSearchResult[]> {
     return this.http.get<HelpSearchResult[]>('/v1/help/search', params);
   }
 
-  async getTranslationsById(articleId: string): Promise<Record<string, HelpArticle>> {
-    return this.http.get<Record<string, HelpArticle>>(
-      `/v1/help/articles/by-id/${encodeURIComponent(articleId)}/translations`
-    );
+  async getTranslationsById(articleId: string): Promise<Record<string, HelpArticleEntry>> {
+    return this.entries.getTranslationsById(articleId) as Promise<Record<string, HelpArticleEntry>>;
   }
 
-  async getTranslationsBySlug(slug: string): Promise<Record<string, HelpArticle>> {
-    return this.http.get<Record<string, HelpArticle>>(
-      `/v1/help/articles/${encodeURIComponent(slug)}/translations`
-    );
+  async getTranslationsBySlug(slug: string): Promise<Record<string, HelpArticleEntry>> {
+    return this.entries.getTranslationsBySlug(slug) as Promise<Record<string, HelpArticleEntry>>;
+  }
+
+  async getComments(entryId: string, params?: HelpGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
+    return this.entries.getComments(entryId, params);
   }
 
   async chat(params: HelpChatParams): Promise<HelpChatResponse> {

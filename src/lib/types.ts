@@ -23,173 +23,9 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
-export interface BlogTag {
-  name: string;
-  slug: string;
-}
-
-export interface BlogTagWithCount extends BlogTag {
-  count: number;
-}
-
-export interface BlogPostAuthor {
-  name: string;
-}
-
-export type BlogPostStatus = 'draft' | 'published' | 'archived';
-
-export interface BlogPostListItem {
-  id: string;
-  slug: string;
-  title: string;
-  excerptHtml: string | null;
-  coverImageUrl: string | null;
-  status: BlogPostStatus;
-  publishedAt: string | null;
-  metadata: Record<string, NonNullable<unknown>> | null;
-  createdAt: string;
-  views: number;
-  author: BlogPostAuthor;
-  tags: BlogTag[];
-  locale: string;
-  translationGroupId: string;
-  reactions: Record<string, number>;
-}
-
-export interface BlogPost extends BlogPostListItem {
-  contentHtml: string;
-  metaTitle: string | null;
-  metaDescription: string | null;
-  updatedAt: string;
-}
-
 export interface ApiError {
   code: string;
   message: string;
-}
-
-export interface PageListItem {
-  id: string;
-  slug: string;
-  title: string;
-  views: number;
-  createdAt: string;
-  updatedAt: string;
-  locale: string;
-  translationGroupId: string;
-}
-
-export interface Page extends PageListItem {
-  contentHtml: string;
-  metaTitle: string | null;
-  metaDescription: string | null;
-}
-
-export interface HelpCategory {
-  slug: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  articleCount: number;
-}
-
-export interface HelpArticleAuthor {
-  name: string;
-}
-
-export interface HelpArticleListItem {
-  id: string;
-  slug: string;
-  title: string;
-  excerptHtml: string | null;
-  status: string;
-  position: number;
-  metadata: Record<string, NonNullable<unknown>>;
-  category: { name: string; slug: string };
-  author: HelpArticleAuthor;
-  createdAt: string;
-  views: number;
-  locale: string;
-  translationGroupId: string;
-  usefulYesCount: number;
-  usefulNoCount: number;
-}
-
-export interface HelpArticle extends HelpArticleListItem {
-  contentHtml: string;
-  metaTitle: string | null;
-  metaDescription: string | null;
-  updatedAt: string;
-}
-
-export interface HelpSearchResult {
-  id: string;
-  slug: string;
-  title: string;
-  excerptHtml: string | null;
-  category: { name: string; slug: string };
-  locale: string;
-  matchedChunk?: string;
-  usefulYesCount: number;
-  usefulNoCount: number;
-}
-
-export type ChangelogType = 'feature' | 'fix' | 'improvement' | 'breaking' | 'security' | 'deprecated' | 'other';
-
-export type ChangelogOrderBy = 'createdAt' | 'publishedAt' | 'version';
-
-export type OrderDirection = 'asc' | 'desc';
-
-export interface ChangelogAuthor {
-  name: string;
-}
-
-export interface ChangelogEntryListItem {
-  id: string;
-  slug: string;
-  title: string;
-  contentHtml: string;
-  type: ChangelogType;
-  version: string | null;
-  publishedAt: string | null;
-  createdAt: string;
-  locale: string;
-  translationGroupId: string;
-  metadata: Record<string, NonNullable<unknown>> | null;
-  author: ChangelogAuthor;
-  reactions: Record<string, number>;
-}
-
-export interface ChangelogEntry extends ChangelogEntryListItem {
-  contentHtml: string;
-  link: string | null;
-  updatedAt: string;
-}
-
-export type AnnouncementType = 'info' | 'warning' | 'critical' | 'promotion' | 'maintenance' | 'newFeature';
-
-export type AnnouncementOrderBy = 'createdAt' | 'publishedAt';
-
-export interface AnnouncementAuthor {
-  name: string;
-}
-
-export interface AnnouncementListItem {
-  id: string;
-  title: string;
-  contentHtml: string;
-  type: AnnouncementType;
-  publishedAt: string | null;
-  unpublishAt: string | null;
-  createdAt: string;
-  locale: string;
-  translationGroupId: string;
-  metadata: Record<string, NonNullable<unknown>> | null;
-  author: AnnouncementAuthor;
-}
-
-export interface Announcement extends AnnouncementListItem {
-  updatedAt: string;
 }
 
 export interface PublicConfig {
@@ -203,11 +39,6 @@ export interface HealthCheckResponse {
   timestamp: string;
 }
 
-export interface VoteUsefulnessResponse {
-  usefulYesCount: number;
-  usefulNoCount: number;
-}
-
 export type ReactionType = 'fire' | 'heart' | 'rocket' | 'eyes' | 'mindblown';
 
 export interface ReactParams {
@@ -218,6 +49,17 @@ export interface ReactParams {
 export interface ReactResponse {
   reactions: Record<string, number>;
 }
+
+export interface VoteUsefulnessResponse {
+  usefulYesCount: number;
+  usefulNoCount: number;
+}
+
+export type OrderDirection = 'asc' | 'desc';
+
+// =====================
+// Help Chat Types
+// =====================
 
 export interface HelpChatMessage {
   role: 'user' | 'assistant';
@@ -257,7 +99,21 @@ export type HelpChatStreamChunk =
   | { type: 'done' }
   | { type: 'error'; message: string };
 
+export interface HelpSearchResult {
+  id: string;
+  slug: string;
+  title: string;
+  excerptHtml: string | null;
+  category: { name: string; slug: string };
+  locale: string;
+  matchedChunk?: string;
+  usefulYesCount: number;
+  usefulNoCount: number;
+}
+
+// =====================
 // Feedback Types
+// =====================
 
 export type FeedbackPostStatus = 'open' | 'under_review' | 'planned' | 'in_progress' | 'completed' | 'declined';
 
@@ -316,8 +172,6 @@ export interface FeedbackTopContributor {
 export interface FeedbackVoteResponse {
   voteCount: number;
 }
-
-// External User Types
 
 export interface ExternalUser {
   externalId: string;
@@ -385,3 +239,139 @@ export interface DeleteFeedbackCommentParams {
 export interface DeleteFeedbackCommentResponse {
   success: boolean;
 }
+
+// =====================
+// Unified Entry Types
+// =====================
+
+export type EntryType = 'blog' | 'page' | 'help_article' | 'changelog' | 'announcement';
+
+export type EntryStatus = 'draft' | 'published' | 'archived';
+
+export type ChangelogType = 'feature' | 'fix' | 'improvement' | 'breaking' | 'security' | 'deprecated' | 'other';
+
+export type AnnouncementType = 'info' | 'warning' | 'critical' | 'promotion' | 'maintenance' | 'newFeature';
+
+export interface EntryAuthor {
+  name: string;
+}
+
+export interface EntryTag {
+  name: string;
+  slug: string;
+}
+
+export interface EntryTagWithCount extends EntryTag {
+  count: number;
+}
+
+export interface EntryCategory {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  articleCount: number;
+}
+
+export interface EntryComment {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  author: EntryAuthor;
+}
+
+export interface BaseEntry {
+  id: string;
+  type: string;
+  slug: string | null;
+  title: string;
+  excerptHtml: string | null;
+  contentHtml: string;
+  status: EntryStatus;
+  publishedAt: string | null;
+  locale: string;
+  translationGroupId: string;
+  categoryId: string | null;
+  coverImageUrl: string | null;
+  position: number;
+  views: number;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  metadata: Record<string, NonNullable<unknown>> | null;
+  createdAt: string;
+  updatedAt: string;
+  author: EntryAuthor;
+  tags: EntryTag[];
+  reactions: Record<string, number>;
+  category: { name: string; slug: string } | null;
+}
+
+export interface BlogTypeSpecific {
+  _type: 'blog';
+}
+
+export interface PageTypeSpecific {
+  _type: 'page';
+}
+
+export interface HelpArticleTypeSpecific {
+  _type: 'help_article';
+  visibility: HelpArticleVisibility;
+  usefulYesCount: number;
+  usefulNoCount: number;
+}
+
+export interface ChangelogTypeSpecific {
+  _type: 'changelog';
+  changelogType: ChangelogType;
+  version: string | null;
+  link: string | null;
+}
+
+export interface AnnouncementTypeSpecific {
+  _type: 'announcement';
+  announcementType: AnnouncementType;
+  unpublishAt: string | null;
+}
+
+export type TypeSpecific =
+  | BlogTypeSpecific
+  | PageTypeSpecific
+  | HelpArticleTypeSpecific
+  | ChangelogTypeSpecific
+  | AnnouncementTypeSpecific;
+
+export interface GenericEntry extends BaseEntry {
+  typeSpecific: unknown;
+}
+
+export interface BlogEntry extends BaseEntry {
+  type: 'blog';
+  typeSpecific: BlogTypeSpecific;
+}
+
+export interface PageEntry extends BaseEntry {
+  type: 'page';
+  typeSpecific: PageTypeSpecific;
+}
+
+export interface HelpArticleEntry extends BaseEntry {
+  type: 'help_article';
+  typeSpecific: HelpArticleTypeSpecific;
+}
+
+export interface ChangelogEntry extends BaseEntry {
+  type: 'changelog';
+  typeSpecific: ChangelogTypeSpecific;
+}
+
+export interface AnnouncementEntry extends BaseEntry {
+  type: 'announcement';
+  typeSpecific: AnnouncementTypeSpecific;
+}
+
+export type TypedEntry = BlogEntry | PageEntry | HelpArticleEntry | ChangelogEntry | AnnouncementEntry;
+
+export type AnyEntry = TypedEntry | GenericEntry;

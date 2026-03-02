@@ -1,5 +1,11 @@
-import type { HttpClient } from '../http-client';
-import type { LocaleOptions, Page, PageListItem, PaginatedResponse, PaginationParams } from '../types';
+import type {
+  EntryComment,
+  LocaleOptions,
+  PageEntry,
+  PaginatedResponse,
+  PaginationParams,
+} from '../types';
+import type { EntriesModule } from './entries';
 
 export interface PagesListParams extends PaginationParams, LocaleOptions {
   search?: string;
@@ -9,30 +15,32 @@ export interface PagesGetBySlugParams extends LocaleOptions {}
 
 export interface PagesGetByIdParams extends LocaleOptions {}
 
+export interface PagesGetCommentsParams extends PaginationParams {}
+
 export class PagesModule {
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly entries: EntriesModule) {}
 
-  async list(params?: PagesListParams): Promise<PaginatedResponse<PageListItem>> {
-    return this.http.get<PaginatedResponse<PageListItem>>('/v1/pages', params);
+  async list(params?: PagesListParams): Promise<PaginatedResponse<PageEntry>> {
+    return this.entries.list({ type: 'page', ...params }) as Promise<PaginatedResponse<PageEntry>>;
   }
 
-  async getBySlug(slug: string, params?: PagesGetBySlugParams): Promise<Page> {
-    return this.http.get<Page>(`/v1/pages/${encodeURIComponent(slug)}`, params);
+  async getBySlug(slug: string, params?: PagesGetBySlugParams): Promise<PageEntry> {
+    return this.entries.getBySlug(slug, { type: 'page', ...params }) as Promise<PageEntry>;
   }
 
-  async getById(id: string, params?: PagesGetByIdParams): Promise<Page> {
-    return this.http.get<Page>(`/v1/pages/by-id/${encodeURIComponent(id)}`, params);
+  async getById(id: string, params?: PagesGetByIdParams): Promise<PageEntry> {
+    return this.entries.getById(id, params) as Promise<PageEntry>;
   }
 
-  async getTranslationsById(pageId: string): Promise<Record<string, Page>> {
-    return this.http.get<Record<string, Page>>(
-      `/v1/pages/by-id/${encodeURIComponent(pageId)}/translations`
-    );
+  async getTranslationsById(pageId: string): Promise<Record<string, PageEntry>> {
+    return this.entries.getTranslationsById(pageId) as Promise<Record<string, PageEntry>>;
   }
 
-  async getTranslationsBySlug(slug: string): Promise<Record<string, Page>> {
-    return this.http.get<Record<string, Page>>(
-      `/v1/pages/${encodeURIComponent(slug)}/translations`
-    );
+  async getTranslationsBySlug(slug: string): Promise<Record<string, PageEntry>> {
+    return this.entries.getTranslationsBySlug(slug) as Promise<Record<string, PageEntry>>;
+  }
+
+  async getComments(entryId: string, params?: PagesGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
+    return this.entries.getComments(entryId, params);
   }
 }

@@ -3,6 +3,7 @@ import { AnnouncementModule } from './modules/announcement';
 import { BlogModule } from './modules/blog';
 import { ChangelogModule } from './modules/changelog';
 import { ConfigModule } from './modules/config';
+import { EntriesModule } from './modules/entries';
 import { FeedbackModule } from './modules/feedback';
 import { HelpModule } from './modules/help';
 import { PagesModule } from './modules/pages';
@@ -10,6 +11,8 @@ import type { KookeeConfig, HealthCheckResponse } from './types';
 
 export class Kookee {
   private readonly http: HttpClient;
+
+  public readonly entries: EntriesModule;
 
   public readonly announcements: AnnouncementModule;
   public readonly blog: BlogModule;
@@ -26,13 +29,15 @@ export class Kookee {
 
     this.http = new HttpClient({ apiKey: config.apiKey, projectId: config.projectId, baseUrl: config.baseUrl });
 
-    this.announcements = new AnnouncementModule(this.http);
-    this.blog = new BlogModule(this.http);
-    this.changelog = new ChangelogModule(this.http);
+    this.entries = new EntriesModule(this.http);
+
+    this.announcements = new AnnouncementModule(this.entries);
+    this.blog = new BlogModule(this.entries);
+    this.changelog = new ChangelogModule(this.entries);
     this.config = new ConfigModule(this.http);
     this.feedback = new FeedbackModule(this.http);
-    this.help = new HelpModule(this.http);
-    this.pages = new PagesModule(this.http);
+    this.help = new HelpModule(this.http, this.entries);
+    this.pages = new PagesModule(this.entries);
   }
 
   async health(): Promise<HealthCheckResponse> {

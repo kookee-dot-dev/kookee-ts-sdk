@@ -1,58 +1,52 @@
-import type { HttpClient } from '../http-client';
 import type {
   ChangelogEntry,
-  ChangelogEntryListItem,
-  ChangelogOrderBy,
+  EntryComment,
   LocaleOptions,
-  OrderDirection,
   PaginatedResponse,
   PaginationParams,
   ReactParams,
   ReactResponse,
 } from '../types';
+import type { EntriesModule } from './entries';
 
 export interface ChangelogListParams extends PaginationParams, LocaleOptions {
-  type?: string;
   search?: string;
-  orderBy?: ChangelogOrderBy;
-  order?: OrderDirection;
 }
 
 export interface ChangelogGetBySlugParams extends LocaleOptions {}
 
 export interface ChangelogGetByIdParams extends LocaleOptions {}
 
-export class ChangelogModule {
-  constructor(private readonly http: HttpClient) {}
+export interface ChangelogGetCommentsParams extends PaginationParams {}
 
-  async list(params?: ChangelogListParams): Promise<PaginatedResponse<ChangelogEntryListItem>> {
-    return this.http.get<PaginatedResponse<ChangelogEntryListItem>>('/v1/changelog', params);
+export class ChangelogModule {
+  constructor(private readonly entries: EntriesModule) {}
+
+  async list(params?: ChangelogListParams): Promise<PaginatedResponse<ChangelogEntry>> {
+    return this.entries.list({ type: 'changelog', ...params }) as Promise<PaginatedResponse<ChangelogEntry>>;
   }
 
   async getBySlug(slug: string, params?: ChangelogGetBySlugParams): Promise<ChangelogEntry> {
-    return this.http.get<ChangelogEntry>(`/v1/changelog/${encodeURIComponent(slug)}`, params);
+    return this.entries.getBySlug(slug, { type: 'changelog', ...params }) as Promise<ChangelogEntry>;
   }
 
   async getById(id: string, params?: ChangelogGetByIdParams): Promise<ChangelogEntry> {
-    return this.http.get<ChangelogEntry>(`/v1/changelog/by-id/${encodeURIComponent(id)}`, params);
+    return this.entries.getById(id, params) as Promise<ChangelogEntry>;
   }
 
   async getTranslationsById(id: string): Promise<Record<string, ChangelogEntry>> {
-    return this.http.get<Record<string, ChangelogEntry>>(
-      `/v1/changelog/by-id/${encodeURIComponent(id)}/translations`
-    );
+    return this.entries.getTranslationsById(id) as Promise<Record<string, ChangelogEntry>>;
   }
 
   async getTranslationsBySlug(slug: string): Promise<Record<string, ChangelogEntry>> {
-    return this.http.get<Record<string, ChangelogEntry>>(
-      `/v1/changelog/${encodeURIComponent(slug)}/translations`
-    );
+    return this.entries.getTranslationsBySlug(slug) as Promise<Record<string, ChangelogEntry>>;
+  }
+
+  async getComments(entryId: string, params?: ChangelogGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
+    return this.entries.getComments(entryId, params);
   }
 
   async react(changelogId: string, params: ReactParams): Promise<ReactResponse> {
-    return this.http.post<ReactResponse>(
-      `/v1/changelog/${encodeURIComponent(changelogId)}/reactions`,
-      params
-    );
+    return this.entries.react(changelogId, params);
   }
 }

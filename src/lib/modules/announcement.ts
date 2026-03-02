@@ -1,40 +1,34 @@
-import type { HttpClient } from '../http-client';
 import type {
-  Announcement,
-  AnnouncementListItem,
-  AnnouncementOrderBy,
-  AnnouncementType,
+  AnnouncementEntry,
+  EntryComment,
   LocaleOptions,
-  OrderDirection,
   PaginatedResponse,
   PaginationParams,
 } from '../types';
+import type { EntriesModule } from './entries';
 
-export interface AnnouncementListParams extends PaginationParams, LocaleOptions {
-  type?: AnnouncementType;
-  excludeIds?: string[];
-  orderBy?: AnnouncementOrderBy;
-  order?: OrderDirection;
-}
+export interface AnnouncementListParams extends PaginationParams, LocaleOptions {}
 
 export interface AnnouncementGetByIdParams extends LocaleOptions {}
 
+export interface AnnouncementGetCommentsParams extends PaginationParams {}
+
 export class AnnouncementModule {
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly entries: EntriesModule) {}
 
-  async list(params?: AnnouncementListParams): Promise<PaginatedResponse<AnnouncementListItem>> {
-    const { excludeIds, ...rest } = params ?? {};
-    const queryParams = excludeIds?.length ? { ...rest, excludeIds: excludeIds.join(',') } : rest;
-    return this.http.get<PaginatedResponse<AnnouncementListItem>>('/v1/announcements', queryParams);
+  async list(params?: AnnouncementListParams): Promise<PaginatedResponse<AnnouncementEntry>> {
+    return this.entries.list({ type: 'announcement', ...params }) as Promise<PaginatedResponse<AnnouncementEntry>>;
   }
 
-  async getById(id: string, params?: AnnouncementGetByIdParams): Promise<Announcement> {
-    return this.http.get<Announcement>(`/v1/announcements/${encodeURIComponent(id)}`, params);
+  async getById(id: string, params?: AnnouncementGetByIdParams): Promise<AnnouncementEntry> {
+    return this.entries.getById(id, params) as Promise<AnnouncementEntry>;
   }
 
-  async getTranslationsById(id: string): Promise<Record<string, Announcement>> {
-    return this.http.get<Record<string, Announcement>>(
-      `/v1/announcements/${encodeURIComponent(id)}/translations`
-    );
+  async getTranslationsById(id: string): Promise<Record<string, AnnouncementEntry>> {
+    return this.entries.getTranslationsById(id) as Promise<Record<string, AnnouncementEntry>>;
+  }
+
+  async getComments(entryId: string, params?: AnnouncementGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
+    return this.entries.getComments(entryId, params);
   }
 }
