@@ -102,6 +102,9 @@ const postById = await kookee.blog.getById('post-uuid');
 // Get all tags with post counts
 const tags = await kookee.blog.getTags();
 
+// Get comments on a post
+const comments = await kookee.blog.getComments('post-id', { page: 1, limit: 20 });
+
 // React to a post
 await kookee.blog.react('post-id', { reactionType: 'heart', action: 'add' });
 
@@ -133,6 +136,12 @@ const articleById = await kookee.help.getById('article-uuid');
 const translationsBySlug = await kookee.help.getTranslationsBySlug('getting-started');
 const translationsById = await kookee.help.getTranslationsById('article-uuid');
 
+// Get comments on an article
+const comments = await kookee.help.getComments('article-id', { page: 1, limit: 20 });
+
+// React to an article
+await kookee.help.react('article-id', { reactionType: 'heart', action: 'add' });
+
 // AI-powered chat
 const response = await kookee.help.chat({
   messages: [{ role: 'user', content: 'How do I reset my password?' }],
@@ -146,15 +155,6 @@ for await (const chunk of kookee.help.chatStream({ messages })) {
   if (chunk.type === 'done') console.log('Stream finished');
   if (chunk.type === 'error') console.error(chunk.message);
 }
-
-// Vote on article usefulness
-await kookee.help.voteUsefulness('article-id', 'yes');
-
-// Change a previous vote
-await kookee.help.voteUsefulness('article-id', 'no', 'yes');
-
-// Remove a vote
-await kookee.help.voteUsefulness('article-id', null, 'yes');
 ```
 
 ## Changelog
@@ -163,14 +163,8 @@ await kookee.help.voteUsefulness('article-id', null, 'yes');
 // List entries
 const entries = await kookee.changelog.list({ page: 1, limit: 10 });
 
-// Filter by type: 'feature' | 'fix' | 'improvement' | 'breaking' | 'security' | 'deprecated' | 'other'
-const fixes = await kookee.changelog.list({ type: 'fix' });
-
 // Search entries
 const results = await kookee.changelog.list({ search: 'authentication' });
-
-// Order by version or date
-const sorted = await kookee.changelog.list({ orderBy: 'version', order: 'desc' });
 
 // Get single entry
 const entry = await kookee.changelog.getBySlug('v1-0-0');
@@ -179,6 +173,9 @@ const entryById = await kookee.changelog.getById('entry-uuid');
 // Get translations
 const translationsBySlug = await kookee.changelog.getTranslationsBySlug('v1-0-0');
 const translationsById = await kookee.changelog.getTranslationsById('entry-uuid');
+
+// Get comments on an entry
+const comments = await kookee.changelog.getComments('entry-id', { page: 1, limit: 20 });
 
 // React to an entry
 await kookee.changelog.react('entry-id', { reactionType: 'fire', action: 'add' });
@@ -190,20 +187,14 @@ await kookee.changelog.react('entry-id', { reactionType: 'fire', action: 'add' }
 // List announcements
 const announcements = await kookee.announcements.list({ page: 1, limit: 10 });
 
-// Filter by type: 'info' | 'warning' | 'critical' | 'promotion' | 'maintenance' | 'newFeature'
-const critical = await kookee.announcements.list({ type: 'critical' });
-
-// Order announcements
-const sorted = await kookee.announcements.list({ orderBy: 'publishedAt', order: 'desc' });
-
-// Exclude already-seen announcements
-const unseen = await kookee.announcements.list({ excludeIds: ['id1', 'id2'] });
-
 // Get single announcement
 const announcement = await kookee.announcements.getById('announcement-uuid');
 
 // Get translations
 const translations = await kookee.announcements.getTranslationsById('announcement-uuid');
+
+// Get comments on an announcement
+const comments = await kookee.announcements.getComments('announcement-id', { page: 1, limit: 20 });
 ```
 
 ## Pages
@@ -222,6 +213,37 @@ const pageById = await kookee.pages.getById('page-uuid');
 // Get translations
 const translationsBySlug = await kookee.pages.getTranslationsBySlug('privacy-policy');
 const translationsById = await kookee.pages.getTranslationsById('page-uuid');
+
+// Get comments on a page
+const comments = await kookee.pages.getComments('page-id', { page: 1, limit: 20 });
+```
+
+## Entries (Generic)
+
+The `entries` module provides low-level access to all entry types through a unified API:
+
+```typescript
+// List entries by type
+const blogPosts = await kookee.entries.list({ type: 'blog', page: 1, limit: 10 });
+const articles = await kookee.entries.list({ type: 'help_article', category: 'getting-started' });
+
+// Get entry by slug or ID
+const entry = await kookee.entries.getBySlug('my-post', { type: 'blog' });
+const entryById = await kookee.entries.getById('entry-uuid');
+
+// Get translations
+const translationsBySlug = await kookee.entries.getTranslationsBySlug('my-post');
+const translationsById = await kookee.entries.getTranslationsById('entry-uuid');
+
+// Get comments
+const comments = await kookee.entries.getComments('entry-id', { page: 1, limit: 20 });
+
+// React to any entry
+await kookee.entries.react('entry-id', { reactionType: 'heart', action: 'add' });
+
+// Get tags or categories for a type
+const tags = await kookee.entries.getTags('blog');
+const categories = await kookee.entries.getCategories('help_article');
 ```
 
 ## Feedback
@@ -310,7 +332,7 @@ const health = await kookee.health();
 
 ## Reactions
 
-Blog posts and changelog entries support reactions:
+Blog posts, help articles, and changelog entries support reactions:
 
 ```typescript
 // Available reaction types: 'fire' | 'heart' | 'rocket' | 'eyes' | 'mindblown'
@@ -336,7 +358,7 @@ Translation endpoints return a `Record<string, T>` keyed by locale code:
 
 ```typescript
 const translations = await kookee.blog.getTranslationsBySlug('hello-world');
-// { en: BlogPost, de: BlogPost, fr: BlogPost, ... }
+// { en: BlogEntry, de: BlogEntry, fr: BlogEntry, ... }
 ```
 
 ## Paginated Response
@@ -395,31 +417,76 @@ The SDK is written in TypeScript and provides full type definitions:
 
 ```typescript
 import type {
-  BlogPost,
-  BlogPostListItem,
-  BlogTag,
-  BlogTagWithCount,
-  Page,
-  PageListItem,
-  HelpArticle,
-  HelpArticleListItem,
-  HelpCategory,
-  HelpSearchResult,
-  HelpChatResponse,
-  HelpChatStreamChunk,
+  // Entry types
+  BaseEntry,
+  GenericEntry,
+  BlogEntry,
+  PageEntry,
+  HelpArticleEntry,
   ChangelogEntry,
-  ChangelogEntryListItem,
-  Announcement,
-  AnnouncementListItem,
+  AnnouncementEntry,
+  TypedEntry,
+  AnyEntry,
+  EntryType,
+  EntryStatus,
+  EntryAuthor,
+  EntryTag,
+  EntryTagWithCount,
+  EntryCategory,
+  EntryComment,
+
+  // Changelog & Announcement specific
+  ChangelogType,
+  AnnouncementType,
+
+  // Help Center
+  HelpSearchResult,
+  HelpArticleVisibility,
+  HelpChatMessage,
+  HelpChatParams,
+  HelpChatResponse,
+  HelpChatSource,
+  HelpChatSourceCategory,
+  HelpChatStreamChunk,
+
+  // Feedback
   FeedbackPost,
   FeedbackPostListItem,
+  FeedbackPostStatus,
+  FeedbackPostCategory,
+  FeedbackSortOption,
+  FeedbackAuthor,
+  FeedbackAssignee,
   FeedbackComment,
   FeedbackTopContributor,
+  FeedbackVoteResponse,
+  CreateFeedbackPostParams,
+  CreateFeedbackCommentParams,
+  CreatedFeedbackPost,
+  CreatedFeedbackComment,
+  ListMyFeedbackPostsParams,
+  DeleteFeedbackPostParams,
+  DeleteFeedbackPostResponse,
+  DeleteFeedbackCommentParams,
+  DeleteFeedbackCommentResponse,
+
+  // User & Identity
   KookeeUser,
   ExternalUser,
+
+  // Reactions
+  ReactionType,
+  ReactParams,
+  ReactResponse,
+
+  // Common
   PublicConfig,
   PaginatedResponse,
+  PaginationParams,
+  LocaleOptions,
+  OrderDirection,
   KookeeConfig,
+  HealthCheckResponse,
 } from '@kookee/sdk';
 ```
 
