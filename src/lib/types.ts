@@ -42,17 +42,12 @@ export interface HealthCheckResponse {
 export type ReactionType = 'fire' | 'heart' | 'rocket' | 'eyes' | 'mindblown';
 
 export interface ReactParams {
-  reactionType: ReactionType;
+  reactionType: string;
   action: 'add' | 'remove';
 }
 
 export interface ReactResponse {
   reactions: Record<string, number>;
-}
-
-export interface VoteUsefulnessResponse {
-  usefulYesCount: number;
-  usefulNoCount: number;
 }
 
 export type OrderDirection = 'asc' | 'desc';
@@ -107,8 +102,6 @@ export interface HelpSearchResult {
   category: { name: string; slug: string };
   locale: string;
   matchedChunk?: string;
-  usefulYesCount: number;
-  usefulNoCount: number;
 }
 
 // =====================
@@ -173,23 +166,26 @@ export interface FeedbackVoteResponse {
   voteCount: number;
 }
 
-export interface ExternalUser {
+export interface KookeeUser {
   externalId: string;
   name: string;
   email?: string;
   avatarUrl?: string;
+  [key: string]: unknown;
 }
+
+export type ExternalUser = KookeeUser;
 
 export interface CreateFeedbackPostParams {
   title: string;
   description?: string;
   category?: FeedbackPostCategory;
-  externalUser: ExternalUser;
+  externalUser?: ExternalUser;
 }
 
 export interface CreateFeedbackCommentParams {
   content: string;
-  externalUser: ExternalUser;
+  externalUser?: ExternalUser;
 }
 
 export interface CreatedFeedbackPost {
@@ -215,7 +211,7 @@ export interface CreatedFeedbackComment {
 }
 
 export interface ListMyFeedbackPostsParams {
-  externalId: string;
+  externalId?: string;
   page?: number;
   limit?: number;
   status?: FeedbackPostStatus;
@@ -225,7 +221,7 @@ export interface ListMyFeedbackPostsParams {
 }
 
 export interface DeleteFeedbackPostParams {
-  externalId: string;
+  externalId?: string;
 }
 
 export interface DeleteFeedbackPostResponse {
@@ -233,7 +229,7 @@ export interface DeleteFeedbackPostResponse {
 }
 
 export interface DeleteFeedbackCommentParams {
-  externalId: string;
+  externalId?: string;
 }
 
 export interface DeleteFeedbackCommentResponse {
@@ -319,8 +315,6 @@ export interface PageTypeSpecific {
 export interface HelpArticleTypeSpecific {
   _type: 'help_article';
   visibility: HelpArticleVisibility;
-  usefulYesCount: number;
-  usefulNoCount: number;
 }
 
 export interface ChangelogTypeSpecific {

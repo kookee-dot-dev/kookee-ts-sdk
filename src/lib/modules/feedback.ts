@@ -15,6 +15,7 @@ import type {
   FeedbackSortOption,
   FeedbackTopContributor,
   FeedbackVoteResponse,
+  KookeeUser,
   ListMyFeedbackPostsParams,
   PaginatedResponse,
   PaginationParams,
@@ -36,7 +37,10 @@ export interface FeedbackTopContributorsParams {
 }
 
 export class FeedbackModule {
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly getUserContext: () => KookeeUser | null,
+  ) {}
 
   async list(params?: FeedbackListParams): Promise<PaginatedResponse<FeedbackPostListItem>> {
     return this.http.get<PaginatedResponse<FeedbackPostListItem>>('/v1/feedback', params);
@@ -58,25 +62,51 @@ export class FeedbackModule {
   }
 
   async createPost(params: CreateFeedbackPostParams): Promise<CreatedFeedbackPost> {
-    return this.http.post<CreatedFeedbackPost>('/v1/feedback', params);
+    const externalUser = params.externalUser ?? this.getUserContext();
+    if (!externalUser) {
+      throw new Error('No user identified. Call kookee.identify() first or pass externalUser in params.');
+    }
+    return this.http.post<CreatedFeedbackPost>('/v1/feedback', { ...params, externalUser });
   }
 
   async createComment(postId: string, params: CreateFeedbackCommentParams): Promise<CreatedFeedbackComment> {
-    return this.http.post<CreatedFeedbackComment>(`/v1/feedback/${encodeURIComponent(postId)}/comments`, params);
+    const externalUser = params.externalUser ?? this.getUserContext();
+    if (!externalUser) {
+      throw new Error('No user identified. Call kookee.identify() first or pass externalUser in params.');
+    }
+    return this.http.post<CreatedFeedbackComment>(
+      `/v1/feedback/${encodeURIComponent(postId)}/comments`,
+      { ...params, externalUser },
+    );
   }
 
-  async listMyPosts(params: ListMyFeedbackPostsParams): Promise<PaginatedResponse<FeedbackPostListItem>> {
-    return this.http.get<PaginatedResponse<FeedbackPostListItem>>('/v1/feedback/mine', params);
+  async listMyPosts(params?: ListMyFeedbackPostsParams): Promise<PaginatedResponse<FeedbackPostListItem>> {
+    const externalId = params?.externalId ?? this.getUserContext()?.externalId;
+    if (!externalId) {
+      throw new Error('No user identified. Call kookee.identify() first or pass externalId in params.');
+    }
+    return this.http.get<PaginatedResponse<FeedbackPostListItem>>('/v1/feedback/mine', { ...params, externalId });
   }
 
-  async deletePost(postId: string, params: DeleteFeedbackPostParams): Promise<DeleteFeedbackPostResponse> {
-    return this.http.delete<DeleteFeedbackPostResponse>(`/v1/feedback/${encodeURIComponent(postId)}`, params);
+  async deletePost(postId: string, params?: DeleteFeedbackPostParams): Promise<DeleteFeedbackPostResponse> {
+    const externalId = params?.externalId ?? this.getUserContext()?.externalId;
+    if (!externalId) {
+      throw new Error('No user identified. Call kookee.identify() first or pass externalId in params.');
+    }
+    return this.http.delete<DeleteFeedbackPostResponse>(
+      `/v1/feedback/${encodeURIComponent(postId)}`,
+      { externalId },
+    );
   }
 
-  async deleteComment(commentId: string, params: DeleteFeedbackCommentParams): Promise<DeleteFeedbackCommentResponse> {
+  async deleteComment(commentId: string, params?: DeleteFeedbackCommentParams): Promise<DeleteFeedbackCommentResponse> {
+    const externalId = params?.externalId ?? this.getUserContext()?.externalId;
+    if (!externalId) {
+      throw new Error('No user identified. Call kookee.identify() first or pass externalId in params.');
+    }
     return this.http.delete<DeleteFeedbackCommentResponse>(
       `/v1/feedback/comments/${encodeURIComponent(commentId)}`,
-      params,
+      { externalId },
     );
   }
 }

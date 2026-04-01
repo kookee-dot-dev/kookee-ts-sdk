@@ -10,7 +10,8 @@ import type {
   LocaleOptions,
   PaginatedResponse,
   PaginationParams,
-  VoteUsefulnessResponse,
+  ReactParams,
+  ReactResponse,
 } from '../types';
 import type { EntriesModule } from './entries';
 
@@ -73,22 +74,15 @@ export class HelpModule {
     return this.entries.getComments(entryId, params);
   }
 
+  async react(articleId: string, params: ReactParams): Promise<ReactResponse> {
+    return this.entries.react(articleId, params);
+  }
+
   async chat(params: HelpChatParams): Promise<HelpChatResponse> {
     return this.http.post<HelpChatResponse>('/v1/help/chat', params);
   }
 
   chatStream(params: HelpChatParams): AsyncIterable<HelpChatStreamChunk> {
     return this.http.streamPost<HelpChatStreamChunk>('/v1/help/chat/stream', params);
-  }
-
-  async voteUsefulness(
-    articleId: string,
-    vote: 'yes' | 'no' | null,
-    previousVote?: 'yes' | 'no' | null,
-  ): Promise<VoteUsefulnessResponse> {
-    return this.http.post<VoteUsefulnessResponse>(
-      `/v1/help/articles/by-id/${encodeURIComponent(articleId)}/vote-usefulness`,
-      { vote, previousVote }
-    );
   }
 }

@@ -44,6 +44,43 @@ const kookee = new Kookee({
 });
 ```
 
+## User Identification
+
+Set user identity once and it's automatically used across all feedback operations:
+
+```typescript
+// Set user identity globally
+kookee.identify({
+  externalId: 'user-456',
+  name: 'Jane Doe',
+  email: 'jane@example.com',   // optional
+  avatarUrl: 'https://...',    // optional
+});
+
+// All feedback methods now auto-use the identified user
+await kookee.feedback.createPost({ title: 'Feature request', category: 'feature' });
+await kookee.feedback.createComment(postId, { content: 'Great idea!' });
+const myPosts = await kookee.feedback.listMyPosts();
+
+// Check current user
+const user = kookee.getUser(); // KookeeUser | null
+
+// Clear identity on logout
+kookee.reset();
+```
+
+### React usage
+
+```typescript
+useEffect(() => {
+  if (user) {
+    kookee.identify({ externalId: user.id, name: user.name, email: user.email });
+  } else {
+    kookee.reset();
+  }
+}, [user]);
+```
+
 ## Blog
 
 ```typescript
@@ -219,48 +256,39 @@ const contributors = await kookee.feedback.getTopContributors({ limit: 10 });
 
 ### Creating and managing feedback
 
-These operations require an `ExternalUser` to identify the author:
+These operations require user identification — either globally via `kookee.identify()` or per-call via `externalUser`/`externalId`:
 
 ```typescript
-import type { ExternalUser } from '@kookee/sdk';
+// With global identity (recommended — see User Identification section above)
+kookee.identify({ externalId: 'user-123', name: 'Jane Doe' });
 
-const user: ExternalUser = {
-  externalId: 'user-123',    // your system's user ID
-  name: 'Jane Doe',
-  email: 'jane@example.com', // optional
-  avatarUrl: 'https://...',  // optional
-};
-
-// Create a feedback post
 const newPost = await kookee.feedback.createPost({
   title: 'Add dark mode',
   description: 'It would be great to have a dark mode option.',
-  category: 'feature', // optional: 'feature' | 'improvement' | 'bug' | 'other'
-  externalUser: user,
+  category: 'feature',
 });
 
-// Add a comment to a post
 const comment = await kookee.feedback.createComment('post-id', {
   content: 'Great idea, I would love this too!',
-  externalUser: user,
 });
 
-// List posts created by a specific user
-const myPosts = await kookee.feedback.listMyPosts({
-  externalId: 'user-123',
-  page: 1,
-  limit: 10,
-  status: 'open',      // optional filter
-  category: 'feature',  // optional filter
-  search: 'dark mode',  // optional search
-  sort: 'newest',       // optional sort
+const myPosts = await kookee.feedback.listMyPosts();
+
+await kookee.feedback.deletePost('post-id');
+await kookee.feedback.deleteComment('comment-id');
+```
+
+Per-call override still works (takes precedence over global identity):
+
+```typescript
+const newPost = await kookee.feedback.createPost({
+  title: 'Add dark mode',
+  externalUser: { externalId: 'other-user', name: 'John' },
 });
 
-// Delete a post (only the author can delete)
-await kookee.feedback.deletePost('post-id', { externalId: 'user-123' });
-
-// Delete a comment (only the author can delete)
-await kookee.feedback.deleteComment('comment-id', { externalId: 'user-123' });
+const myPosts = await kookee.feedback.listMyPosts({ externalId: 'other-user' });
+await kookee.feedback.deletePost('post-id', { externalId: 'other-user' });
+await kookee.feedback.deleteComment('comment-id', { externalId: 'other-user' });
 ```
 
 ## Config
@@ -387,6 +415,7 @@ import type {
   FeedbackPostListItem,
   FeedbackComment,
   FeedbackTopContributor,
+  KookeeUser,
   ExternalUser,
   PublicConfig,
   PaginatedResponse,
