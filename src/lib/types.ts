@@ -108,7 +108,7 @@ export interface HelpSearchResult {
 // Feedback Types
 // =====================
 
-export type FeedbackPostStatus = 'open' | 'under_review' | 'planned' | 'in_progress' | 'completed' | 'declined';
+export type FeedbackColumnType = 'open' | 'closed';
 
 export type FeedbackPostCategory = 'feature' | 'improvement' | 'bug' | 'other';
 
@@ -141,7 +141,10 @@ export interface FeedbackPostListItem {
   id: string;
   title: string;
   contentText: string | null;
-  status: FeedbackPostStatus;
+  columnId: string | null;
+  columnName: string | null;
+  columnColor: string | null;
+  columnType: FeedbackColumnType | null;
   category: FeedbackPostCategory;
   voteCount: number;
   commentCount: number;
@@ -193,7 +196,7 @@ export interface CreatedFeedbackPost {
   title: string;
   contentHtml: string | null;
   contentText: string | null;
-  status: FeedbackPostStatus;
+  columnId: string | null;
   category: FeedbackPostCategory;
   voteCount: number;
   commentCount: number;
@@ -214,7 +217,8 @@ export interface ListMyFeedbackPostsParams {
   externalId?: string;
   page?: number;
   limit?: number;
-  status?: FeedbackPostStatus;
+  columnId?: string;
+  columnType?: FeedbackColumnType;
   category?: FeedbackPostCategory;
   search?: string;
   sort?: FeedbackSortOption;

@@ -254,8 +254,11 @@ const categories = await kookee.entries.getCategories('help_article');
 // List feedback posts
 const posts = await kookee.feedback.list({ page: 1, limit: 10 });
 
-// Filter by status: 'open' | 'under_review' | 'planned' | 'in_progress' | 'completed' | 'declined'
-const planned = await kookee.feedback.list({ status: 'planned' });
+// Filter by column type: 'open' | 'closed'
+const openPosts = await kookee.feedback.list({ columnType: 'open' });
+
+// Filter by specific column
+const planned = await kookee.feedback.list({ columnId: 'column-uuid' });
 
 // Filter by category: 'feature' | 'improvement' | 'bug' | 'other'
 const bugs = await kookee.feedback.list({ category: 'bug' });
@@ -452,7 +455,7 @@ import type {
   // Feedback
   FeedbackPost,
   FeedbackPostListItem,
-  FeedbackPostStatus,
+  FeedbackColumnType,
   FeedbackPostCategory,
   FeedbackSortOption,
   FeedbackAuthor,

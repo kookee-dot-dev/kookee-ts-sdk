@@ -11,7 +11,6 @@ import type {
   FeedbackPost,
   FeedbackPostCategory,
   FeedbackPostListItem,
-  FeedbackPostStatus,
   FeedbackSortOption,
   FeedbackTopContributor,
   FeedbackVoteResponse,
@@ -22,7 +21,8 @@ import type {
 } from '../types';
 
 export interface FeedbackListParams extends PaginationParams {
-  status?: FeedbackPostStatus;
+  columnId?: string;
+  columnType?: 'open' | 'closed';
   category?: FeedbackPostCategory;
   search?: string;
   sort?: FeedbackSortOption;
