@@ -8,6 +8,7 @@ import type {
   DeleteFeedbackCommentResponse,
   DeleteFeedbackPostParams,
   DeleteFeedbackPostResponse,
+  FeedbackKanbanColumn,
   FeedbackPost,
   FeedbackPostCategory,
   FeedbackPostListItem,
@@ -41,6 +42,10 @@ export class FeedbackModule {
     private readonly http: HttpClient,
     private readonly getUserContext: () => KookeeUser | null,
   ) {}
+
+  async getColumns(): Promise<FeedbackKanbanColumn[]> {
+    return this.http.get<FeedbackKanbanColumn[]>('/v1/feedback/columns');
+  }
 
   async list(params?: FeedbackListParams): Promise<PaginatedResponse<FeedbackPostListItem>> {
     return this.http.get<PaginatedResponse<FeedbackPostListItem>>('/v1/feedback', params);

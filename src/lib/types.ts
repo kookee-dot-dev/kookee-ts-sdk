@@ -110,6 +110,15 @@ export interface HelpSearchResult {
 
 export type FeedbackColumnType = 'open' | 'closed';
 
+export interface FeedbackKanbanColumn {
+  id: string;
+  name: string;
+  color: string | null;
+  position: number;
+  type: FeedbackColumnType;
+  isVisible: boolean;
+}
+
 export type FeedbackPostCategory = 'feature' | 'improvement' | 'bug' | 'other';
 
 export type FeedbackSortOption = 'newest' | 'top' | 'trending';

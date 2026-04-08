@@ -251,6 +251,9 @@ const categories = await kookee.entries.getCategories('help_article');
 ### Reading feedback
 
 ```typescript
+// Get kanban columns (for roadmap rendering)
+const columns = await kookee.feedback.getColumns();
+
 // List feedback posts
 const posts = await kookee.feedback.list({ page: 1, limit: 10 });
 
@@ -453,6 +456,7 @@ import type {
   HelpChatStreamChunk,
 
   // Feedback
+  FeedbackKanbanColumn,
   FeedbackPost,
   FeedbackPostListItem,
   FeedbackColumnType,
