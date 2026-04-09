@@ -34,7 +34,6 @@ export interface PublicConfig {
 
 export interface HealthCheckResponse {
   status: 'ok';
-  projectId: string;
   timestamp: string;
 }
 
@@ -83,7 +82,7 @@ export interface HelpChatSource {
   slug: string | null;
   title: string;
   visibility: string | null;
-  metadata: Record<string, NonNullable<unknown>> | null;
+  metadata: Record<string, unknown> | null;
   category: HelpChatSourceCategory | null;
 }
 
@@ -254,12 +253,15 @@ export type AnnouncementType = 'info' | 'warning' | 'critical' | 'promotion' | '
 /**
  * Author shape returned on public entry responses.
  *
- * NOTE: `name` and `image` can be `null` on the server side.
+ * NOTE: `name` and `image` can be `null` on the server side. `isTeamMember`
+ * is only populated on comment responses (where the server can tell whether
+ * the commenter is a project member) — it is not set on entry author fields.
  */
 export interface EntryAuthor {
   id: string;
   name: string | null;
   image: string | null;
+  isTeamMember?: boolean;
 }
 
 export interface EntryTag {
@@ -341,7 +343,7 @@ export interface BaseEntry {
   views: number;
   metaTitle: string | null;
   metaDescription: string | null;
-  metadata: Record<string, NonNullable<unknown>> | null;
+  metadata: Record<string, unknown> | null;
   reactions: Record<string, number>;
   createdAt: string;
   updatedAt: string;

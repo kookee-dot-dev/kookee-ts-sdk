@@ -4,7 +4,7 @@ Official TypeScript SDK for [Kookee](https://kookee.dev) - the headless CMS for 
 
 ## Features
 
-- **Lightweight** - Only ~6.41 KB KB minified (ESM), no bloat
+- **Lightweight** - Small minified footprint (ESM), no bloat
 - **Zero dependencies** - Uses native `fetch`, nothing else
 - **TypeScript-first** - Full type definitions out of the box
 - **Tree-shakeable** - Import only what you need
@@ -559,6 +559,7 @@ import type {
   ReactResponse,
 
   // Common
+  ApiError,
   PublicConfig,
   PaginatedResponse,
   PaginationParams,
@@ -566,6 +567,38 @@ import type {
   OrderDirection,
   KookeeConfig,
   HealthCheckResponse,
+
+  // Module request parameter shapes
+  EntriesListParams,
+  EntriesGetByIdParams,
+  EntriesGetBySlugParams,
+  EntriesGetCommentsParams,
+  EntriesGetCategoriesParams,
+  BlogListParams,
+  BlogGetBySlugParams,
+  BlogGetByIdParams,
+  BlogGetCommentsParams,
+  HelpCategoriesParams,
+  HelpListParams,
+  HelpSearchParams,
+  HelpGetBySlugParams,
+  HelpGetByIdParams,
+  HelpGetCommentsParams,
+  ChangelogListParams,
+  ChangelogGetBySlugParams,
+  ChangelogGetByIdParams,
+  ChangelogGetCommentsParams,
+  PagesListParams,
+  PagesGetBySlugParams,
+  PagesGetByIdParams,
+  PagesGetCommentsParams,
+  AnnouncementListParams,
+  AnnouncementGetByIdParams,
+  AnnouncementGetCommentsParams,
+  ConfigListParams,
+  FeedbackListParams,
+  FeedbackVoteParams,
+  FeedbackTopContributorsParams,
 } from '@kookee/sdk';
 ```
 
