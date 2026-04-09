@@ -82,7 +82,7 @@ export interface HelpChatSource {
   slug: string | null;
   title: string;
   visibility: string | null;
-  metadata: Record<string, unknown> | null;
+  metadata: Record<string, NonNullable<unknown>> | null;
   category: HelpChatSourceCategory | null;
 }
 
@@ -343,7 +343,7 @@ export interface BaseEntry {
   views: number;
   metaTitle: string | null;
   metaDescription: string | null;
-  metadata: Record<string, unknown> | null;
+  metadata: Record<string, NonNullable<unknown>> | null;
   reactions: Record<string, number>;
   createdAt: string;
   updatedAt: string;
