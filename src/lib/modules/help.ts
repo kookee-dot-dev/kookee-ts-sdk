@@ -2,7 +2,9 @@ import type { HttpClient } from '../http-client';
 import type {
   EntryCategory,
   EntryComment,
-  HelpArticleEntry,
+  EntryTranslationsMap,
+  HelpArticleDetail,
+  HelpArticleListItem,
   HelpChatParams,
   HelpChatResponse,
   HelpChatStreamChunk,
@@ -46,28 +48,30 @@ export class HelpModule {
     return this.entries.getCategories('help_article', params);
   }
 
-  async list(params?: HelpListParams): Promise<PaginatedResponse<HelpArticleEntry>> {
-    return this.entries.list({ type: 'help_article', ...params }) as Promise<PaginatedResponse<HelpArticleEntry>>;
+  async list(params?: HelpListParams): Promise<PaginatedResponse<HelpArticleListItem>> {
+    return this.entries.list({ type: 'help_article', ...params }) as unknown as Promise<
+      PaginatedResponse<HelpArticleListItem>
+    >;
   }
 
-  async getBySlug(slug: string, params?: HelpGetBySlugParams): Promise<HelpArticleEntry> {
-    return this.entries.getBySlug(slug, { type: 'help_article', ...params }) as Promise<HelpArticleEntry>;
+  async getBySlug(slug: string, params?: HelpGetBySlugParams): Promise<HelpArticleDetail> {
+    return this.entries.getBySlug(slug, { type: 'help_article', ...params }) as unknown as Promise<HelpArticleDetail>;
   }
 
-  async getById(id: string, params?: HelpGetByIdParams): Promise<HelpArticleEntry> {
-    return this.entries.getById(id, params) as Promise<HelpArticleEntry>;
+  async getById(id: string, params?: HelpGetByIdParams): Promise<HelpArticleDetail> {
+    return this.entries.getById(id, params) as unknown as Promise<HelpArticleDetail>;
   }
 
   async search(params: HelpSearchParams): Promise<HelpSearchResult[]> {
     return this.http.get<HelpSearchResult[]>('/v1/help/search', params);
   }
 
-  async getTranslationsById(articleId: string): Promise<Record<string, HelpArticleEntry>> {
-    return this.entries.getTranslationsById(articleId) as Promise<Record<string, HelpArticleEntry>>;
+  async getTranslationsById(articleId: string): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsById(articleId);
   }
 
-  async getTranslationsBySlug(slug: string): Promise<Record<string, HelpArticleEntry>> {
-    return this.entries.getTranslationsBySlug(slug) as Promise<Record<string, HelpArticleEntry>>;
+  async getTranslationsBySlug(slug: string): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsBySlug(slug);
   }
 
   async getComments(entryId: string, params?: HelpGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {

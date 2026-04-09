@@ -18,7 +18,6 @@ export interface PaginatedResponse<T> {
   data: T[];
   total: number;
   limit: number;
-  offset: number;
   page: number;
   totalPages: number;
 }
@@ -81,11 +80,11 @@ export interface HelpChatSourceCategory {
 
 export interface HelpChatSource {
   id: string;
-  slug: string;
+  slug: string | null;
   title: string;
-  visibility: HelpArticleVisibility;
+  visibility: string | null;
   metadata: Record<string, NonNullable<unknown>> | null;
-  category: HelpChatSourceCategory;
+  category: HelpChatSourceCategory | null;
 }
 
 export type HelpChatStreamChunk =
@@ -93,16 +92,6 @@ export type HelpChatStreamChunk =
   | { type: 'sources'; sources: HelpChatSource[] }
   | { type: 'done' }
   | { type: 'error'; message: string };
-
-export interface HelpSearchResult {
-  id: string;
-  slug: string;
-  title: string;
-  excerptHtml: string | null;
-  category: { name: string; slug: string };
-  locale: string;
-  matchedChunk?: string;
-}
 
 // =====================
 // Feedback Types
@@ -125,7 +114,7 @@ export type FeedbackSortOption = 'newest' | 'top' | 'trending';
 
 export interface FeedbackAuthor {
   id: string;
-  name: string;
+  name: string | null;
   image: string | null;
   isTeamMember?: boolean;
   externalId?: string | null;
@@ -154,6 +143,7 @@ export interface FeedbackPostListItem {
   columnName: string | null;
   columnColor: string | null;
   columnType: FeedbackColumnType | null;
+  kanbanPosition: number;
   category: FeedbackPostCategory;
   voteCount: number;
   commentCount: number;
@@ -169,7 +159,7 @@ export interface FeedbackPost extends FeedbackPostListItem {
 
 export interface FeedbackTopContributor {
   id: string;
-  name: string;
+  name: string | null;
   image: string | null;
   totalVotes: number;
 }
@@ -261,13 +251,22 @@ export type ChangelogType = 'feature' | 'fix' | 'improvement' | 'breaking' | 'se
 
 export type AnnouncementType = 'info' | 'warning' | 'critical' | 'promotion' | 'maintenance' | 'newFeature';
 
+/**
+ * Author shape returned on public entry responses.
+ *
+ * NOTE: `name` and `image` can be `null` on the server side.
+ */
 export interface EntryAuthor {
-  name: string;
+  id: string;
+  name: string | null;
+  image: string | null;
 }
 
 export interface EntryTag {
+  id: string;
   name: string;
   slug: string;
+  color: string | null;
 }
 
 export interface EntryTagWithCount extends EntryTag {
@@ -291,14 +290,33 @@ export interface EntryComment {
   author: EntryAuthor;
 }
 
+// =====================
+// Entry variants
+// =====================
+//
+// IMPORTANT: Public entry responses come in two flavours — list responses
+// (from e.g. `GET /v1/entries`, `GET /v1/help/search`) and detail responses
+// (from e.g. `GET /v1/entries/:slug`, `GET /v1/entries/by-id/:id`).
+//
+// The *only* difference is `contentHtml`: the server NEVER returns
+// `contentHtml` on list responses — only on detail responses. Reading
+// `entry.contentHtml` on a list item was the root cause of several crashes
+// in SDK <= 0.0.36, where the single `BaseEntry` shape lied about this.
+//
+// There is no nested `category` object on any public entry response —
+// the server only ever returns `categoryId`. If you need category
+// metadata, look it up via `kookee.help.categories()` (or the equivalent
+// for other types) and join it client-side by `categoryId`.
+
+/**
+ * Fields that appear on BOTH list and detail entry responses.
+ */
 export interface BaseEntry {
   id: string;
   type: string;
   slug: string | null;
   title: string;
   excerptHtml: string | null;
-  contentHtml: string;
-  status: EntryStatus;
   publishedAt: string | null;
   locale: string;
   translationGroupId: string;
@@ -309,12 +327,20 @@ export interface BaseEntry {
   metaTitle: string | null;
   metaDescription: string | null;
   metadata: Record<string, NonNullable<unknown>> | null;
+  reactions: Record<string, number>;
   createdAt: string;
   updatedAt: string;
   author: EntryAuthor;
   tags: EntryTag[];
-  reactions: Record<string, number>;
-  category: { name: string; slug: string } | null;
+}
+
+/**
+ * Fields added on entry DETAIL responses only.
+ *
+ * `contentHtml` is NOT returned on list endpoints.
+ */
+export interface EntryDetailFields {
+  contentHtml: string;
 }
 
 export interface BlogTypeSpecific {
@@ -350,35 +376,117 @@ export type TypeSpecific =
   | ChangelogTypeSpecific
   | AnnouncementTypeSpecific;
 
-export interface GenericEntry extends BaseEntry {
+// ---- Generic (untyped typeSpecific) ----
+
+export interface GenericEntryListItem extends BaseEntry {
   typeSpecific: unknown;
 }
 
-export interface BlogEntry extends BaseEntry {
+export interface GenericEntryDetail extends BaseEntry, EntryDetailFields {
+  typeSpecific: unknown;
+}
+
+// ---- Blog ----
+
+export interface BlogEntryListItem extends BaseEntry {
   type: 'blog';
   typeSpecific: BlogTypeSpecific;
 }
 
-export interface PageEntry extends BaseEntry {
+export interface BlogEntryDetail extends BaseEntry, EntryDetailFields {
+  type: 'blog';
+  typeSpecific: BlogTypeSpecific;
+}
+
+// ---- Page ----
+
+export interface PageEntryListItem extends BaseEntry {
   type: 'page';
   typeSpecific: PageTypeSpecific;
 }
 
-export interface HelpArticleEntry extends BaseEntry {
+export interface PageEntryDetail extends BaseEntry, EntryDetailFields {
+  type: 'page';
+  typeSpecific: PageTypeSpecific;
+}
+
+// ---- Help article ----
+
+export interface HelpArticleListItem extends BaseEntry {
   type: 'help_article';
   typeSpecific: HelpArticleTypeSpecific;
 }
 
-export interface ChangelogEntry extends BaseEntry {
+export interface HelpArticleDetail extends BaseEntry, EntryDetailFields {
+  type: 'help_article';
+  typeSpecific: HelpArticleTypeSpecific;
+}
+
+// ---- Changelog ----
+
+export interface ChangelogEntryListItem extends BaseEntry {
   type: 'changelog';
   typeSpecific: ChangelogTypeSpecific;
 }
 
-export interface AnnouncementEntry extends BaseEntry {
+export interface ChangelogEntryDetail extends BaseEntry, EntryDetailFields {
+  type: 'changelog';
+  typeSpecific: ChangelogTypeSpecific;
+}
+
+// ---- Announcement ----
+
+export interface AnnouncementListItem extends BaseEntry {
   type: 'announcement';
   typeSpecific: AnnouncementTypeSpecific;
 }
 
-export type TypedEntry = BlogEntry | PageEntry | HelpArticleEntry | ChangelogEntry | AnnouncementEntry;
+export interface AnnouncementDetail extends BaseEntry, EntryDetailFields {
+  type: 'announcement';
+  typeSpecific: AnnouncementTypeSpecific;
+}
 
-export type AnyEntry = TypedEntry | GenericEntry;
+// ---- Unions ----
+
+export type TypedEntryListItem =
+  | BlogEntryListItem
+  | PageEntryListItem
+  | HelpArticleListItem
+  | ChangelogEntryListItem
+  | AnnouncementListItem;
+
+export type TypedEntryDetail =
+  | BlogEntryDetail
+  | PageEntryDetail
+  | HelpArticleDetail
+  | ChangelogEntryDetail
+  | AnnouncementDetail;
+
+export type AnyEntryListItem = TypedEntryListItem | GenericEntryListItem;
+export type AnyEntryDetail = TypedEntryDetail | GenericEntryDetail;
+
+/**
+ * Help search result — returned by `GET /v1/help/search`.
+ *
+ * The server returns the exact same shape as a help article list response,
+ * so we alias it to `HelpArticleListItem`. There is no nested `category`
+ * object or `matchedChunk` field on this response (SDK <= 0.0.36 lied
+ * about both).
+ */
+export type HelpSearchResult = HelpArticleListItem;
+
+/**
+ * Translation summary returned by the translations endpoints.
+ *
+ * The server returns a narrow { id, slug, locale, title } shape keyed by
+ * locale — NOT a full entry. Consumers that need the full body should
+ * fetch each translation individually via getBySlug / getById.
+ */
+export interface EntryTranslationSummary {
+  id: string;
+  slug: string | null;
+  locale: string;
+  title: string;
+}
+
+export type EntryTranslationsMap = Record<string, EntryTranslationSummary>;

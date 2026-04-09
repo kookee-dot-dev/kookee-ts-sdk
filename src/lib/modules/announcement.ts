@@ -1,6 +1,8 @@
 import type {
-  AnnouncementEntry,
+  AnnouncementDetail,
+  AnnouncementListItem,
   EntryComment,
+  EntryTranslationsMap,
   LocaleOptions,
   PaginatedResponse,
   PaginationParams,
@@ -16,16 +18,18 @@ export interface AnnouncementGetCommentsParams extends PaginationParams {}
 export class AnnouncementModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(params?: AnnouncementListParams): Promise<PaginatedResponse<AnnouncementEntry>> {
-    return this.entries.list({ type: 'announcement', ...params }) as Promise<PaginatedResponse<AnnouncementEntry>>;
+  async list(params?: AnnouncementListParams): Promise<PaginatedResponse<AnnouncementListItem>> {
+    return this.entries.list({ type: 'announcement', ...params }) as unknown as Promise<
+      PaginatedResponse<AnnouncementListItem>
+    >;
   }
 
-  async getById(id: string, params?: AnnouncementGetByIdParams): Promise<AnnouncementEntry> {
-    return this.entries.getById(id, params) as Promise<AnnouncementEntry>;
+  async getById(id: string, params?: AnnouncementGetByIdParams): Promise<AnnouncementDetail> {
+    return this.entries.getById(id, params) as unknown as Promise<AnnouncementDetail>;
   }
 
-  async getTranslationsById(id: string): Promise<Record<string, AnnouncementEntry>> {
-    return this.entries.getTranslationsById(id) as Promise<Record<string, AnnouncementEntry>>;
+  async getTranslationsById(id: string): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsById(id);
   }
 
   async getComments(entryId: string, params?: AnnouncementGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {

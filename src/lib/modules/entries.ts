@@ -3,7 +3,9 @@ import type {
   EntryCategory,
   EntryComment,
   EntryTagWithCount,
-  GenericEntry,
+  EntryTranslationsMap,
+  GenericEntryDetail,
+  GenericEntryListItem,
   LocaleOptions,
   PaginatedResponse,
   PaginationParams,
@@ -31,26 +33,26 @@ export interface EntriesGetCategoriesParams extends LocaleOptions {}
 export class EntriesModule {
   constructor(private readonly http: HttpClient) {}
 
-  async list(params: EntriesListParams): Promise<PaginatedResponse<GenericEntry>> {
-    return this.http.get<PaginatedResponse<GenericEntry>>('/v1/entries', params);
+  async list(params: EntriesListParams): Promise<PaginatedResponse<GenericEntryListItem>> {
+    return this.http.get<PaginatedResponse<GenericEntryListItem>>('/v1/entries', params);
   }
 
-  async getById(id: string, params?: EntriesGetByIdParams): Promise<GenericEntry> {
-    return this.http.get<GenericEntry>(`/v1/entries/by-id/${encodeURIComponent(id)}`, params);
+  async getById(id: string, params?: EntriesGetByIdParams): Promise<GenericEntryDetail> {
+    return this.http.get<GenericEntryDetail>(`/v1/entries/by-id/${encodeURIComponent(id)}`, params);
   }
 
-  async getBySlug(slug: string, params: EntriesGetBySlugParams): Promise<GenericEntry> {
-    return this.http.get<GenericEntry>(`/v1/entries/${encodeURIComponent(slug)}`, params);
+  async getBySlug(slug: string, params: EntriesGetBySlugParams): Promise<GenericEntryDetail> {
+    return this.http.get<GenericEntryDetail>(`/v1/entries/${encodeURIComponent(slug)}`, params);
   }
 
-  async getTranslationsById(id: string): Promise<Record<string, GenericEntry>> {
-    return this.http.get<Record<string, GenericEntry>>(
+  async getTranslationsById(id: string): Promise<EntryTranslationsMap> {
+    return this.http.get<EntryTranslationsMap>(
       `/v1/entries/by-id/${encodeURIComponent(id)}/translations`
     );
   }
 
-  async getTranslationsBySlug(slug: string): Promise<Record<string, GenericEntry>> {
-    return this.http.get<Record<string, GenericEntry>>(
+  async getTranslationsBySlug(slug: string): Promise<EntryTranslationsMap> {
+    return this.http.get<EntryTranslationsMap>(
       `/v1/entries/${encodeURIComponent(slug)}/translations`
     );
   }

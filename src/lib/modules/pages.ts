@@ -1,7 +1,9 @@
 import type {
   EntryComment,
+  EntryTranslationsMap,
   LocaleOptions,
-  PageEntry,
+  PageEntryDetail,
+  PageEntryListItem,
   PaginatedResponse,
   PaginationParams,
 } from '../types';
@@ -20,24 +22,26 @@ export interface PagesGetCommentsParams extends PaginationParams {}
 export class PagesModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(params?: PagesListParams): Promise<PaginatedResponse<PageEntry>> {
-    return this.entries.list({ type: 'page', ...params }) as Promise<PaginatedResponse<PageEntry>>;
+  async list(params?: PagesListParams): Promise<PaginatedResponse<PageEntryListItem>> {
+    return this.entries.list({ type: 'page', ...params }) as unknown as Promise<
+      PaginatedResponse<PageEntryListItem>
+    >;
   }
 
-  async getBySlug(slug: string, params?: PagesGetBySlugParams): Promise<PageEntry> {
-    return this.entries.getBySlug(slug, { type: 'page', ...params }) as Promise<PageEntry>;
+  async getBySlug(slug: string, params?: PagesGetBySlugParams): Promise<PageEntryDetail> {
+    return this.entries.getBySlug(slug, { type: 'page', ...params }) as unknown as Promise<PageEntryDetail>;
   }
 
-  async getById(id: string, params?: PagesGetByIdParams): Promise<PageEntry> {
-    return this.entries.getById(id, params) as Promise<PageEntry>;
+  async getById(id: string, params?: PagesGetByIdParams): Promise<PageEntryDetail> {
+    return this.entries.getById(id, params) as unknown as Promise<PageEntryDetail>;
   }
 
-  async getTranslationsById(pageId: string): Promise<Record<string, PageEntry>> {
-    return this.entries.getTranslationsById(pageId) as Promise<Record<string, PageEntry>>;
+  async getTranslationsById(pageId: string): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsById(pageId);
   }
 
-  async getTranslationsBySlug(slug: string): Promise<Record<string, PageEntry>> {
-    return this.entries.getTranslationsBySlug(slug) as Promise<Record<string, PageEntry>>;
+  async getTranslationsBySlug(slug: string): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsBySlug(slug);
   }
 
   async getComments(entryId: string, params?: PagesGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {

@@ -360,11 +360,18 @@ const posts = await kookee.blog.list({ locale: 'de' });
 const post = await kookee.blog.getBySlug('hello-world', { locale: 'de', fallback: true });
 ```
 
-Translation endpoints return a `Record<string, T>` keyed by locale code:
+Translation endpoints return a narrow `EntryTranslationsMap` keyed by locale code. Each value is a lightweight summary (`id`, `slug`, `locale`, `title`) — **not** a full entry. To load the full body of a translation, fetch it with `getBySlug` / `getById` using the target locale:
 
 ```typescript
 const translations = await kookee.blog.getTranslationsBySlug('hello-world');
-// { en: BlogEntry, de: BlogEntry, fr: BlogEntry, ... }
+// {
+//   en: { id, slug, locale: 'en', title },
+//   de: { id, slug, locale: 'de', title },
+//   ...
+// }
+
+// To load the full German version:
+const germanPost = await kookee.blog.getBySlug('hello-world', { locale: 'de' });
 ```
 
 ## Paginated Response
@@ -376,11 +383,32 @@ interface PaginatedResponse<T> {
   data: T[];
   total: number;
   limit: number;
-  offset: number;
   page: number;
   totalPages: number;
 }
 ```
+
+## List vs. Detail Responses
+
+Entry endpoints come in two flavours with **different shapes**:
+
+- **List responses** (`blog.list()`, `help.search()`, `entries.list()`, …) return `*ListItem` types — these do **not** include `contentHtml`. Use `excerptHtml` instead for previews.
+- **Detail responses** (`blog.getBySlug()`, `help.getById()`, …) return `*Detail` types — these include `contentHtml` for full content rendering.
+
+```typescript
+// List: no contentHtml, only excerptHtml
+const posts = await kookee.blog.list({ limit: 10 });
+for (const post of posts.data) {
+  renderPreview(post.excerptHtml); // ✅ available on list
+  // renderFull(post.contentHtml);  // ❌ type error — not on list
+}
+
+// Detail: contentHtml is available
+const post = await kookee.blog.getBySlug('hello-world');
+renderFull(post.contentHtml); // ✅ available on detail
+```
+
+Entries also expose `categoryId: string | null` — there is **no nested `category` object** on any entry response. If you need category metadata (name, slug, icon), fetch it separately via `kookee.help.categories()` (or the equivalent list) and join by `categoryId` on the client.
 
 ## Error Handling
 
@@ -423,16 +451,9 @@ The SDK is written in TypeScript and provides full type definitions:
 
 ```typescript
 import type {
-  // Entry types
+  // Entry base & shared
   BaseEntry,
-  GenericEntry,
-  BlogEntry,
-  PageEntry,
-  HelpArticleEntry,
-  ChangelogEntry,
-  AnnouncementEntry,
-  TypedEntry,
-  AnyEntry,
+  EntryDetailFields,
   EntryType,
   EntryStatus,
   EntryAuthor,
@@ -440,6 +461,36 @@ import type {
   EntryTagWithCount,
   EntryCategory,
   EntryComment,
+  EntryTranslationSummary,
+  EntryTranslationsMap,
+
+  // Entry variants — LIST responses (no contentHtml)
+  GenericEntryListItem,
+  BlogEntryListItem,
+  PageEntryListItem,
+  HelpArticleListItem,
+  ChangelogEntryListItem,
+  AnnouncementListItem,
+  TypedEntryListItem,
+  AnyEntryListItem,
+
+  // Entry variants — DETAIL responses (with contentHtml)
+  GenericEntryDetail,
+  BlogEntryDetail,
+  PageEntryDetail,
+  HelpArticleDetail,
+  ChangelogEntryDetail,
+  AnnouncementDetail,
+  TypedEntryDetail,
+  AnyEntryDetail,
+
+  // Type-specific metadata
+  TypeSpecific,
+  BlogTypeSpecific,
+  PageTypeSpecific,
+  HelpArticleTypeSpecific,
+  ChangelogTypeSpecific,
+  AnnouncementTypeSpecific,
 
   // Changelog & Announcement specific
   ChangelogType,
@@ -496,6 +547,16 @@ import type {
   HealthCheckResponse,
 } from '@kookee/sdk';
 ```
+
+### Breaking type changes from 0.0.36
+
+Version 0.0.37 aligns the SDK types with the real server response shapes. The old types lied about three things and crashed at runtime. If you're upgrading, note:
+
+- **`BlogEntry`, `HelpArticleEntry`, `ChangelogEntry`, `PageEntry`, `AnnouncementEntry`, `GenericEntry`, `TypedEntry`, `AnyEntry` are gone.** Each one was split into a `*ListItem` (for list/search responses) and a `*Detail` (for single-entry responses). The compiler will now stop you from accessing `contentHtml` on a list item — it was never returned by the server there, and reading it crashed.
+- **`BaseEntry.category` is gone.** The server never returned a nested `{ name, slug }` object; only `categoryId: string | null`. Join against `kookee.help.categories()` (or the equivalent) on the client if you need the full category.
+- **`HelpSearchResult` is now an alias of `HelpArticleListItem`.** The fictional `matchedChunk` field is gone (the server never returned it). Same category rule as above.
+- **`PaginatedResponse<T>.offset` is gone.** Entry list endpoints never returned it; use `page` instead.
+- **Translation endpoints now return `EntryTranslationsMap`** (`{ id, slug, locale, title }` keyed by locale), not a full entry map. Fetch the full body with `getBySlug` / `getById` when needed.
 
 ## License
 

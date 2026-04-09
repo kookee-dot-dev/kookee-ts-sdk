@@ -1,12 +1,14 @@
 import type {
-  BlogEntry,
+  BlogEntryDetail,
+  BlogEntryListItem,
+  EntryComment,
   EntryTagWithCount,
+  EntryTranslationsMap,
   LocaleOptions,
   PaginatedResponse,
   PaginationParams,
   ReactParams,
   ReactResponse,
-  EntryComment,
 } from '../types';
 import type { EntriesModule } from './entries';
 
@@ -24,28 +26,30 @@ export interface BlogGetCommentsParams extends PaginationParams {}
 export class BlogModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(params?: BlogListParams): Promise<PaginatedResponse<BlogEntry>> {
-    return this.entries.list({ type: 'blog', ...params }) as Promise<PaginatedResponse<BlogEntry>>;
+  async list(params?: BlogListParams): Promise<PaginatedResponse<BlogEntryListItem>> {
+    return this.entries.list({ type: 'blog', ...params }) as unknown as Promise<
+      PaginatedResponse<BlogEntryListItem>
+    >;
   }
 
-  async getBySlug(slug: string, params?: BlogGetBySlugParams): Promise<BlogEntry> {
-    return this.entries.getBySlug(slug, { type: 'blog', ...params }) as Promise<BlogEntry>;
+  async getBySlug(slug: string, params?: BlogGetBySlugParams): Promise<BlogEntryDetail> {
+    return this.entries.getBySlug(slug, { type: 'blog', ...params }) as unknown as Promise<BlogEntryDetail>;
   }
 
-  async getById(id: string, params?: BlogGetByIdParams): Promise<BlogEntry> {
-    return this.entries.getById(id, params) as Promise<BlogEntry>;
+  async getById(id: string, params?: BlogGetByIdParams): Promise<BlogEntryDetail> {
+    return this.entries.getById(id, params) as unknown as Promise<BlogEntryDetail>;
   }
 
   async getTags(): Promise<EntryTagWithCount[]> {
     return this.entries.getTags('blog');
   }
 
-  async getTranslationsById(postId: string): Promise<Record<string, BlogEntry>> {
-    return this.entries.getTranslationsById(postId) as Promise<Record<string, BlogEntry>>;
+  async getTranslationsById(postId: string): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsById(postId);
   }
 
-  async getTranslationsBySlug(slug: string): Promise<Record<string, BlogEntry>> {
-    return this.entries.getTranslationsBySlug(slug) as Promise<Record<string, BlogEntry>>;
+  async getTranslationsBySlug(slug: string): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsBySlug(slug);
   }
 
   async getComments(entryId: string, params?: BlogGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
