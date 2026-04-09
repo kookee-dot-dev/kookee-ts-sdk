@@ -303,10 +303,24 @@ export interface EntryComment {
 // `entry.contentHtml` on a list item was the root cause of several crashes
 // in SDK <= 0.0.36, where the single `BaseEntry` shape lied about this.
 //
-// There is no nested `category` object on any public entry response —
-// the server only ever returns `categoryId`. If you need category
-// metadata, look it up via `kookee.help.categories()` (or the equivalent
-// for other types) and join it client-side by `categoryId`.
+// Both list and detail responses include `categoryId` AND a resolved
+// nested `category` object (since SDK 0.0.38) so consumers don't need
+// to join categories client-side. When an entry has no category assigned
+// `category` is `null`.
+
+/**
+ * Resolved category attached to a public entry response.
+ *
+ * This is the server's `EntryCategory` row projected down to the fields
+ * that are safe/useful to expose publicly.
+ */
+export interface EntryCategoryRef {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+  description: string | null;
+}
 
 /**
  * Fields that appear on BOTH list and detail entry responses.
@@ -321,6 +335,7 @@ export interface BaseEntry {
   locale: string;
   translationGroupId: string;
   categoryId: string | null;
+  category: EntryCategoryRef | null;
   coverImageUrl: string | null;
   position: number;
   views: number;

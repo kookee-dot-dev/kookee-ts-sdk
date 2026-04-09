@@ -408,7 +408,27 @@ const post = await kookee.blog.getBySlug('hello-world');
 renderFull(post.contentHtml); // ✅ available on detail
 ```
 
-Entries also expose `categoryId: string | null` — there is **no nested `category` object** on any entry response. If you need category metadata (name, slug, icon), fetch it separately via `kookee.help.categories()` (or the equivalent list) and join by `categoryId` on the client.
+## Categories on entries
+
+Every entry response (list *and* detail) includes both `categoryId: string | null` **and** a resolved `category: EntryCategoryRef | null`. No client-side join required:
+
+```typescript
+const results = await kookee.help.search({ query: 'how to reset password' });
+for (const result of results) {
+  // result.category is already populated by the server
+  console.log(result.title, '→', result.category?.name);
+}
+
+type EntryCategoryRef = {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+  description: string | null;
+};
+```
+
+When an entry has no category assigned, `category` is `null` and `categoryId` is `null` — guard accordingly.
 
 ## Error Handling
 
@@ -460,6 +480,7 @@ import type {
   EntryTag,
   EntryTagWithCount,
   EntryCategory,
+  EntryCategoryRef,
   EntryComment,
   EntryTranslationSummary,
   EntryTranslationsMap,
@@ -547,16 +568,6 @@ import type {
   HealthCheckResponse,
 } from '@kookee/sdk';
 ```
-
-### Breaking type changes from 0.0.36
-
-Version 0.0.37 aligns the SDK types with the real server response shapes. The old types lied about three things and crashed at runtime. If you're upgrading, note:
-
-- **`BlogEntry`, `HelpArticleEntry`, `ChangelogEntry`, `PageEntry`, `AnnouncementEntry`, `GenericEntry`, `TypedEntry`, `AnyEntry` are gone.** Each one was split into a `*ListItem` (for list/search responses) and a `*Detail` (for single-entry responses). The compiler will now stop you from accessing `contentHtml` on a list item — it was never returned by the server there, and reading it crashed.
-- **`BaseEntry.category` is gone.** The server never returned a nested `{ name, slug }` object; only `categoryId: string | null`. Join against `kookee.help.categories()` (or the equivalent) on the client if you need the full category.
-- **`HelpSearchResult` is now an alias of `HelpArticleListItem`.** The fictional `matchedChunk` field is gone (the server never returned it). Same category rule as above.
-- **`PaginatedResponse<T>.offset` is gone.** Entry list endpoints never returned it; use `page` instead.
-- **Translation endpoints now return `EntryTranslationsMap`** (`{ id, slug, locale, title }` keyed by locale), not a full entry map. Fetch the full body with `getBySlug` / `getById` when needed.
 
 ## License
 
