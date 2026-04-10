@@ -13,6 +13,7 @@ import type { EntriesModule } from './entries';
 
 export interface ChangelogListParams extends PaginationParams, LocaleOptions {
   search?: string;
+  filter?: Record<string, string>;
 }
 
 export interface ChangelogGetBySlugParams extends LocaleOptions {}

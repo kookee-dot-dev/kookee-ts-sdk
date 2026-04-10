@@ -50,6 +50,12 @@ export class HttpClient {
             for (const item of value) {
               url.searchParams.append(key, String(item));
             }
+          } else if (typeof value === 'object') {
+            for (const [nestedKey, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+              if (nestedValue !== undefined && nestedValue !== null) {
+                url.searchParams.set(`${key}[${nestedKey}]`, String(nestedValue));
+              }
+            }
           } else {
             url.searchParams.set(key, String(value));
           }

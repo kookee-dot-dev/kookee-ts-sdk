@@ -169,6 +169,9 @@ const entries = await kookee.changelog.list({ page: 1, limit: 10 });
 // Search entries
 const results = await kookee.changelog.list({ search: 'authentication' });
 
+// Filter by typeSpecific properties (e.g. changelog type)
+const features = await kookee.changelog.list({ filter: { changelogType: 'feature' } });
+
 // Get single entry
 const entry = await kookee.changelog.getBySlug('v1-0-0');
 const entryById = await kookee.changelog.getById('entry-uuid');
@@ -229,6 +232,9 @@ The `entries` module provides low-level access to all entry types through a unif
 // List entries by type
 const blogPosts = await kookee.entries.list({ type: 'blog', page: 1, limit: 10 });
 const articles = await kookee.entries.list({ type: 'help_article', category: 'getting-started' });
+
+// Filter by typeSpecific properties
+const features = await kookee.entries.list({ type: 'changelog', filter: { changelogType: 'feature' } });
 
 // Get entry by slug or ID
 const entry = await kookee.entries.getBySlug('my-post', { type: 'blog' });

@@ -18,6 +18,7 @@ export interface EntriesListParams extends PaginationParams, LocaleOptions {
   tags?: string[];
   category?: string;
   search?: string;
+  filter?: Record<string, string>;
 }
 
 export interface EntriesGetByIdParams extends LocaleOptions {}
