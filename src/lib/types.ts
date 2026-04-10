@@ -485,12 +485,13 @@ export type AnyEntryDetail = TypedEntryDetail | GenericEntryDetail;
 /**
  * Help search result — returned by `GET /v1/help/search`.
  *
- * The server returns the exact same shape as a help article list response,
- * so we alias it to `HelpArticleListItem`. There is no nested `category`
- * object or `matchedChunk` field on this response (SDK <= 0.0.36 lied
- * about both).
+ * Extends `HelpArticleListItem` with `matchedChunk` — a plain-text snippet
+ * from the article that best matched the search query (via embedding similarity).
+ * When the server falls back to text search, `matchedChunk` is `null`.
  */
-export type HelpSearchResult = HelpArticleListItem;
+export interface HelpSearchResult extends HelpArticleListItem {
+  matchedChunk: string | null;
+}
 
 /**
  * Translation summary returned by the translations endpoints.

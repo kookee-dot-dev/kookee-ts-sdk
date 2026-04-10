@@ -125,8 +125,11 @@ const articles = await kookee.help.list({ page: 1, limit: 10 });
 // Filter by category slug
 const categoryArticles = await kookee.help.list({ category: 'getting-started' });
 
-// Semantic search
+// Semantic search — results include a matched text snippet when available
 const results = await kookee.help.search({ query: 'how to reset password', limit: 5 });
+for (const result of results) {
+  console.log(result.title, result.matchedChunk); // matched text snippet or null
+}
 
 // Get single article
 const article = await kookee.help.getBySlug('getting-started');
@@ -392,7 +395,8 @@ interface PaginatedResponse<T> {
 
 Entry endpoints come in two flavours with **different shapes**:
 
-- **List responses** (`blog.list()`, `help.search()`, `entries.list()`, …) return `*ListItem` types — these do **not** include `contentHtml`. Use `excerptHtml` instead for previews.
+- **List responses** (`blog.list()`, `entries.list()`, …) return `*ListItem` types — these do **not** include `contentHtml`. Use `excerptHtml` instead for previews.
+- **Search responses** (`help.search()`) return `HelpSearchResult` which extends the list item with `matchedChunk: string | null` — a plain-text snippet from the best matching section of the article.
 - **Detail responses** (`blog.getBySlug()`, `help.getById()`, …) return `*Detail` types — these include `contentHtml` for full content rendering.
 
 ```typescript
