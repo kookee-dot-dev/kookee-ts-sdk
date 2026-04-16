@@ -125,9 +125,18 @@ export interface FeedbackAssignee {
   image: string | null;
 }
 
+export interface FeedbackCommentAttachment {
+  id: string;
+  fileId: string;
+  file: EntryCommentAttachmentFile;
+  createdAt: string;
+}
+
 export interface FeedbackComment {
   id: string;
-  content: string;
+  content: JSONContent;
+  contentHtml: string;
+  attachments: FeedbackCommentAttachment[];
   createdAt: string;
   updatedAt: string;
   isOfficial: boolean;

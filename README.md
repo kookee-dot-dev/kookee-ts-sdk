@@ -328,6 +328,40 @@ await kookee.feedback.deletePost('post-id', { externalId: 'other-user' });
 await kookee.feedback.deleteComment('comment-id', { externalId: 'other-user' });
 ```
 
+### Feedback comment shape
+
+Feedback comments carry rich Tiptap content + a pre-rendered HTML string + optional file attachments. Posting still takes a plain `content: string` — the server wraps it into a single-paragraph Tiptap document and renders the HTML; the response gives you back the full rich shape.
+
+```typescript
+interface FeedbackComment {
+  id: string;
+  content: JSONContent;        // Tiptap JSON document — use this when you need to re-render
+  contentHtml: string;         // pre-rendered HTML — fastest path for display
+  attachments: FeedbackCommentAttachment[];
+  isOfficial: boolean;
+  createdAt: string;
+  updatedAt: string;
+  author: FeedbackAuthor;
+}
+
+interface FeedbackCommentAttachment {
+  id: string;
+  fileId: string;
+  file: EntryCommentAttachmentFile;
+  createdAt: string;
+}
+```
+
+The simplest render path is `contentHtml`:
+
+```tsx
+for (const comment of post.comments) {
+  return <div dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />;
+}
+```
+
+Attachments only appear on comments authored from the dashboard; comments created via `kookee.feedback.createComment(...)` remain plain text + empty attachments.
+
 ## Config
 
 ```typescript
@@ -610,6 +644,7 @@ import type {
   FeedbackAuthor,
   FeedbackAssignee,
   FeedbackComment,
+  FeedbackCommentAttachment,
   FeedbackTopContributor,
   FeedbackVoteResponse,
   CreateFeedbackPostParams,
