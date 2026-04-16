@@ -293,14 +293,29 @@ export interface EntryCategory {
   articleCount: number;
 }
 
+/**
+ * JSON-serializable value. Mirrors what can survive `JSON.stringify` /
+ * `JSON.parse` round-trips and — importantly — satisfies framework type
+ * constraints (e.g. TanStack Router's loader return type) that reject the
+ * looser `unknown`. Tiptap attrs are always JSON, so this is the correct
+ * runtime shape.
+ */
+export type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONValue[]
+  | { [key: string]: JSONValue };
+
 export interface JSONContentMark {
   type: string;
-  attrs?: Record<string, unknown>;
+  attrs?: Record<string, JSONValue>;
 }
 
 export interface JSONContentNode {
   type: string;
-  attrs?: Record<string, unknown>;
+  attrs?: Record<string, JSONValue>;
   content?: JSONContentNode[];
   marks?: JSONContentMark[];
   text?: string;
