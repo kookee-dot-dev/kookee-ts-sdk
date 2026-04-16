@@ -397,6 +397,66 @@ interface PaginatedResponse<T> {
 }
 ```
 
+## Comments
+
+Comments are **read-only** through the SDK — the public REST API exposes `GET /entries/:id/comments` only. Posting, editing, and deleting comments happens inside the Kookee dashboard / portal UI by authenticated project members; there is no public write endpoint.
+
+`getComments()` is available across modules and returns the same shape:
+
+```typescript
+const comments = await kookee.blog.getComments('post-id', { page: 1, limit: 20 });
+// or: kookee.changelog.getComments(...), kookee.help.getComments(...),
+//     kookee.announcements.getComments(...), kookee.pages.getComments(...),
+//     kookee.entries.getComments(...)
+```
+
+Each comment carries rich content as a Tiptap JSON document, a pre-rendered `contentHtml` string for direct injection into the DOM, optional file attachments, and an `isOfficial` flag set when the author is a project owner / admin. Top-level comments include their `replies` inline.
+
+```typescript
+interface EntryComment extends EntryCommentReply {
+  replies: EntryCommentReply[];
+}
+
+interface EntryCommentReply {
+  id: string;
+  content: JSONContent;        // Tiptap JSON document — use this when you need to re-render
+  contentHtml: string;         // pre-rendered HTML — fastest path for display
+  isOfficial: boolean;         // true when author is a project owner/admin
+  attachments: EntryCommentAttachment[];
+  createdAt: string;
+  updatedAt: string;
+  author: EntryAuthor;
+}
+
+interface EntryCommentAttachment {
+  id: string;
+  fileId: string;
+  file: EntryCommentAttachmentFile;
+  createdAt: string;
+}
+
+interface EntryCommentAttachmentFile {
+  id: string;
+  path: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  public: boolean;
+}
+```
+
+The simplest render path is `contentHtml`:
+
+```tsx
+for (const comment of comments.data) {
+  return <div dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />;
+}
+```
+
+Use `content` (Tiptap JSON) when you want to render with your own Tiptap pipeline, transform the document, or feed it back into an editor.
+
+> **Per-project enable**: comments are only returned when the project owner has enabled commenting for the entry's module in their portal settings. Until then, `getComments()` returns an empty list.
+
 ## List vs. Detail Responses
 
 Entry endpoints come in two flavours with **different shapes**:
@@ -492,6 +552,9 @@ import type {
   EntryCategory,
   EntryCategoryRef,
   EntryComment,
+  EntryCommentReply,
+  EntryCommentAttachment,
+  EntryCommentAttachmentFile,
   EntryTranslationSummary,
   EntryTranslationsMap,
 
@@ -577,6 +640,11 @@ import type {
   OrderDirection,
   KookeeConfig,
   HealthCheckResponse,
+
+  // Rich content (Tiptap JSON)
+  JSONContent,
+  JSONContentNode,
+  JSONContentMark,
 
   // Module request parameter shapes
   EntriesListParams,

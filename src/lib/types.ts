@@ -284,12 +284,53 @@ export interface EntryCategory {
   articleCount: number;
 }
 
-export interface EntryComment {
+export interface JSONContentMark {
+  type: string;
+  attrs?: Record<string, unknown>;
+}
+
+export interface JSONContentNode {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: JSONContentNode[];
+  marks?: JSONContentMark[];
+  text?: string;
+}
+
+export interface JSONContent {
+  type: 'doc';
+  content?: JSONContentNode[];
+}
+
+export interface EntryCommentAttachmentFile {
   id: string;
-  content: string;
+  path: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  public: boolean;
+}
+
+export interface EntryCommentAttachment {
+  id: string;
+  fileId: string;
+  file: EntryCommentAttachmentFile;
+  createdAt: string;
+}
+
+export interface EntryCommentReply {
+  id: string;
+  content: JSONContent;
+  contentHtml: string;
+  isOfficial: boolean;
+  attachments: EntryCommentAttachment[];
   createdAt: string;
   updatedAt: string;
   author: EntryAuthor;
+}
+
+export interface EntryComment extends EntryCommentReply {
+  replies: EntryCommentReply[];
 }
 
 // =====================
