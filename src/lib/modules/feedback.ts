@@ -8,6 +8,7 @@ import type {
   DeleteFeedbackCommentResponse,
   DeleteFeedbackPostParams,
   DeleteFeedbackPostResponse,
+  FeedbackComment,
   FeedbackKanbanColumn,
   FeedbackPost,
   FeedbackPostCategory,
@@ -37,6 +38,8 @@ export interface FeedbackTopContributorsParams {
   limit?: number;
 }
 
+export interface FeedbackGetCommentsParams extends PaginationParams {}
+
 export class FeedbackModule {
   constructor(
     private readonly http: HttpClient,
@@ -53,6 +56,13 @@ export class FeedbackModule {
 
   async getById(id: string): Promise<FeedbackPost> {
     return this.http.get<FeedbackPost>(`/v1/feedback/by-id/${encodeURIComponent(id)}`);
+  }
+
+  async getComments(postId: string, params?: FeedbackGetCommentsParams): Promise<PaginatedResponse<FeedbackComment>> {
+    return this.http.get<PaginatedResponse<FeedbackComment>>(
+      `/v1/feedback/${encodeURIComponent(postId)}/comments`,
+      params
+    );
   }
 
   async vote(postId: string, params: FeedbackVoteParams): Promise<FeedbackVoteResponse> {

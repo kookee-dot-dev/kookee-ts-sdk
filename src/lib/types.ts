@@ -162,7 +162,6 @@ export interface FeedbackPostListItem {
 
 export interface FeedbackPost extends FeedbackPostListItem {
   contentHtml: string | null;
-  comments: FeedbackComment[];
 }
 
 export interface FeedbackTopContributor {
@@ -342,7 +341,7 @@ export interface EntryCommentAttachment {
   createdAt: string;
 }
 
-export interface EntryCommentReply {
+export interface EntryComment {
   id: string;
   content: JSONContent;
   contentHtml: string;
@@ -351,10 +350,6 @@ export interface EntryCommentReply {
   createdAt: string;
   updatedAt: string;
   author: EntryAuthor;
-}
-
-export interface EntryComment extends EntryCommentReply {
-  replies: EntryCommentReply[];
 }
 
 // =====================

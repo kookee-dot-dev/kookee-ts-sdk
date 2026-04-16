@@ -281,8 +281,11 @@ const trending = await kookee.feedback.list({ sort: 'trending' });
 // Search posts
 const results = await kookee.feedback.list({ search: 'dark mode' });
 
-// Get single post with comments
+// Get single post
 const post = await kookee.feedback.getById('post-uuid');
+
+// Get comments on a post
+const comments = await kookee.feedback.getComments('post-uuid', { page: 1, limit: 20 });
 
 // Vote on a post
 await kookee.feedback.vote('post-id', { action: 'upvote' });
@@ -355,7 +358,8 @@ interface FeedbackCommentAttachment {
 The simplest render path is `contentHtml`:
 
 ```tsx
-for (const comment of post.comments) {
+const comments = await kookee.feedback.getComments('post-id');
+for (const comment of comments.data) {
   return <div dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />;
 }
 ```
@@ -444,14 +448,10 @@ const comments = await kookee.blog.getComments('post-id', { page: 1, limit: 20 }
 //     kookee.entries.getComments(...)
 ```
 
-Each comment carries rich content as a Tiptap JSON document, a pre-rendered `contentHtml` string for direct injection into the DOM, optional file attachments, and an `isOfficial` flag set when the author is a project owner / admin. Top-level comments include their `replies` inline.
+Each comment carries rich content as a Tiptap JSON document, a pre-rendered `contentHtml` string for direct injection into the DOM, optional file attachments, and an `isOfficial` flag set when the author is a project owner / admin. Comments are flat — there are no nested replies.
 
 ```typescript
-interface EntryComment extends EntryCommentReply {
-  replies: EntryCommentReply[];
-}
-
-interface EntryCommentReply {
+interface EntryComment {
   id: string;
   content: JSONContent;        // Tiptap JSON document — use this when you need to re-render
   contentHtml: string;         // pre-rendered HTML — fastest path for display
@@ -586,7 +586,6 @@ import type {
   EntryCategory,
   EntryCategoryRef,
   EntryComment,
-  EntryCommentReply,
   EntryCommentAttachment,
   EntryCommentAttachmentFile,
   EntryTranslationSummary,
@@ -712,6 +711,7 @@ import type {
   FeedbackListParams,
   FeedbackVoteParams,
   FeedbackTopContributorsParams,
+  FeedbackGetCommentsParams,
 } from '@kookee/sdk';
 ```
 
