@@ -86,7 +86,20 @@ export interface HelpChatSource {
   category: HelpChatSourceCategory | null;
 }
 
+export interface HelpChatToolEntry {
+  id: string;
+  displayName: string;
+}
+
 export type HelpChatStreamChunk =
+  | { type: 'conversation_id'; id: string }
+  | { type: 'tool_call'; name: string; args: Record<string, unknown> }
+  | {
+      type: 'tool_result';
+      name: string;
+      entryIds?: string[];
+      entries?: HelpChatToolEntry[];
+    }
   | { type: 'delta'; content: string }
   | { type: 'sources'; sources: HelpChatSource[] }
   | { type: 'done' }
