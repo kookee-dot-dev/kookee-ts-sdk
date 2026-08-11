@@ -7,11 +7,10 @@ import { EntriesModule } from './modules/entries';
 import { FeedbackModule } from './modules/feedback';
 import { HelpModule } from './modules/help';
 import { PagesModule } from './modules/pages';
-import type { KookeeConfig, KookeeUser, HealthCheckResponse } from './types';
+import type { KookeeConfig, HealthCheckResponse } from './types';
 
 export class Kookee {
   private readonly http: HttpClient;
-  private user: KookeeUser | null = null;
 
   public readonly entries: EntriesModule;
 
@@ -36,21 +35,9 @@ export class Kookee {
     this.blog = new BlogModule(this.entries);
     this.changelog = new ChangelogModule(this.entries);
     this.config = new ConfigModule(this.http);
-    this.feedback = new FeedbackModule(this.http, () => this.user);
+    this.feedback = new FeedbackModule(this.http);
     this.help = new HelpModule(this.http, this.entries);
     this.pages = new PagesModule(this.entries);
-  }
-
-  identify(user: KookeeUser): void {
-    this.user = user;
-  }
-
-  reset(): void {
-    this.user = null;
-  }
-
-  getUser(): KookeeUser | null {
-    return this.user;
   }
 
   async health(): Promise<HealthCheckResponse> {

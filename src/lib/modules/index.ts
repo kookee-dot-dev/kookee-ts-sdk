@@ -30,7 +30,6 @@ export { ConfigModule, type ConfigListParams } from './config';
 export {
   FeedbackModule,
   type FeedbackListParams,
-  type FeedbackVoteParams,
   type FeedbackTopContributorsParams,
 } from './feedback';
 export {

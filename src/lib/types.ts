@@ -129,7 +129,6 @@ export interface FeedbackAuthor {
   name: string | null;
   image: string | null;
   isTeamMember?: boolean;
-  externalId?: string | null;
 }
 
 export interface FeedbackAssignee {
@@ -182,81 +181,6 @@ export interface FeedbackTopContributor {
   name: string | null;
   image: string | null;
   totalVotes: number;
-}
-
-export interface FeedbackVoteResponse {
-  voteCount: number;
-}
-
-export interface KookeeUser {
-  externalId: string;
-  name: string;
-  email?: string;
-  avatarUrl?: string;
-  [key: string]: unknown;
-}
-
-export type ExternalUser = KookeeUser;
-
-export interface CreateFeedbackPostParams {
-  title: string;
-  description?: string;
-  category?: FeedbackPostCategory;
-  externalUser?: ExternalUser;
-}
-
-export interface CreateFeedbackCommentParams {
-  content: string;
-  externalUser?: ExternalUser;
-}
-
-export interface CreatedFeedbackPost {
-  id: string;
-  title: string;
-  contentHtml: string | null;
-  contentText: string | null;
-  columnId: string | null;
-  category: FeedbackPostCategory;
-  voteCount: number;
-  commentCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreatedFeedbackComment {
-  id: string;
-  postId: string;
-  content: string;
-  isOfficial: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ListMyFeedbackPostsParams {
-  externalId?: string;
-  page?: number;
-  limit?: number;
-  columnId?: string;
-  columnType?: FeedbackColumnType;
-  category?: FeedbackPostCategory;
-  search?: string;
-  sort?: FeedbackSortOption;
-}
-
-export interface DeleteFeedbackPostParams {
-  externalId?: string;
-}
-
-export interface DeleteFeedbackPostResponse {
-  success: boolean;
-}
-
-export interface DeleteFeedbackCommentParams {
-  externalId?: string;
-}
-
-export interface DeleteFeedbackCommentResponse {
-  success: boolean;
 }
 
 // =====================
@@ -422,6 +346,7 @@ export interface BaseEntry {
   updatedAt: string;
   author: EntryAuthor;
   tags: EntryTag[];
+  fields: EntryFieldValue[];
 }
 
 /**
@@ -433,107 +358,85 @@ export interface EntryDetailFields {
   contentHtml: string;
 }
 
-export interface BlogTypeSpecific {
-  _type: 'blog';
+/**
+ * A data-driven field value attached to an entry. System fields (e.g. the
+ * changelog type badge) carry stable `optionKeys` so consumers can key
+ * behavior off them even after labels are edited.
+ */
+export interface EntryFieldValue {
+  fieldId: string;
+  slug: string;
+  name: string;
+  fieldType:
+    | 'text'
+    | 'number'
+    | 'date'
+    | 'checkbox'
+    | 'url'
+    | 'email'
+    | 'phone'
+    | 'select'
+    | 'multiSelect';
+  value: string | number | boolean | string[];
+  displayValue: string;
+  color: string | null;
+  optionKeys: string[];
 }
 
-export interface PageTypeSpecific {
-  _type: 'page';
-}
+// ---- Generic ----
 
-export interface HelpArticleTypeSpecific {
-  _type: 'help_article';
-  visibility: HelpArticleVisibility;
-}
+export interface GenericEntryListItem extends BaseEntry {}
 
-export interface ChangelogTypeSpecific {
-  _type: 'changelog';
-  changelogType: ChangelogType;
-  version: string | null;
-  link: string | null;
-}
-
-export interface AnnouncementTypeSpecific {
-  _type: 'announcement';
-  announcementType: AnnouncementType;
-  unpublishAt: string | null;
-}
-
-export type TypeSpecific =
-  | BlogTypeSpecific
-  | PageTypeSpecific
-  | HelpArticleTypeSpecific
-  | ChangelogTypeSpecific
-  | AnnouncementTypeSpecific;
-
-// ---- Generic (untyped typeSpecific) ----
-
-export interface GenericEntryListItem extends BaseEntry {
-  typeSpecific: unknown;
-}
-
-export interface GenericEntryDetail extends BaseEntry, EntryDetailFields {
-  typeSpecific: unknown;
-}
+export interface GenericEntryDetail extends BaseEntry, EntryDetailFields {}
 
 // ---- Blog ----
 
 export interface BlogEntryListItem extends BaseEntry {
   type: 'blog';
-  typeSpecific: BlogTypeSpecific;
 }
 
 export interface BlogEntryDetail extends BaseEntry, EntryDetailFields {
   type: 'blog';
-  typeSpecific: BlogTypeSpecific;
 }
 
 // ---- Page ----
 
 export interface PageEntryListItem extends BaseEntry {
   type: 'page';
-  typeSpecific: PageTypeSpecific;
 }
 
 export interface PageEntryDetail extends BaseEntry, EntryDetailFields {
   type: 'page';
-  typeSpecific: PageTypeSpecific;
 }
 
 // ---- Help article ----
 
 export interface HelpArticleListItem extends BaseEntry {
   type: 'help_article';
-  typeSpecific: HelpArticleTypeSpecific;
 }
 
 export interface HelpArticleDetail extends BaseEntry, EntryDetailFields {
   type: 'help_article';
-  typeSpecific: HelpArticleTypeSpecific;
 }
 
 // ---- Changelog ----
 
 export interface ChangelogEntryListItem extends BaseEntry {
   type: 'changelog';
-  typeSpecific: ChangelogTypeSpecific;
 }
 
 export interface ChangelogEntryDetail extends BaseEntry, EntryDetailFields {
   type: 'changelog';
-  typeSpecific: ChangelogTypeSpecific;
 }
 
 // ---- Announcement ----
 
 export interface AnnouncementListItem extends BaseEntry {
   type: 'announcement';
-  typeSpecific: AnnouncementTypeSpecific;
 }
 
 export interface AnnouncementDetail extends BaseEntry, EntryDetailFields {
   type: 'announcement';
-  typeSpecific: AnnouncementTypeSpecific;
 }
 
 // ---- Unions ----

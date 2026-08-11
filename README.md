@@ -44,43 +44,6 @@ const kookee = new Kookee({
 });
 ```
 
-## User Identification
-
-Set user identity once and it's automatically used across all feedback operations:
-
-```typescript
-// Set user identity globally
-kookee.identify({
-  externalId: 'user-456',
-  name: 'Jane Doe',
-  email: 'jane@example.com',   // optional
-  avatarUrl: 'https://...',    // optional
-});
-
-// All feedback methods now auto-use the identified user
-await kookee.feedback.createPost({ title: 'Feature request', category: 'feature' });
-await kookee.feedback.createComment(postId, { content: 'Great idea!' });
-const myPosts = await kookee.feedback.listMyPosts();
-
-// Check current user
-const user = kookee.getUser(); // KookeeUser | null
-
-// Clear identity on logout
-kookee.reset();
-```
-
-### React usage
-
-```typescript
-useEffect(() => {
-  if (user) {
-    kookee.identify({ externalId: user.id, name: user.name, email: user.email });
-  } else {
-    kookee.reset();
-  }
-}, [user]);
-```
-
 ## Blog
 
 ```typescript
@@ -169,7 +132,7 @@ const entries = await kookee.changelog.list({ page: 1, limit: 10 });
 // Search entries
 const results = await kookee.changelog.list({ search: 'authentication' });
 
-// Filter by typeSpecific properties (e.g. changelog type)
+// Filter by system field keys (e.g. changelog type)
 const features = await kookee.changelog.list({ filter: { changelogType: 'feature' } });
 
 // Get single entry
@@ -233,7 +196,7 @@ The `entries` module provides low-level access to all entry types through a unif
 const blogPosts = await kookee.entries.list({ type: 'blog', page: 1, limit: 10 });
 const articles = await kookee.entries.list({ type: 'help_article', category: 'getting-started' });
 
-// Filter by typeSpecific properties
+// Filter by system field keys
 const features = await kookee.entries.list({ type: 'changelog', filter: { changelogType: 'feature' } });
 
 // Get entry by slug or ID
@@ -257,7 +220,7 @@ const categories = await kookee.entries.getCategories('help_article');
 
 ## Feedback
 
-### Reading feedback
+The SDK exposes feedback in read-only form, plus anonymous voting. Creating and managing feedback happens in the hosted portal.
 
 ```typescript
 // Get kanban columns (for roadmap rendering)
@@ -294,46 +257,9 @@ await kookee.feedback.vote('post-id', { action: 'upvote' });
 const contributors = await kookee.feedback.getTopContributors({ limit: 10 });
 ```
 
-### Creating and managing feedback
-
-These operations require user identification — either globally via `kookee.identify()` or per-call via `externalUser`/`externalId`:
-
-```typescript
-// With global identity (recommended — see User Identification section above)
-kookee.identify({ externalId: 'user-123', name: 'Jane Doe' });
-
-const newPost = await kookee.feedback.createPost({
-  title: 'Add dark mode',
-  description: 'It would be great to have a dark mode option.',
-  category: 'feature',
-});
-
-const comment = await kookee.feedback.createComment('post-id', {
-  content: 'Great idea, I would love this too!',
-});
-
-const myPosts = await kookee.feedback.listMyPosts();
-
-await kookee.feedback.deletePost('post-id');
-await kookee.feedback.deleteComment('comment-id');
-```
-
-Per-call override still works (takes precedence over global identity):
-
-```typescript
-const newPost = await kookee.feedback.createPost({
-  title: 'Add dark mode',
-  externalUser: { externalId: 'other-user', name: 'John' },
-});
-
-const myPosts = await kookee.feedback.listMyPosts({ externalId: 'other-user' });
-await kookee.feedback.deletePost('post-id', { externalId: 'other-user' });
-await kookee.feedback.deleteComment('comment-id', { externalId: 'other-user' });
-```
-
 ### Feedback comment shape
 
-Feedback comments carry rich Tiptap content + a pre-rendered HTML string + optional file attachments. Posting still takes a plain `content: string` — the server wraps it into a single-paragraph Tiptap document and renders the HTML; the response gives you back the full rich shape.
+Feedback comments carry rich Tiptap content + a pre-rendered HTML string + optional file attachments.
 
 ```typescript
 interface FeedbackComment {
@@ -363,8 +289,6 @@ for (const comment of comments.data) {
   return <div dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />;
 }
 ```
-
-Attachments only appear on comments authored from the dashboard; comments created via `kookee.feedback.createComment(...)` remain plain text + empty attachments.
 
 ## Config
 
@@ -533,6 +457,45 @@ type EntryCategoryRef = {
 ```
 
 When an entry has no category assigned, `category` is `null` and `categoryId` is `null` — guard accordingly.
+
+## Fields on entries
+
+Every entry response (list *and* detail) carries a `fields` array holding both the built-in fields for that entry type (a changelog's type and version, say) and any custom fields configured for the project. Three helpers read it:
+
+```typescript
+import { fieldOptionKey, fieldStringValue, findField } from '@kookee/sdk';
+
+const entry = await kookee.changelog.getBySlug('v1-0-0');
+
+// Select fields: the stable option key, e.g. 'feature' | 'fix' | 'improvement'
+fieldOptionKey(entry.fields, 'changelogType');
+
+// Text fields: the string value, or undefined when unset
+fieldStringValue(entry.fields, 'version');
+
+// The whole row, when you also need displayValue or color
+const type = findField(entry.fields, 'changelogType');
+type?.displayValue; // 'New Feature' — localized, safe to render
+type?.color; // '#22c55e' | null
+```
+
+Prefer `optionKeys` over `displayValue` whenever behavior depends on the choice. Keys are stable identifiers, while display values are translated per locale and change whenever someone edits a label:
+
+```typescript
+// Good — stable across renames and locales
+if (fieldOptionKey(entry.fields, 'changelogType') === 'feature') { /* ... */ }
+
+// Fragile — breaks under translation or a label edit
+if (findField(entry.fields, 'changelogType')?.displayValue === 'New Feature') { /* ... */ }
+```
+
+Every helper returns `undefined` for a missing or unset field, so an entry type that has no such field needs no special-casing at the call site.
+
+Filter a list by a field using the same slug and option key:
+
+```typescript
+const features = await kookee.changelog.list({ filter: { changelogType: 'feature' } });
+```
 
 ## Error Handling
 
