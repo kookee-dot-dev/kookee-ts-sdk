@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.1.0
+
+### Added
+
+- Every read method now accepts an optional `AbortSignal` as its last argument, forwarded to
+  `fetch`. Requests can be cancelled when a component unmounts or its inputs change:
+
+  ```ts
+  const controller = new AbortController();
+  const posts = await kookee.blog.list({ limit: 10 }, controller.signal);
+  controller.abort();
+  ```
+
+  The signal is a positional parameter, never a field on the params object — params are
+  serialized into the query string, so a signal placed there would be sent to the server.
+
+  `help.chat()` and `help.chatStream()` are unchanged; the stream is cancelled by breaking
+  out of its iterator.
+
+Fully backward compatible — the parameter is optional everywhere.
+
 ## 1.0.0
 
 ### Breaking changes

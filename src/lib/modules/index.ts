@@ -29,6 +29,7 @@ export {
 export { ConfigModule, type ConfigListParams } from './config';
 export {
   FeedbackModule,
+  type FeedbackGetCommentsParams,
   type FeedbackListParams,
   type FeedbackTopContributorsParams,
 } from './feedback';

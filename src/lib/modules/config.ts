@@ -8,11 +8,15 @@ export interface ConfigListParams {
 export class ConfigModule {
   constructor(private readonly http: HttpClient) {}
 
-  async getByKey(key: string): Promise<PublicConfig> {
-    return this.http.get<PublicConfig>(`/v1/config/${encodeURIComponent(key)}`);
+  async getByKey(key: string, signal?: AbortSignal): Promise<PublicConfig> {
+    return this.http.get<PublicConfig>(
+      `/v1/config/${encodeURIComponent(key)}`,
+      undefined,
+      signal
+    );
   }
 
-  async list(params?: ConfigListParams): Promise<PublicConfig[]> {
-    return this.http.get<PublicConfig[]>('/v1/config', params);
+  async list(params?: ConfigListParams, signal?: AbortSignal): Promise<PublicConfig[]> {
+    return this.http.get<PublicConfig[]>('/v1/config', params, signal);
   }
 }

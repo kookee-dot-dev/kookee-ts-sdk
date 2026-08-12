@@ -8,6 +8,8 @@ Official TypeScript SDK for [Kookee](https://kookee.dev) - the headless CMS for 
 - **Zero dependencies** - Uses native `fetch`, nothing else
 - **TypeScript-first** - Full type definitions out of the box
 - **Tree-shakeable** - Import only what you need
+- **Cancellable** - Every read method accepts an `AbortSignal`
+- **Works anywhere** - ESM, CommonJS, or a plain `<script>` tag
 - **Open source** - [MIT licensed](https://github.com/kookee-dot-dev/kookee-ts-sdk)
 
 ## Installation
@@ -18,6 +20,22 @@ npm install @kookee/sdk
 pnpm add @kookee/sdk
 # or
 yarn add @kookee/sdk
+```
+
+### Script tag
+
+For a plain HTML page with no build step, load the browser bundle. `Kookee` becomes
+available as a global:
+
+```html
+<script src="https://kookee.dev/sdk/latest.js"></script>
+<script>
+  const kookee = new Kookee({ projectId: 'your-project-id' });
+
+  kookee.blog.list({ limit: 5 }).then((posts) => {
+    console.log(posts.data);
+  });
+</script>
 ```
 
 ## Quick Start
@@ -249,9 +267,6 @@ const post = await kookee.feedback.getById('post-uuid');
 
 // Get comments on a post
 const comments = await kookee.feedback.getComments('post-uuid', { page: 1, limit: 20 });
-
-// Vote on a post
-await kookee.feedback.vote('post-id', { action: 'upvote' });
 
 // Get top contributors
 const contributors = await kookee.feedback.getTopContributors({ limit: 10 });
@@ -496,6 +511,44 @@ Filter a list by a field using the same slug and option key:
 ```typescript
 const features = await kookee.changelog.list({ filter: { changelogType: 'feature' } });
 ```
+
+## Cancelling Requests
+
+Every read method takes an optional `AbortSignal` as its **last** argument, forwarded
+straight to `fetch`:
+
+```typescript
+const controller = new AbortController();
+
+const posts = kookee.blog.list({ limit: 10 }, controller.signal);
+
+// Abandon the request — e.g. the user navigated away or typed a new search term
+controller.abort();
+```
+
+The signal always comes after the method's own arguments, so its position varies:
+
+```typescript
+kookee.blog.list({ limit: 10 }, signal);
+kookee.blog.getBySlug('my-post', { locale: 'en' }, signal);
+kookee.blog.getTags(signal);
+kookee.feedback.getById('post-uuid', signal);
+```
+
+An aborted request rejects with an `AbortError`, which is not a `KookeeApiError` — check
+for it before treating a rejection as a real failure:
+
+```typescript
+try {
+  await kookee.blog.list({ limit: 10 }, controller.signal);
+} catch (error) {
+  if (error instanceof DOMException && error.name === 'AbortError') return; // expected
+  throw error;
+}
+```
+
+Pass the signal as a **parameter**, never as a field on the params object — params are
+serialised into the query string.
 
 ## Error Handling
 

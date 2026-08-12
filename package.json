@@ -1,13 +1,16 @@
 {
   "name": "@kookee/sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Official Kookee SDK - Access your blog, changelog, help center, and more",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts"
+      },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },

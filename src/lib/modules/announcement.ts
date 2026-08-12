@@ -30,20 +30,31 @@ export interface AnnouncementGetCommentsParams extends PaginationParams {}
 export class AnnouncementModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(params?: AnnouncementListParams): Promise<PaginatedResponse<AnnouncementListItem>> {
-    const response = await this.entries.list({ type: 'announcement', ...params });
+  async list(
+    params?: AnnouncementListParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<AnnouncementListItem>> {
+    const response = await this.entries.list({ type: 'announcement', ...params }, signal);
     return { ...response, data: response.data.map(toAnnouncementListItem) };
   }
 
-  async getById(id: string, params?: AnnouncementGetByIdParams): Promise<AnnouncementDetail> {
-    return toAnnouncementDetail(await this.entries.getById(id, params));
+  async getById(
+    id: string,
+    params?: AnnouncementGetByIdParams,
+    signal?: AbortSignal
+  ): Promise<AnnouncementDetail> {
+    return toAnnouncementDetail(await this.entries.getById(id, params, signal));
   }
 
-  async getTranslationsById(id: string): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsById(id);
+  async getTranslationsById(id: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsById(id, signal);
   }
 
-  async getComments(entryId: string, params?: AnnouncementGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
-    return this.entries.getComments(entryId, params);
+  async getComments(
+    entryId: string,
+    params?: AnnouncementGetCommentsParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<EntryComment>> {
+    return this.entries.getComments(entryId, params, signal);
   }
 }

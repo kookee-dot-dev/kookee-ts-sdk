@@ -44,42 +44,71 @@ export class HelpModule {
     this.entries = entries;
   }
 
-  async categories(params?: HelpCategoriesParams): Promise<EntryCategory[]> {
-    return this.entries.getCategories('help_article', params);
+  async categories(
+    params?: HelpCategoriesParams,
+    signal?: AbortSignal
+  ): Promise<EntryCategory[]> {
+    return this.entries.getCategories('help_article', params, signal);
   }
 
-  async list(params?: HelpListParams): Promise<PaginatedResponse<HelpArticleListItem>> {
-    return this.entries.list({ type: 'help_article', ...params }) as unknown as Promise<
+  async list(
+    params?: HelpListParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<HelpArticleListItem>> {
+    return this.entries.list({ type: 'help_article', ...params }, signal) as unknown as Promise<
       PaginatedResponse<HelpArticleListItem>
     >;
   }
 
-  async getBySlug(slug: string, params?: HelpGetBySlugParams): Promise<HelpArticleDetail> {
-    return this.entries.getBySlug(slug, { type: 'help_article', ...params }) as unknown as Promise<HelpArticleDetail>;
+  async getBySlug(
+    slug: string,
+    params?: HelpGetBySlugParams,
+    signal?: AbortSignal
+  ): Promise<HelpArticleDetail> {
+    return this.entries.getBySlug(
+      slug,
+      { type: 'help_article', ...params },
+      signal
+    ) as unknown as Promise<HelpArticleDetail>;
   }
 
-  async getById(id: string, params?: HelpGetByIdParams): Promise<HelpArticleDetail> {
-    return this.entries.getById(id, params) as unknown as Promise<HelpArticleDetail>;
+  async getById(
+    id: string,
+    params?: HelpGetByIdParams,
+    signal?: AbortSignal
+  ): Promise<HelpArticleDetail> {
+    return this.entries.getById(id, params, signal) as unknown as Promise<HelpArticleDetail>;
   }
 
-  async search(params: HelpSearchParams): Promise<HelpSearchResult[]> {
-    return this.http.get<HelpSearchResult[]>('/v1/help/search', params);
+  async search(params: HelpSearchParams, signal?: AbortSignal): Promise<HelpSearchResult[]> {
+    return this.http.get<HelpSearchResult[]>('/v1/help/search', params, signal);
   }
 
-  async getTranslationsById(articleId: string): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsById(articleId);
+  async getTranslationsById(
+    articleId: string,
+    signal?: AbortSignal
+  ): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsById(articleId, signal);
   }
 
-  async getTranslationsBySlug(slug: string): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsBySlug(slug);
+  async getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsBySlug(slug, signal);
   }
 
-  async getComments(entryId: string, params?: HelpGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
-    return this.entries.getComments(entryId, params);
+  async getComments(
+    entryId: string,
+    params?: HelpGetCommentsParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<EntryComment>> {
+    return this.entries.getComments(entryId, params, signal);
   }
 
-  async react(articleId: string, params: ReactParams): Promise<ReactResponse> {
-    return this.entries.react(articleId, params);
+  async react(
+    articleId: string,
+    params: ReactParams,
+    signal?: AbortSignal
+  ): Promise<ReactResponse> {
+    return this.entries.react(articleId, params, signal);
   }
 
   async chat(params: HelpChatParams): Promise<HelpChatResponse> {

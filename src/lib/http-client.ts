@@ -40,7 +40,7 @@ export class HttpClient {
     return headers;
   }
 
-  async get<T>(path: string, params?: object): Promise<T> {
+  async get<T>(path: string, params?: object, signal?: AbortSignal): Promise<T> {
     const url = new URL(`${this.baseUrl}${path}`);
 
     if (params) {
@@ -66,16 +66,18 @@ export class HttpClient {
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: this.getHeaders(),
+      signal,
     });
 
     return this.handleResponse<T>(response);
   }
 
-  async post<T>(path: string, body?: unknown): Promise<T> {
+  async post<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: body ? JSON.stringify(body) : undefined,
+      signal,
     });
 
     return this.handleResponse<T>(response);

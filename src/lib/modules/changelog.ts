@@ -38,32 +38,53 @@ export interface ChangelogGetCommentsParams extends PaginationParams {}
 export class ChangelogModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(params?: ChangelogListParams): Promise<PaginatedResponse<ChangelogEntryListItem>> {
-    const response = await this.entries.list({ type: 'changelog', ...params });
+  async list(
+    params?: ChangelogListParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<ChangelogEntryListItem>> {
+    const response = await this.entries.list({ type: 'changelog', ...params }, signal);
     return { ...response, data: response.data.map(toChangelogListItem) };
   }
 
-  async getBySlug(slug: string, params?: ChangelogGetBySlugParams): Promise<ChangelogEntryDetail> {
-    return toChangelogDetail(await this.entries.getBySlug(slug, { type: 'changelog', ...params }));
+  async getBySlug(
+    slug: string,
+    params?: ChangelogGetBySlugParams,
+    signal?: AbortSignal
+  ): Promise<ChangelogEntryDetail> {
+    return toChangelogDetail(
+      await this.entries.getBySlug(slug, { type: 'changelog', ...params }, signal)
+    );
   }
 
-  async getById(id: string, params?: ChangelogGetByIdParams): Promise<ChangelogEntryDetail> {
-    return toChangelogDetail(await this.entries.getById(id, params));
+  async getById(
+    id: string,
+    params?: ChangelogGetByIdParams,
+    signal?: AbortSignal
+  ): Promise<ChangelogEntryDetail> {
+    return toChangelogDetail(await this.entries.getById(id, params, signal));
   }
 
-  async getTranslationsById(id: string): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsById(id);
+  async getTranslationsById(id: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsById(id, signal);
   }
 
-  async getTranslationsBySlug(slug: string): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsBySlug(slug);
+  async getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
+    return this.entries.getTranslationsBySlug(slug, signal);
   }
 
-  async getComments(entryId: string, params?: ChangelogGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
-    return this.entries.getComments(entryId, params);
+  async getComments(
+    entryId: string,
+    params?: ChangelogGetCommentsParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<EntryComment>> {
+    return this.entries.getComments(entryId, params, signal);
   }
 
-  async react(changelogId: string, params: ReactParams): Promise<ReactResponse> {
-    return this.entries.react(changelogId, params);
+  async react(
+    changelogId: string,
+    params: ReactParams,
+    signal?: AbortSignal
+  ): Promise<ReactResponse> {
+    return this.entries.react(changelogId, params, signal);
   }
 }

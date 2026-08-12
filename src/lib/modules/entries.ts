@@ -34,49 +34,86 @@ export interface EntriesGetCategoriesParams extends LocaleOptions {}
 export class EntriesModule {
   constructor(private readonly http: HttpClient) {}
 
-  async list(params: EntriesListParams): Promise<PaginatedResponse<GenericEntryListItem>> {
-    return this.http.get<PaginatedResponse<GenericEntryListItem>>('/v1/entries', params);
+  async list(
+    params: EntriesListParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<GenericEntryListItem>> {
+    return this.http.get<PaginatedResponse<GenericEntryListItem>>('/v1/entries', params, signal);
   }
 
-  async getById(id: string, params?: EntriesGetByIdParams): Promise<GenericEntryDetail> {
-    return this.http.get<GenericEntryDetail>(`/v1/entries/by-id/${encodeURIComponent(id)}`, params);
-  }
-
-  async getBySlug(slug: string, params: EntriesGetBySlugParams): Promise<GenericEntryDetail> {
-    return this.http.get<GenericEntryDetail>(`/v1/entries/${encodeURIComponent(slug)}`, params);
-  }
-
-  async getTranslationsById(id: string): Promise<EntryTranslationsMap> {
-    return this.http.get<EntryTranslationsMap>(
-      `/v1/entries/by-id/${encodeURIComponent(id)}/translations`
+  async getById(
+    id: string,
+    params?: EntriesGetByIdParams,
+    signal?: AbortSignal
+  ): Promise<GenericEntryDetail> {
+    return this.http.get<GenericEntryDetail>(
+      `/v1/entries/by-id/${encodeURIComponent(id)}`,
+      params,
+      signal
     );
   }
 
-  async getTranslationsBySlug(slug: string): Promise<EntryTranslationsMap> {
-    return this.http.get<EntryTranslationsMap>(
-      `/v1/entries/${encodeURIComponent(slug)}/translations`
+  async getBySlug(
+    slug: string,
+    params: EntriesGetBySlugParams,
+    signal?: AbortSignal
+  ): Promise<GenericEntryDetail> {
+    return this.http.get<GenericEntryDetail>(
+      `/v1/entries/${encodeURIComponent(slug)}`,
+      params,
+      signal
     );
   }
 
-  async getComments(entryId: string, params?: EntriesGetCommentsParams): Promise<PaginatedResponse<EntryComment>> {
+  async getTranslationsById(id: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
+    return this.http.get<EntryTranslationsMap>(
+      `/v1/entries/by-id/${encodeURIComponent(id)}/translations`,
+      undefined,
+      signal
+    );
+  }
+
+  async getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
+    return this.http.get<EntryTranslationsMap>(
+      `/v1/entries/${encodeURIComponent(slug)}/translations`,
+      undefined,
+      signal
+    );
+  }
+
+  async getComments(
+    entryId: string,
+    params?: EntriesGetCommentsParams,
+    signal?: AbortSignal
+  ): Promise<PaginatedResponse<EntryComment>> {
     return this.http.get<PaginatedResponse<EntryComment>>(
       `/v1/entries/${encodeURIComponent(entryId)}/comments`,
-      params
+      params,
+      signal
     );
   }
 
-  async react(entryId: string, params: ReactParams): Promise<ReactResponse> {
+  async react(
+    entryId: string,
+    params: ReactParams,
+    signal?: AbortSignal
+  ): Promise<ReactResponse> {
     return this.http.post<ReactResponse>(
       `/v1/entries/${encodeURIComponent(entryId)}/reactions`,
-      params
+      params,
+      signal
     );
   }
 
-  async getTags(type: string): Promise<EntryTagWithCount[]> {
-    return this.http.get<EntryTagWithCount[]>('/v1/tags', { type });
+  async getTags(type: string, signal?: AbortSignal): Promise<EntryTagWithCount[]> {
+    return this.http.get<EntryTagWithCount[]>('/v1/tags', { type }, signal);
   }
 
-  async getCategories(type: string, params?: EntriesGetCategoriesParams): Promise<EntryCategory[]> {
-    return this.http.get<EntryCategory[]>('/v1/categories', { type, ...params });
+  async getCategories(
+    type: string,
+    params?: EntriesGetCategoriesParams,
+    signal?: AbortSignal
+  ): Promise<EntryCategory[]> {
+    return this.http.get<EntryCategory[]>('/v1/categories', { type, ...params }, signal);
   }
 }
