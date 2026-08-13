@@ -565,25 +565,62 @@ try {
 }
 ```
 
-## Code Block Styles
+## Styling Entry Content
 
-The SDK ships an optional CSS file for styling code blocks in content HTML (VS Code Dark+ theme):
+Render an entry's `contentHtml` inside an element with the class `kookee-entry-content` —
+that class is the styling contract, and it works in any framework:
+
+```html
+<!-- Vanilla / Angular / Vue — add the class yourself -->
+<div class="kookee-entry-content" [innerHTML]="post.contentHtml"></div>
+```
+
+```tsx
+// React — <EntryContent> from @kookee/react adds the class for you
+<EntryContent entry={post} />
+```
+
+The SDK ships two optional stylesheets. Every rule in both is scoped under
+`.kookee-entry-content`, so importing them can never restyle anything else on your page:
+
+- **`styles/content.css`** — code styling: syntax-highlighted code blocks (VS Code Dark+
+  theme), the copy button and language label, and inline code. Everyone should import
+  this.
+- **`styles/typography.css`** — baseline text styling (headings, lists, tables, images,
+  blockquotes, task lists). Import it if your app has no typography system of its own; it
+  inherits your page's font and colors and only adds rhythm and hierarchy. **Tailwind
+  apps should skip it** and keep using their `prose` classes.
 
 ```typescript
-import '@kookee/sdk/styles/code.css';
+import '@kookee/sdk/styles/content.css';
+import '@kookee/sdk/styles/typography.css'; // only without your own typography system
 ```
 
 Or via CDN:
 
 ```html
-<link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/code.css">
+<link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/content.css">
+<link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/typography.css">
+<!-- also served next to the script build: -->
+<link rel="stylesheet" href="https://kookee.dev/sdk/content.css">
 ```
 
-This provides:
-- Syntax-highlighted code blocks with a dark theme
-- Copy-to-clipboard button styling
-- Language label display
-- Inline code styling (red on pink background)
+**Tailwind v4 apps**: import content.css into a cascade layer so your `prose-code:`
+utilities keep winning over the defaults:
+
+```css
+@import '@kookee/sdk/styles/content.css' layer(components);
+```
+
+Theming: content.css exposes `--kookee-code-*` custom properties (font, block and header
+backgrounds, inline-code colors). Override them on `:root`:
+
+```css
+:root {
+  --kookee-code-font: var(--font-mono);
+  --kookee-code-inline-bg: #eef;
+}
+```
 
 ## TypeScript
 

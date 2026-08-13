@@ -1,0 +1,212 @@
+/**
+ * Kookee SDK - Entry content typography
+ * Baseline text styling for apps WITHOUT their own typography system (headings, lists,
+ * tables, images, blockquotes, task lists, file chips). Tailwind apps should skip this
+ * file and keep their `prose` classes; everyone imports styles/content.css for code.
+ *
+ * Every rule is scoped under the `kookee-entry-content` class (see content.css for the
+ * class contract). It inherits your page's font family and text color, and defines only
+ * rhythm and hierarchy — so entry content blends into any host site.
+ *
+ * Usage:
+ *   import '@kookee/sdk/styles/typography.css';
+ *
+ * Or via CDN:
+ *   <link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/typography.css">
+ *   <link rel="stylesheet" href="https://kookee.dev/sdk/typography.css">
+ */
+
+.kookee-entry-content {
+  line-height: 1.7;
+}
+
+.kookee-entry-content > :first-child {
+  margin-top: 0;
+}
+
+.kookee-entry-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* Headings */
+.kookee-entry-content h1,
+.kookee-entry-content h2,
+.kookee-entry-content h3,
+.kookee-entry-content h4,
+.kookee-entry-content h5,
+.kookee-entry-content h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.75em 0 0.5em;
+}
+
+.kookee-entry-content h1 {
+  font-size: 2em;
+  line-height: 1.2;
+}
+
+.kookee-entry-content h2 {
+  font-size: 1.5em;
+}
+
+.kookee-entry-content h3 {
+  font-size: 1.25em;
+}
+
+.kookee-entry-content h4 {
+  font-size: 1.125em;
+}
+
+.kookee-entry-content h5 {
+  font-size: 1em;
+}
+
+.kookee-entry-content h6 {
+  font-size: 0.875em;
+}
+
+/* Paragraphs */
+.kookee-entry-content p {
+  margin: 0.75em 0;
+}
+
+/* Links - inherit the page's text color, rely on underline for affordance */
+.kookee-entry-content a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* Lists */
+.kookee-entry-content ul,
+.kookee-entry-content ol {
+  margin: 0.75em 0;
+  padding-left: 1.5em;
+}
+
+.kookee-entry-content ul {
+  list-style-type: disc;
+}
+
+.kookee-entry-content ol {
+  list-style-type: decimal;
+}
+
+.kookee-entry-content li {
+  margin: 0.25em 0;
+}
+
+/* Tiptap wraps list-item, task-item and table-cell content in <p> — keep cells tight */
+.kookee-entry-content li p,
+.kookee-entry-content th p,
+.kookee-entry-content td p {
+  margin: 0.25em 0;
+}
+
+.kookee-entry-content li p:first-child,
+.kookee-entry-content th p:first-child,
+.kookee-entry-content td p:first-child {
+  margin-top: 0;
+}
+
+.kookee-entry-content li p:last-child,
+.kookee-entry-content th p:last-child,
+.kookee-entry-content td p:last-child {
+  margin-bottom: 0;
+}
+
+.kookee-entry-content ul ul,
+.kookee-entry-content ol ol,
+.kookee-entry-content ul ol,
+.kookee-entry-content ol ul {
+  margin: 0.25em 0;
+}
+
+/* Task lists (Tiptap: ul[data-type="taskList"] > li[data-checked] > label + div) */
+.kookee-entry-content ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.kookee-entry-content ul[data-type='taskList'] li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+
+.kookee-entry-content ul[data-type='taskList'] li > div {
+  flex: 1;
+}
+
+.kookee-entry-content ul[data-type='taskList'] input[type='checkbox'] {
+  margin: 0;
+  transform: translateY(0.125em);
+}
+
+/* Blockquote */
+.kookee-entry-content blockquote {
+  margin: 1em 0;
+  padding: 0.25em 0 0.25em 1em;
+  border-left: 0.25rem solid color-mix(in srgb, currentcolor 25%, transparent);
+}
+
+.kookee-entry-content blockquote > p {
+  margin: 0.25em 0;
+}
+
+/* Horizontal rule */
+.kookee-entry-content hr {
+  margin: 2em 0;
+  border: none;
+  border-top: 1px solid color-mix(in srgb, currentcolor 20%, transparent);
+}
+
+/* Images */
+.kookee-entry-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1em 0;
+}
+
+/* Highlight - background color arrives as an inline style */
+.kookee-entry-content mark {
+  padding: 0.1em 0.25em;
+  border-radius: 0.25rem;
+}
+
+/* Tables */
+.kookee-entry-content table {
+  width: 100%;
+  margin: 1em 0;
+  border-collapse: collapse;
+  font-size: 0.9375em;
+}
+
+.kookee-entry-content th,
+.kookee-entry-content td {
+  padding: 0.5em 0.75em;
+  border: 1px solid color-mix(in srgb, currentcolor 20%, transparent);
+  text-align: left;
+  vertical-align: top;
+}
+
+.kookee-entry-content th {
+  font-weight: 600;
+  background: color-mix(in srgb, currentcolor 6%, transparent);
+}
+
+/* File chips (span[data-file-chip], an inline atom for uploaded files) */
+.kookee-entry-content span[data-file-chip] {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125em 0.5em;
+  border: 1px solid color-mix(in srgb, currentcolor 20%, transparent);
+  border-radius: 0.375rem;
+  background: color-mix(in srgb, currentcolor 5%, transparent);
+  font-size: 0.875em;
+}
+
+.kookee-entry-content span[data-file-chip]::before {
+  content: attr(data-file-name);
+}

@@ -1,6 +1,6 @@
 {
   "name": "@kookee/sdk",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Official Kookee SDK - Access your blog, changelog, help center, and more",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +14,8 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./styles/code.css": "./styles/code.css"
+    "./styles/content.css": "./styles/content.css",
+    "./styles/typography.css": "./styles/typography.css"
   },
   "files": [
     "dist",
@@ -45,7 +46,8 @@
   },
   "homepage": "https://kookee.dev",
   "sideEffects": [
-    "./styles/code.css"
+    "./styles/content.css",
+    "./styles/typography.css"
   ],
   "devDependencies": {
     "@types/node": "^22.10.2",
