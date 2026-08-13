@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.1
+
+### Changed
+
+- README: the Tailwind section now documents the unlayered code-block guard. `prose`'s
+  own `pre` styles and `prose-code:` utilities reach elements inside `.kookee-code-block`
+  through the utilities layer, which `layer(components)` cannot defend against — apps
+  rendering entry content inside `prose` containers should copy the documented two-rule
+  guard. Docs only, no code changes.
+
 ## 1.2.0
 
 Entry content styling is now a scoped, framework-agnostic contract: render `contentHtml`
