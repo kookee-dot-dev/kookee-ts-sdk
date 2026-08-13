@@ -612,6 +612,26 @@ utilities keep winning over the defaults:
 @import '@kookee/sdk/styles/content.css' layer(components);
 ```
 
+The flip side of the layered import: `prose`'s own `pre` styles and `prose-code:`
+utilities also reach elements *inside* code blocks, and the layered stylesheet can't
+defend against them. If you render entry content inside `prose` containers, add this
+unlayered guard once:
+
+```css
+.kookee-entry-content .kookee-code-block pre {
+  margin: 0;
+  border-radius: 0;
+}
+
+.kookee-entry-content .kookee-code-block pre code {
+  background: none;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font-size: 0.875rem;
+}
+```
+
 Theming: content.css exposes `--kookee-code-*` custom properties (font, block and header
 backgrounds, inline-code colors). Override them on `:root`:
 
