@@ -17,7 +17,7 @@
  *   <link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/content.css">
  *   <link rel="stylesheet" href="https://kookee.dev/sdk/content.css">
  *
- * Theming: override the --kookee-code-* custom properties on :root.
+ * Theming: override the --kookee-code-* and --kookee-file-chip-* custom properties on :root.
  * Pair with styles/typography.css if your app has no typography system of its own.
  */
 
@@ -118,6 +118,49 @@
 .kookee-entry-content code:not(pre code)::before,
 .kookee-entry-content code:not(pre code)::after {
   content: none;
+}
+
+/* File attachment chip */
+.kookee-entry-content .sb-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  max-width: 100%;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--kookee-file-chip-bg, #f4f4f5);
+  border: 1px solid var(--kookee-file-chip-border, #e4e4e7);
+  color: var(--kookee-file-chip-fg, inherit);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  font-weight: 400;
+  text-decoration: none;
+  vertical-align: baseline;
+  transition: background-color 0.15s ease;
+}
+
+.kookee-entry-content .sb-file-chip:hover {
+  background-color: var(--kookee-file-chip-hover-bg, #e4e4e7);
+  text-decoration: none;
+}
+
+.kookee-entry-content .sb-file-chip__icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  color: var(--kookee-file-chip-muted, #71717a);
+}
+
+.kookee-entry-content .sb-file-chip__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.kookee-entry-content .sb-file-chip__size {
+  flex-shrink: 0;
+  color: var(--kookee-file-chip-muted, #71717a);
 }
 
 /* Syntax highlighting - VS Code Dark+ theme */

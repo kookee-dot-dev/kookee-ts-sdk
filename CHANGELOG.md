@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.2
+
+### Changed
+
+- `styles/content.css` now styles file attachment chips (`.sb-file-chip`) rendered in
+  `contentHtml`: a pill with a file icon, truncated name, and size label. Themeable via
+  the new `--kookee-file-chip-bg`, `--kookee-file-chip-border`, `--kookee-file-chip-fg`,
+  `--kookee-file-chip-hover-bg`, and `--kookee-file-chip-muted` custom properties.
+  Requires a Kookee backend that emits the chip markup (icon + name + size spans);
+  older `contentHtml` renders as a plain chip without icon and size until re-saved.
+
 ## 1.2.1
 
 ### Changed

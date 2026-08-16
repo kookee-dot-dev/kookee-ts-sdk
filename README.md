@@ -583,9 +583,9 @@ that class is the styling contract, and it works in any framework:
 The SDK ships two optional stylesheets. Every rule in both is scoped under
 `.kookee-entry-content`, so importing them can never restyle anything else on your page:
 
-- **`styles/content.css`** — code styling: syntax-highlighted code blocks (VS Code Dark+
-  theme), the copy button and language label, and inline code. Everyone should import
-  this.
+- **`styles/content.css`** — content widget styling: syntax-highlighted code blocks
+  (VS Code Dark+ theme), the copy button and language label, inline code, and file
+  attachment chips. Everyone should import this.
 - **`styles/typography.css`** — baseline text styling (headings, lists, tables, images,
   blockquotes, task lists). Import it if your app has no typography system of its own; it
   inherits your page's font and colors and only adds rhythm and hierarchy. **Tailwind
@@ -632,13 +632,42 @@ unlayered guard once:
 }
 ```
 
-Theming: content.css exposes `--kookee-code-*` custom properties (font, block and header
-backgrounds, inline-code colors). Override them on `:root`:
+### Theming
+
+content.css reads every color from a custom property with a light-theme fallback, so you
+can restyle it from `:root` without touching the stylesheet:
+
+- `--kookee-code-*` — code styling: font, block and header backgrounds, inline-code
+  colors.
+- `--kookee-file-chip-bg`, `--kookee-file-chip-border`, `--kookee-file-chip-fg`,
+  `--kookee-file-chip-hover-bg`, `--kookee-file-chip-muted` — file attachment chip
+  background, border, text color (defaults to `inherit`), hover fill, and the muted
+  color used for the icon and size label.
+
+Map them to your design system's tokens:
 
 ```css
 :root {
   --kookee-code-font: var(--font-mono);
   --kookee-code-inline-bg: #eef;
+  --kookee-file-chip-bg: var(--muted);
+  --kookee-file-chip-border: var(--border);
+  --kookee-file-chip-muted: var(--muted-foreground);
+}
+```
+
+The fallbacks are light-theme values and do not react to your theme. If your app has a
+dark mode, map at least `--kookee-file-chip-bg` and `--kookee-file-chip-border` to tokens
+that flip with it — otherwise the chip keeps its light background while your text color
+goes light, and the file name becomes unreadable.
+
+For changes beyond colors, target the markup directly — the chip is an
+`<a class="sb-file-chip">` containing `.sb-file-chip__icon`, `.sb-file-chip__name`
+(truncated at 150px), and `.sb-file-chip__size`:
+
+```css
+.kookee-entry-content .sb-file-chip__name {
+  max-width: 240px;
 }
 ```
 
