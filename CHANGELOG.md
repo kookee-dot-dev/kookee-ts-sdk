@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.3
+
+### Fixed
+
+- `styles/content.css` now includes the structural task-list styles
+  (`ul[data-type="taskList"]`): checkbox and text on one flex row, list bullets
+  suppressed, paragraph margins reset inside items. Previously these rules lived only in
+  `styles/typography.css`, so apps following the recommended setup — `content.css` plus
+  their own typography system such as Tailwind `prose` — rendered task lists as bulleted
+  lines with the checkbox stacked above the text. Loading both stylesheets remains
+  harmless.
+
 ## 1.2.2
 
 ### Changed

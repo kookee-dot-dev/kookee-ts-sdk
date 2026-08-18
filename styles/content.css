@@ -245,3 +245,33 @@
 .kookee-entry-content .kookee-code-block .hljs-params {
   color: #d4d4d4;
 }
+
+/* Task lists (Tiptap: ul[data-type="taskList"] > li[data-checked] > label + div).
+   Structural, not typographic: typography systems like Tailwind prose style plain lists
+   but know nothing about this markup, so without these rules task items render as
+   bulleted lines with the checkbox stacked above the text. Compatible with the block in
+   typography.css, so loading both is harmless; the extra p-margin reset here counters
+   typography systems that give paragraphs vertical margins. */
+.kookee-entry-content ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.kookee-entry-content ul[data-type='taskList'] li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+
+.kookee-entry-content ul[data-type='taskList'] li > div {
+  flex: 1;
+}
+
+.kookee-entry-content ul[data-type='taskList'] li > div p {
+  margin: 0;
+}
+
+.kookee-entry-content ul[data-type='taskList'] input[type='checkbox'] {
+  margin: 0;
+  transform: translateY(0.125em);
+}
