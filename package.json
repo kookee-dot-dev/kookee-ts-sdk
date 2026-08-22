@@ -1,6 +1,6 @@
 {
   "name": "@kookee/sdk",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Official Kookee SDK - Access your blog, changelog, help center, and more",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -13,6 +13,14 @@
       },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./consent": {
+      "types": {
+        "import": "./dist/consent.d.ts",
+        "require": "./dist/consent.d.cts"
+      },
+      "import": "./dist/consent.js",
+      "require": "./dist/consent.cjs"
     },
     "./styles/content.css": "./styles/content.css",
     "./styles/typography.css": "./styles/typography.css"

@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.2.4
+
+### Added
+
+- `@kookee/sdk/consent` — the cookie consent widget. `initKookeeConsent({ apiKey, baseUrl? })`
+  loads the project's consent configuration (categories, services, texts, appearance),
+  renders the banner and preferences dialog, persists the visitor's choice, and returns a
+  `KookeeConsentApi` with `on(category, cb)`, `onChange(cb)`, `isGranted(category)`, `get()`,
+  `show()` and `ready` for gating scripts from code. Sends Google Consent Mode updates when
+  enabled in the project config.
+- `dist/consent.global.js` — the `<script>` build of the same widget, served at
+  `kookee.dev/consent/v1.js`. It auto-initializes from the tag's `data-api-key` (and
+  optional `data-base-url`) attributes and exposes the API as the `KookeeConsent` global.
+
+### Changed
+
+- Version kept in step with `@kookee/react` 1.2.4.
+
 ## 1.2.3
 
 ### Fixed

@@ -315,6 +315,45 @@ const config = await kookee.config.getByKey('feature_flags');
 const configs = await kookee.config.list({ keys: ['feature_flags', 'theme'] });
 ```
 
+## Cookie Consent
+
+The consent widget ships on its own subpath, so it is only bundled if you use it. Categories,
+services, texts, appearance and Google Consent Mode are configured per project in Kookee; the
+widget loads that configuration with your API key.
+
+```typescript
+import { initKookeeConsent } from '@kookee/sdk/consent';
+
+const consent = initKookeeConsent({ apiKey: 'your-api-key' });
+
+// Runs now if the visitor already consented, or right after they do
+consent.on('analytics', () => {
+  // load gtag / analytics here
+});
+
+consent.onChange((choices) => console.log(choices)); // { analytics: true, marketing: false }
+consent.isGranted('marketing');
+consent.show(); // reopen the preferences dialog, e.g. from a "Cookie settings" link
+await consent.ready; // config loaded and any stored consent applied
+```
+
+For a plain HTML page use the `<script>` build instead. It auto-initializes from the tag's
+`data-api-key` attribute and exposes the API as the `KookeeConsent` global. Tracker scripts
+tagged with `type="text/plain"` and `data-kookee-consent="<category>"` are activated only
+after consent:
+
+```html
+<script async src="https://kookee.dev/consent/v1.js" data-api-key="your-api-key"></script>
+<script
+  type="text/plain"
+  data-kookee-consent="analytics"
+  src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"
+></script>
+```
+
+The complete embed snippet (Consent Mode defaults plus a stub that queues API calls made
+before the script loads) is in your project's consent settings in Kookee.
+
 ## Health Check
 
 ```typescript

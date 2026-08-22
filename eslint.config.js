@@ -25,5 +25,13 @@ export default tseslint.config(
       // for nothing.
       '@typescript-eslint/no-empty-object-type': 'off',
     },
+  },
+  {
+    // gtag.js only processes dataLayer entries that are raw `arguments` objects; a rest
+    // array is silently ignored, so the gtag stub there has to use `arguments`.
+    files: ['src/consent/consent-mode.ts'],
+    rules: {
+      'prefer-rest-params': 'off',
+    },
   }
 );
