@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0
+
+### Changed
+
+- Version-only release to stay in lockstep with `@kookee/react` 1.3.0, which adds
+  programmatic control of the chat widget (`hideLauncher`, `open` / `onOpenChange`,
+  `zIndex`, `offset`). No code changes in this package.
+
 ## 1.2.4
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "@kookee/sdk",
-  "version": "1.2.4",
+  "version": "1.3.0",
   "description": "Official Kookee SDK - Access your blog, changelog, help center, and more",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
