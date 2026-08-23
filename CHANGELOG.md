@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0
+
+### Changed
+
+- Version-only release to stay in lockstep with `@kookee/react` 1.4.0, which adds the
+  `<script>` build of the chat widget. No code changes in this package.
+
 ## 1.3.0
 
 ### Changed
