@@ -2,7 +2,7 @@ import { initKookeeConsent } from './manager';
 import type { KookeeConsentApi } from './types';
 
 /**
- * Entry point for the `<script>` build served at kookee.dev/consent/v1.js.
+ * Entry point for the `<script>` build served at kookee.dev/consent/latest.js.
  *
  * Single default export, deliberately (see ../browser.ts): tsup makes the default export
  * the IIFE global, so `KookeeConsent` on the page IS the initialized API object.

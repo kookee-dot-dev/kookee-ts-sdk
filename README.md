@@ -343,7 +343,7 @@ tagged with `type="text/plain"` and `data-kookee-consent="<category>"` are activ
 after consent:
 
 ```html
-<script async src="https://kookee.dev/consent/v1.js" data-api-key="your-api-key"></script>
+<script async src="https://kookee.dev/consent/latest.js" data-api-key="your-api-key"></script>
 <script
   type="text/plain"
   data-kookee-consent="analytics"
@@ -353,6 +353,17 @@ after consent:
 
 The complete embed snippet (Consent Mode defaults plus a stub that queues API calls made
 before the script loads) is in your project's consent settings in Kookee.
+
+TypeScript projects that call the `KookeeConsent` global from code can download
+`https://kookee.dev/consent/latest.d.ts` into their types folder (it declares the global with
+no imports). With the npm package installed, the equivalent is:
+
+```typescript
+import type { KookeeConsentApi } from '@kookee/sdk/consent';
+declare global {
+  var KookeeConsent: KookeeConsentApi;
+}
+```
 
 ## Health Check
 

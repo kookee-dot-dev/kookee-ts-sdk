@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.1
+
+### Changed
+
+- The consent script is now served at `kookee.dev/consent/latest.js` (replacing
+  `consent/v1.js`), with standalone typings for the `KookeeConsent` global at
+  `consent/latest.d.ts`. README updated accordingly; no runtime changes.
+
 ## 1.4.0
 
 ### Changed
