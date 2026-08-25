@@ -6,6 +6,7 @@ import type {
   HelpArticleDetail,
   HelpArticleListItem,
   HelpChatParams,
+  HelpChatContinuationParams,
   HelpChatResponse,
   HelpChatStreamChunk,
   HelpSearchResult,
@@ -115,7 +116,9 @@ export class HelpModule {
     return this.http.post<HelpChatResponse>('/v1/help/chat', params);
   }
 
-  chatStream(params: HelpChatParams): AsyncIterable<HelpChatStreamChunk> {
+  chatStream(
+    params: HelpChatParams | HelpChatContinuationParams,
+  ): AsyncIterable<HelpChatStreamChunk> {
     return this.http.streamPost<HelpChatStreamChunk>('/v1/help/chat/stream', params);
   }
 }

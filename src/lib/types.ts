@@ -59,10 +59,54 @@ export interface HelpChatMessage {
   content: string;
 }
 
+/**
+ * Context about the page the widget is embedded in. Collected automatically by
+ * `@kookee/react` unless `pageContext` is disabled; every field is optional because
+ * collection is best-effort and must never break a chat request.
+ */
+export interface HelpChatPage {
+  url?: string;
+  title?: string;
+  description?: string;
+  structuredData?: string;
+  excerpt?: string;
+}
+
+export type HelpChatAppContext = Record<string, string | number | boolean>;
+
+/**
+ * A tool the host site registers. The handler is NOT sent to the server — only the name,
+ * description, and JSON-schema parameters, so the model knows the tool exists. When the model
+ * calls it, the browser runs the handler and posts the result back.
+ */
+export interface HelpChatToolDefinition {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
+export interface HelpChatToolResult {
+  id: string;
+  content: string;
+}
+
 export interface HelpChatParams {
   messages: HelpChatMessage[];
   locale?: string;
   sessionId?: string;
+  conversationId?: string;
+  page?: HelpChatPage;
+  appContext?: HelpChatAppContext;
+  tools?: HelpChatToolDefinition[];
+}
+
+/**
+ * Resumes a turn that paused for a client tool call. `continuation` is the opaque token from
+ * the `client_tool_call` chunk; it is single-use and expires quickly.
+ */
+export interface HelpChatContinuationParams {
+  continuation: string;
+  toolResults: HelpChatToolResult[];
 }
 
 export interface HelpChatResponse {
@@ -91,9 +135,20 @@ export interface HelpChatToolEntry {
   displayName: string;
 }
 
+export interface HelpChatClientToolCall {
+  id: string;
+  name: string;
+  args: Record<string, unknown>;
+}
+
 export type HelpChatStreamChunk =
   | { type: 'conversation_id'; id: string }
   | { type: 'tool_call'; name: string; args: Record<string, unknown> }
+  | {
+      type: 'client_tool_call';
+      continuation: string;
+      calls: HelpChatClientToolCall[];
+    }
   | {
       type: 'tool_result';
       name: string;

@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.5.0
+
+### Added
+
+- `HelpChatParams` accepts `page`, `appContext`, `tools`, and `conversationId`.
+- `HelpChatContinuationParams` and the `client_tool_call` stream chunk: when the model calls a
+  tool the host site registered, the stream ends with an opaque single-use `continuation`
+  token and the calls to run; posting the results back resumes the same turn.
+- Types: `HelpChatPage`, `HelpChatAppContext`, `HelpChatToolDefinition`, `HelpChatToolResult`,
+  `HelpChatClientToolCall`.
+
+### Changed
+
+- `HelpChatStreamChunk` has a new `client_tool_call` variant — exhaustive switches over the
+  union need a new case.
+
 ## 1.4.1
 
 ### Changed
