@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.1
+
+### Changed
+
+- Version-only release to stay in lockstep with `@kookee/react` 1.5.1, which fixes the
+  `<script>` widget crashing when its `async` tag executes before `<body>` is parsed. No code
+  changes in this package.
+
 ## 1.5.0
 
 ### Added
