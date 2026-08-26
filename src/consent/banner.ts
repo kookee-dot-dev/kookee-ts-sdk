@@ -119,6 +119,20 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
+const CONTAINED_EVENTS = ['keydown', 'keypress', 'keyup', 'paste'] as const;
+
+/**
+ * Keyboard and paste events are composed: they cross the shadow boundary and reach the host
+ * page retargeted to the banner host, so a host-page "type anywhere" handler reads typing in
+ * the banner as typing with nothing focused and steals the keystroke. Stop them at the shadow
+ * root. Capture-phase listeners on the host page still run; a shadow tree cannot prevent that.
+ */
+function containKeyboardEvents(root: ShadowRoot): void {
+  for (const type of CONTAINED_EVENTS) {
+    root.addEventListener(type, (e) => e.stopPropagation());
+  }
+}
+
 export class ConsentBanner {
   private host: HTMLDivElement | null = null;
   private shadow: ShadowRoot | null = null;
@@ -149,6 +163,7 @@ export class ConsentBanner {
     this.host = document.createElement('div');
     this.host.setAttribute('data-kookee-consent-banner', '');
     this.shadow = this.host.attachShadow({ mode: 'open' });
+    containKeyboardEvents(this.shadow);
     document.body.appendChild(this.host);
     return this.shadow;
   }

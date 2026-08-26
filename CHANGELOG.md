@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.2
+
+### Fixed
+
+- The consent banner no longer leaks keyboard and paste events to the host page. These events
+  are composed, so typing in the banner reached host-page listeners retargeted to the banner
+  host, where a "type anywhere" handler could steal the keystroke; they are now stopped at the
+  shadow root.
+
 ## 1.5.1
 
 ### Changed
