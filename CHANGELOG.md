@@ -5,8 +5,9 @@
 ### Changed
 
 - Version-only release to stay in lockstep with `@kookee/react` 1.5.1, which fixes the
-  `<script>` widget crashing when its `async` tag executes before `<body>` is parsed. No code
-  changes in this package.
+  `<script>` widget crashing when its `async` tag executes before `<body>` is parsed and adds
+  a pre-load command queue stub (the pattern this package's consent script already uses). No
+  code changes in this package.
 
 ## 1.5.0
 
