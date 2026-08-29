@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.6.0
+
+### Added
+
+- SEO helpers, all pure functions that take a `getPath(entry)` function mapping an entry to its
+  path on your site: `getEntrySeo` (title, description, canonical, image, `article:*` dates,
+  `hreflang` alternates, JSON-LD `Article`), `buildSitemap`, `buildFeed` (RSS 2.0) and
+  `buildLlmsTxt` (`llms.txt` / `llms-full.txt`). See the README's "SEO" section.
+- `kookee.entries.export({ markdown?, type? })` — every published, public entry of the project
+  as slim rows (`GET /v1/entries/export`), optionally with the body as markdown. Follows
+  pagination and returns the whole list.
+- `excerptText` (plain-text excerpt) on every entry list and detail response.
+
 ## 1.5.2
 
 ### Fixed

@@ -234,7 +234,143 @@ await kookee.entries.react('entry-id', { reactionType: 'heart', action: 'add' })
 // Get tags or categories for a type
 const tags = await kookee.entries.getTags('blog');
 const categories = await kookee.entries.getCategories('help_article');
+
+// Every published entry as slim rows (for sitemaps, feeds, llms.txt) — see "SEO"
+const rows = await kookee.entries.export({ type: ['blog', 'help_article'] });
 ```
+
+## SEO
+
+Kookee content lives on **your** domain, so the SEO files live there too. The SDK gives you the
+data and pure builder functions; you mount a route. Everything takes one thing you write — a
+`getPath` function from an entry to its path on your site (`null` = no page):
+
+```typescript
+import type { GetPath } from '@kookee/sdk';
+
+export const getPath: GetPath = (entry) => {
+  switch (entry.type) {
+    case 'blog':
+      return entry.slug ? `/blog/${entry.slug}` : null;
+    case 'changelog':
+      return entry.slug ? `/changelog/${entry.slug}` : null;
+    case 'help_article':
+      return entry.slug && entry.category ? `/help/${entry.category.slug}/${entry.slug}` : null;
+    default:
+      return null;
+  }
+};
+```
+
+### Page metadata
+
+`getEntrySeo` turns an entry into the facts a `<head>` needs. The description falls back
+`metaDescription → excerptText (160 chars) → title`; `type` is `article` for blog and changelog
+entries; pass the translations map to get `hreflang` alternates.
+
+```typescript
+import { getEntrySeo } from '@kookee/sdk';
+
+const post = await kookee.blog.getBySlug(slug);
+const translations = await kookee.blog.getTranslationsBySlug(slug);
+const seo = getEntrySeo(post, { baseUrl: 'https://example.com', getPath, siteName: 'Example', translations });
+// seo.title, seo.description, seo.canonical, seo.image, seo.type, seo.publishedAt,
+// seo.updatedAt, seo.alternates ([{ hreflang, href }]), seo.jsonLd (schema.org Article)
+```
+
+Next.js `generateMetadata`:
+
+```typescript
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const post = await kookee.blog.getBySlug(params.slug);
+  const seo = getEntrySeo(post, { baseUrl: SITE_URL, getPath, siteName: 'Example' });
+  return {
+    title: seo.title,
+    description: seo.description,
+    alternates: {
+      canonical: seo.canonical ?? undefined,
+      languages: Object.fromEntries(seo.alternates.map((a) => [a.hreflang, a.href])),
+    },
+    openGraph: {
+      type: seo.type,
+      title: seo.title,
+      description: seo.description,
+      url: seo.canonical ?? undefined,
+      images: seo.image ? [seo.image] : undefined,
+      publishedTime: seo.publishedAt ?? undefined,
+      modifiedTime: seo.updatedAt,
+    },
+    twitter: { card: seo.image ? 'summary_large_image' : 'summary' },
+  };
+}
+
+// In the page component:
+// <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(seo.jsonLd) }} />
+```
+
+### Sitemap
+
+```typescript
+import { buildSitemap } from '@kookee/sdk';
+
+// app/sitemap.xml/route.ts (Next.js) — or any server route
+export async function GET() {
+  const entries = await kookee.entries.export();
+  const xml = buildSitemap(entries, { baseUrl: SITE_URL, getPath, extraUrls: ['/', '/pricing'] });
+  return new Response(xml, { headers: { 'Content-Type': 'application/xml' } });
+}
+```
+
+`buildSitemap` emits `<loc>` and `<lastmod>` (from `updatedAt`) per entry. The sitemap protocol
+caps one file at 50,000 URLs / 50 MB; split into a sitemap index yourself beyond that.
+
+### RSS
+
+```typescript
+import { buildFeed } from '@kookee/sdk';
+
+const posts = await kookee.blog.list({ limit: 50 });
+const xml = buildFeed(posts.data, {
+  baseUrl: SITE_URL,
+  getPath,
+  title: 'Example Blog',
+  description: 'Latest posts',
+  feedPath: '/rss.xml',
+});
+```
+
+### llms.txt
+
+`entries.export()` returns each entry's `markdown` body when asked, so `llms-full.txt` costs one
+call:
+
+```typescript
+import { buildLlmsTxt } from '@kookee/sdk';
+
+const entries = await kookee.entries.export({ type: ['help_article', 'blog'], markdown: true });
+const index = buildLlmsTxt(entries, { baseUrl: SITE_URL, getPath, siteName: 'Example', description: 'Docs and blog' });
+const full = buildLlmsTxt(entries, { baseUrl: SITE_URL, getPath, siteName: 'Example', full: true });
+```
+
+TanStack Start server route (the same shape works for every file above):
+
+```typescript
+export const Route = createFileRoute('/llms.txt')({
+  server: {
+    handlers: {
+      GET: async () => {
+        const entries = await kookee.entries.export({ type: ['help_article'] });
+        return new Response(buildLlmsTxt(entries, { baseUrl: SITE_URL, getPath, siteName: 'Example' }), {
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        });
+      },
+    },
+  },
+});
+```
+
+For JSON-LD in TanStack use the `{ 'script:ld+json': seo.jsonLd }` meta descriptor (the router
+escapes it); `head().scripts` is injected unescaped.
 
 ## Feedback
 
@@ -742,6 +878,18 @@ import type {
   EntryCommentAttachmentFile,
   EntryTranslationSummary,
   EntryTranslationsMap,
+
+  // SEO
+  GetPath,
+  PathEntry,
+  ExportEntry,
+  ExportParams,
+  EntrySeo,
+  EntrySeoOptions,
+  EntrySeoAlternate,
+  SitemapOptions,
+  FeedOptions,
+  LlmsOptions,
 
   // Entry variants — LIST responses (no contentHtml)
   GenericEntryListItem,

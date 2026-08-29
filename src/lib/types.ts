@@ -385,6 +385,7 @@ export interface BaseEntry {
   slug: string | null;
   title: string;
   excerptHtml: string | null;
+  excerptText: string | null;
   publishedAt: string | null;
   locale: string;
   translationGroupId: string;
