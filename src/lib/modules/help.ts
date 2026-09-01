@@ -45,39 +45,25 @@ export class HelpModule {
     this.entries = entries;
   }
 
-  async categories(
-    params?: HelpCategoriesParams,
-    signal?: AbortSignal
-  ): Promise<EntryCategory[]> {
+  async categories(params?: HelpCategoriesParams, signal?: AbortSignal): Promise<EntryCategory[]> {
     return this.entries.getCategories('help_article', params, signal);
   }
 
-  async list(
-    params?: HelpListParams,
-    signal?: AbortSignal
-  ): Promise<PaginatedResponse<HelpArticleListItem>> {
+  async list(params?: HelpListParams, signal?: AbortSignal): Promise<PaginatedResponse<HelpArticleListItem>> {
     return this.entries.list({ type: 'help_article', ...params }, signal) as unknown as Promise<
       PaginatedResponse<HelpArticleListItem>
     >;
   }
 
-  async getBySlug(
-    slug: string,
-    params?: HelpGetBySlugParams,
-    signal?: AbortSignal
-  ): Promise<HelpArticleDetail> {
+  async getBySlug(slug: string, params?: HelpGetBySlugParams, signal?: AbortSignal): Promise<HelpArticleDetail> {
     return this.entries.getBySlug(
       slug,
       { type: 'help_article', ...params },
-      signal
+      signal,
     ) as unknown as Promise<HelpArticleDetail>;
   }
 
-  async getById(
-    id: string,
-    params?: HelpGetByIdParams,
-    signal?: AbortSignal
-  ): Promise<HelpArticleDetail> {
+  async getById(id: string, params?: HelpGetByIdParams, signal?: AbortSignal): Promise<HelpArticleDetail> {
     return this.entries.getById(id, params, signal) as unknown as Promise<HelpArticleDetail>;
   }
 
@@ -85,10 +71,7 @@ export class HelpModule {
     return this.http.get<HelpSearchResult[]>('/v1/help/search', params, signal);
   }
 
-  async getTranslationsById(
-    articleId: string,
-    signal?: AbortSignal
-  ): Promise<EntryTranslationsMap> {
+  async getTranslationsById(articleId: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
     return this.entries.getTranslationsById(articleId, signal);
   }
 
@@ -99,16 +82,12 @@ export class HelpModule {
   async getComments(
     entryId: string,
     params?: HelpGetCommentsParams,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<PaginatedResponse<EntryComment>> {
     return this.entries.getComments(entryId, params, signal);
   }
 
-  async react(
-    articleId: string,
-    params: ReactParams,
-    signal?: AbortSignal
-  ): Promise<ReactResponse> {
+  async react(articleId: string, params: ReactParams, signal?: AbortSignal): Promise<ReactResponse> {
     return this.entries.react(articleId, params, signal);
   }
 
@@ -116,9 +95,7 @@ export class HelpModule {
     return this.http.post<HelpChatResponse>('/v1/help/chat', params);
   }
 
-  chatStream(
-    params: HelpChatParams | HelpChatContinuationParams,
-  ): AsyncIterable<HelpChatStreamChunk> {
+  chatStream(params: HelpChatParams | HelpChatContinuationParams): AsyncIterable<HelpChatStreamChunk> {
     return this.http.streamPost<HelpChatStreamChunk>('/v1/help/chat/stream', params);
   }
 }

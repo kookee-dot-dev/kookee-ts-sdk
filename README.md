@@ -415,8 +415,8 @@ Feedback comments carry rich Tiptap content + a pre-rendered HTML string + optio
 ```typescript
 interface FeedbackComment {
   id: string;
-  content: JSONContent;        // Tiptap JSON document — use this when you need to re-render
-  contentHtml: string;         // pre-rendered HTML — fastest path for display
+  content: JSONContent; // Tiptap JSON document — use this when you need to re-render
+  contentHtml: string; // pre-rendered HTML — fastest path for display
   attachments: FeedbackCommentAttachment[];
   isOfficial: boolean;
   createdAt: string;
@@ -490,9 +490,8 @@ after consent:
 The complete embed snippet (Consent Mode defaults plus a stub that queues API calls made
 before the script loads) is in your project's consent settings in Kookee.
 
-TypeScript projects that call the `KookeeConsent` global from code can download
-`https://kookee.dev/consent/latest.d.ts` into their types folder (it declares the global with
-no imports). With the npm package installed, the equivalent is:
+TypeScript projects that call the `KookeeConsent` global from code declare it once, taking the
+type from this package:
 
 ```typescript
 import type { KookeeConsentApi } from '@kookee/sdk/consent';
@@ -500,6 +499,10 @@ declare global {
   var KookeeConsent: KookeeConsentApi;
 }
 ```
+
+Without the package installed, download `https://kookee.dev/consent/latest.d.ts` into your
+types folder instead — it declares the same global with no imports. That copy is a snapshot: it
+does not update when the script does, so prefer the package wherever you already have npm.
 
 ## Health Check
 
@@ -578,9 +581,9 @@ Each comment carries rich content as a Tiptap JSON document, a pre-rendered `con
 ```typescript
 interface EntryComment {
   id: string;
-  content: JSONContent;        // Tiptap JSON document — use this when you need to re-render
-  contentHtml: string;         // pre-rendered HTML — fastest path for display
-  isOfficial: boolean;         // true when author is a project owner/admin
+  content: JSONContent; // Tiptap JSON document — use this when you need to re-render
+  contentHtml: string; // pre-rendered HTML — fastest path for display
+  isOfficial: boolean; // true when author is a project owner/admin
   attachments: EntryCommentAttachment[];
   createdAt: string;
   updatedAt: string;
@@ -639,7 +642,7 @@ renderFull(post.contentHtml); // ✅ available on detail
 
 ## Categories on entries
 
-Every entry response (list *and* detail) includes both `categoryId: string | null` **and** a resolved `category: EntryCategoryRef | null`. No client-side join required:
+Every entry response (list _and_ detail) includes both `categoryId: string | null` **and** a resolved `category: EntryCategoryRef | null`. No client-side join required:
 
 ```typescript
 const results = await kookee.help.search({ query: 'how to reset password' });
@@ -661,7 +664,7 @@ When an entry has no category assigned, `category` is `null` and `categoryId` is
 
 ## Fields on entries
 
-Every entry response (list *and* detail) carries a `fields` array holding both the built-in fields for that entry type (a changelog's type and version, say) and any custom fields configured for the project. Three helpers read it:
+Every entry response (list _and_ detail) carries a `fields` array holding both the built-in fields for that entry type (a changelog's type and version, say) and any custom fields configured for the project. Three helpers read it:
 
 ```typescript
 import { fieldOptionKey, fieldStringValue, findField } from '@kookee/sdk';
@@ -684,10 +687,14 @@ Prefer `optionKeys` over `displayValue` whenever behavior depends on the choice.
 
 ```typescript
 // Good — stable across renames and locales
-if (fieldOptionKey(entry.fields, 'changelogType') === 'feature') { /* ... */ }
+if (fieldOptionKey(entry.fields, 'changelogType') === 'feature') {
+  /* ... */
+}
 
 // Fragile — breaks under translation or a label edit
-if (findField(entry.fields, 'changelogType')?.displayValue === 'New Feature') { /* ... */ }
+if (findField(entry.fields, 'changelogType')?.displayValue === 'New Feature') {
+  /* ... */
+}
 ```
 
 Every helper returns `undefined` for a missing or unset field, so an entry type that has no such field needs no special-casing at the call site.
@@ -785,10 +792,10 @@ import '@kookee/sdk/styles/typography.css'; // only without your own typography 
 Or via CDN:
 
 ```html
-<link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/content.css">
-<link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/typography.css">
+<link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/content.css" />
+<link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/typography.css" />
 <!-- also served next to the script build: -->
-<link rel="stylesheet" href="https://kookee.dev/sdk/content.css">
+<link rel="stylesheet" href="https://kookee.dev/sdk/content.css" />
 ```
 
 **Tailwind v4 apps**: import content.css into a cascade layer so your `prose-code:`
@@ -799,7 +806,7 @@ utilities keep winning over the defaults:
 ```
 
 The flip side of the layered import: `prose`'s own `pre` styles and `prose-code:`
-utilities also reach elements *inside* code blocks, and the layered stylesheet can't
+utilities also reach elements _inside_ code blocks, and the layered stylesheet can't
 defend against them. If you render entry content inside `prose` containers, add this
 unlayered guard once:
 

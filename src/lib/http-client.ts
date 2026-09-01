@@ -8,7 +8,7 @@ export class KookeeApiError extends Error {
   constructor(
     public readonly code: string,
     message: string,
-    public readonly status: number
+    public readonly status: number,
   ) {
     super(message);
     this.name = 'KookeeApiError';
@@ -113,7 +113,7 @@ export class HttpClient {
       throw new KookeeApiError(
         errorData?.code ?? 'UNKNOWN_ERROR',
         errorData?.message ?? `Request failed with status ${response.status}`,
-        response.status
+        response.status,
       );
     }
 
@@ -162,7 +162,7 @@ export class HttpClient {
       throw new KookeeApiError(
         errorData?.code ?? 'UNKNOWN_ERROR',
         errorData?.message ?? `Request failed with status ${response.status}`,
-        response.status
+        response.status,
       );
     }
 

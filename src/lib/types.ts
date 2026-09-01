@@ -291,13 +291,7 @@ export interface EntryCategory {
  * looser `unknown`. Tiptap attrs are always JSON, so this is the correct
  * runtime shape.
  */
-export type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONValue[]
-  | { [key: string]: JSONValue };
+export type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue };
 
 export interface JSONContentMark {
   type: string;
@@ -423,16 +417,7 @@ export interface EntryFieldValue {
   fieldId: string;
   slug: string;
   name: string;
-  fieldType:
-    | 'text'
-    | 'number'
-    | 'date'
-    | 'checkbox'
-    | 'url'
-    | 'email'
-    | 'phone'
-    | 'select'
-    | 'multiSelect';
+  fieldType: 'text' | 'number' | 'date' | 'checkbox' | 'url' | 'email' | 'phone' | 'select' | 'multiSelect';
   value: string | number | boolean | string[];
   displayValue: string;
   color: string | null;
@@ -498,18 +483,10 @@ export interface AnnouncementDetail extends BaseEntry, EntryDetailFields {
 // ---- Unions ----
 
 export type TypedEntryListItem =
-  | BlogEntryListItem
-  | PageEntryListItem
-  | HelpArticleListItem
-  | ChangelogEntryListItem
-  | AnnouncementListItem;
+  BlogEntryListItem | PageEntryListItem | HelpArticleListItem | ChangelogEntryListItem | AnnouncementListItem;
 
 export type TypedEntryDetail =
-  | BlogEntryDetail
-  | PageEntryDetail
-  | HelpArticleDetail
-  | ChangelogEntryDetail
-  | AnnouncementDetail;
+  BlogEntryDetail | PageEntryDetail | HelpArticleDetail | ChangelogEntryDetail | AnnouncementDetail;
 
 export type AnyEntryListItem = TypedEntryListItem | GenericEntryListItem;
 export type AnyEntryDetail = TypedEntryDetail | GenericEntryDetail;

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.1
+
+### Changed
+
+- Documentation only. The README's consent typing section now leads with the
+  `@kookee/sdk/consent` type import and presents the downloadable
+  `kookee.dev/consent/latest.d.ts` as the fallback, noting that a downloaded copy is a snapshot
+  that does not update when the script does. No code changes.
+
 ## 1.6.0
 
 ### Added

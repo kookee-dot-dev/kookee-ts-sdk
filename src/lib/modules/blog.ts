@@ -26,32 +26,17 @@ export interface BlogGetCommentsParams extends PaginationParams {}
 export class BlogModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(
-    params?: BlogListParams,
-    signal?: AbortSignal
-  ): Promise<PaginatedResponse<BlogEntryListItem>> {
+  async list(params?: BlogListParams, signal?: AbortSignal): Promise<PaginatedResponse<BlogEntryListItem>> {
     return this.entries.list({ type: 'blog', ...params }, signal) as unknown as Promise<
       PaginatedResponse<BlogEntryListItem>
     >;
   }
 
-  async getBySlug(
-    slug: string,
-    params?: BlogGetBySlugParams,
-    signal?: AbortSignal
-  ): Promise<BlogEntryDetail> {
-    return this.entries.getBySlug(
-      slug,
-      { type: 'blog', ...params },
-      signal
-    ) as unknown as Promise<BlogEntryDetail>;
+  async getBySlug(slug: string, params?: BlogGetBySlugParams, signal?: AbortSignal): Promise<BlogEntryDetail> {
+    return this.entries.getBySlug(slug, { type: 'blog', ...params }, signal) as unknown as Promise<BlogEntryDetail>;
   }
 
-  async getById(
-    id: string,
-    params?: BlogGetByIdParams,
-    signal?: AbortSignal
-  ): Promise<BlogEntryDetail> {
+  async getById(id: string, params?: BlogGetByIdParams, signal?: AbortSignal): Promise<BlogEntryDetail> {
     return this.entries.getById(id, params, signal) as unknown as Promise<BlogEntryDetail>;
   }
 
@@ -70,16 +55,12 @@ export class BlogModule {
   async getComments(
     entryId: string,
     params?: BlogGetCommentsParams,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<PaginatedResponse<EntryComment>> {
     return this.entries.getComments(entryId, params, signal);
   }
 
-  async react(
-    postId: string,
-    params: ReactParams,
-    signal?: AbortSignal
-  ): Promise<ReactResponse> {
+  async react(postId: string, params: ReactParams, signal?: AbortSignal): Promise<ReactResponse> {
     return this.entries.react(postId, params, signal);
   }
 }

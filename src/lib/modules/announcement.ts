@@ -30,19 +30,12 @@ export interface AnnouncementGetCommentsParams extends PaginationParams {}
 export class AnnouncementModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(
-    params?: AnnouncementListParams,
-    signal?: AbortSignal
-  ): Promise<PaginatedResponse<AnnouncementListItem>> {
+  async list(params?: AnnouncementListParams, signal?: AbortSignal): Promise<PaginatedResponse<AnnouncementListItem>> {
     const response = await this.entries.list({ type: 'announcement', ...params }, signal);
     return { ...response, data: response.data.map(toAnnouncementListItem) };
   }
 
-  async getById(
-    id: string,
-    params?: AnnouncementGetByIdParams,
-    signal?: AbortSignal
-  ): Promise<AnnouncementDetail> {
+  async getById(id: string, params?: AnnouncementGetByIdParams, signal?: AbortSignal): Promise<AnnouncementDetail> {
     return toAnnouncementDetail(await this.entries.getById(id, params, signal));
   }
 
@@ -53,7 +46,7 @@ export class AnnouncementModule {
   async getComments(
     entryId: string,
     params?: AnnouncementGetCommentsParams,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<PaginatedResponse<EntryComment>> {
     return this.entries.getComments(entryId, params, signal);
   }

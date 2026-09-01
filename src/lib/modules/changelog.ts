@@ -38,10 +38,7 @@ export interface ChangelogGetCommentsParams extends PaginationParams {}
 export class ChangelogModule {
   constructor(private readonly entries: EntriesModule) {}
 
-  async list(
-    params?: ChangelogListParams,
-    signal?: AbortSignal
-  ): Promise<PaginatedResponse<ChangelogEntryListItem>> {
+  async list(params?: ChangelogListParams, signal?: AbortSignal): Promise<PaginatedResponse<ChangelogEntryListItem>> {
     const response = await this.entries.list({ type: 'changelog', ...params }, signal);
     return { ...response, data: response.data.map(toChangelogListItem) };
   }
@@ -49,18 +46,12 @@ export class ChangelogModule {
   async getBySlug(
     slug: string,
     params?: ChangelogGetBySlugParams,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<ChangelogEntryDetail> {
-    return toChangelogDetail(
-      await this.entries.getBySlug(slug, { type: 'changelog', ...params }, signal)
-    );
+    return toChangelogDetail(await this.entries.getBySlug(slug, { type: 'changelog', ...params }, signal));
   }
 
-  async getById(
-    id: string,
-    params?: ChangelogGetByIdParams,
-    signal?: AbortSignal
-  ): Promise<ChangelogEntryDetail> {
+  async getById(id: string, params?: ChangelogGetByIdParams, signal?: AbortSignal): Promise<ChangelogEntryDetail> {
     return toChangelogDetail(await this.entries.getById(id, params, signal));
   }
 
@@ -75,16 +66,12 @@ export class ChangelogModule {
   async getComments(
     entryId: string,
     params?: ChangelogGetCommentsParams,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<PaginatedResponse<EntryComment>> {
     return this.entries.getComments(entryId, params, signal);
   }
 
-  async react(
-    changelogId: string,
-    params: ReactParams,
-    signal?: AbortSignal
-  ): Promise<ReactResponse> {
+  async react(changelogId: string, params: ReactParams, signal?: AbortSignal): Promise<ReactResponse> {
     return this.entries.react(changelogId, params, signal);
   }
 }
