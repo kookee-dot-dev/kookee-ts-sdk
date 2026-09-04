@@ -128,6 +128,12 @@ export interface HelpChatSource {
   visibility: string | null;
   metadata: Record<string, NonNullable<unknown>> | null;
   category: HelpChatSourceCategory | null;
+  /**
+   * `true` when the answer was built on this article's text (a search hit or a `get_entry`),
+   * `false` when the answer merely linked it out of a listing. Absent from servers older than
+   * 1.6.2 — treat a missing value as `true`.
+   */
+  consulted?: boolean;
 }
 
 export interface HelpChatToolEntry {

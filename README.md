@@ -141,6 +141,14 @@ for await (const chunk of kookee.help.chatStream({ messages })) {
 }
 ```
 
+`sources` (on both `chat()` and the stream) lists the articles the answer actually cites, in the
+order it cites them — not every article the assistant's searches turned up. An answer that cites
+nothing carries an empty list. Each source carries `consulted`: `true` when the answer was built on
+that article's text (a search hit or a `get_entry`), `false` when it was merely linked out of a
+listing, as every entry of a "list all articles" answer is. Show a "Sources" row for the consulted
+ones; keep the whole list for resolving inline citations. A missing `consulted` (servers before
+1.6.2) should be read as `true`.
+
 ## Changelog
 
 ```typescript

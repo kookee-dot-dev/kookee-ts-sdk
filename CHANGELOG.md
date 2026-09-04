@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.6.2
+
+### Added
+
+- `HelpChatSource.consulted` on chat `sources` (both `help.chat()` and the `sources` stream
+  chunk): `true` when the answer was built on that article's text (a search hit or a
+  `get_entry`), `false` when the answer merely linked it out of a listing such as "list all
+  articles". The list itself still contains every article the answer links to, so inline
+  citations keep resolving; the flag lets a UI decide which of them deserve a "Sources" chip.
+  Optional in the type: servers older than 1.6.2 do not send it, and a missing value should be
+  read as `true`.
+
+### Changed
+
+- Chat `sources` now lists the articles the answer actually cites, in citation order, rather
+  than every article the assistant's searches returned. An answer that cites nothing carries an
+  empty list. Fabricated ids the model did not receive from a tool are dropped.
+
 ## 1.6.1
 
 ### Changed
