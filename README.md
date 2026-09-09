@@ -141,6 +141,22 @@ for await (const chunk of kookee.help.chatStream({ messages })) {
 }
 ```
 
+`visitor` (on both `chat()` and the stream) labels the conversation in the Kookee dashboard with
+who is chatting:
+
+```typescript
+await kookee.help.chat({
+  messages,
+  sessionId,
+  visitor: { id: 'u-1', email: 'alice@example.com', name: 'Alice' },
+});
+```
+
+All three fields are optional and capped at 250 characters. The identity is **not verified** — it
+is a label your application asserts, so never use it to gate anything — and it is not sent to the
+model; put whatever the assistant should know in `appContext`. It is stored with the conversation,
+which Kookee keeps for 90 days.
+
 `sources` (on both `chat()` and the stream) lists the articles the answer actually cites, in the
 order it cites them — not every article the assistant's searches turned up. An answer that cites
 nothing carries an empty list. Each source carries `consulted`: `true` when the answer was built on

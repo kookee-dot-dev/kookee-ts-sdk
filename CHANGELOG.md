@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.7.0
+
+### Added
+
+- `HelpChatParams.visitor` — `{ id?, email?, name? }` saying who is chatting, on both
+  `help.chat()` and `help.chatStream()`. It labels the conversation in the Kookee dashboard,
+  where it is shown in the conversation list and matched by its search. Every field is optional
+  and capped at 250 characters. The identity is asserted by the caller and never verified, so it
+  must not gate anything, and it is not sent to the model — pass what the assistant should know
+  in `appContext` instead. Only the streaming endpoint stores a conversation, so that is where it
+  is persisted; `help.chat()` accepts and ignores it.
+
 ## 1.6.2
 
 ### Added

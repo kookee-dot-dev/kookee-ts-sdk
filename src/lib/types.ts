@@ -75,6 +75,18 @@ export interface HelpChatPage {
 export type HelpChatAppContext = Record<string, string | number | boolean>;
 
 /**
+ * Who the host site says is chatting. Asserted by the host and never verified, so it labels a
+ * conversation in the Kookee dashboard but grants nothing. Stored with the conversation; not
+ * sent to the model — pass anything the assistant should know through `appContext` instead.
+ */
+export interface HelpChatVisitor {
+  /** Stable id in the host's own system. */
+  id?: string;
+  email?: string;
+  name?: string;
+}
+
+/**
  * A tool the host site registers. The handler is NOT sent to the server — only the name,
  * description, and JSON-schema parameters, so the model knows the tool exists. When the model
  * calls it, the browser runs the handler and posts the result back.
@@ -97,6 +109,7 @@ export interface HelpChatParams {
   conversationId?: string;
   page?: HelpChatPage;
   appContext?: HelpChatAppContext;
+  visitor?: HelpChatVisitor;
   tools?: HelpChatToolDefinition[];
 }
 
