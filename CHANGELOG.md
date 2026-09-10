@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.8.0
+
+### Added
+
+- `score` on help search results: the cosine similarity of the passage that matched, or `null`
+  when the server fell back to text search, whose hits are ordered by publication date rather
+  than relevance. A caller that ranks or thresholds results could not tell the two apart before.
+- `markdown: true` on entry and help-article detail reads returns `contentMarkdown` beside
+  `contentHtml`. Cheaper for a model to read than HTML, and the same rendering the export
+  endpoint has always produced.
+- `includeChatbotOnly: true` on help search and entry detail reads also returns articles marked
+  chatbot-only. Those are unlisted, not secret — the built-in chat already reads them for any
+  visitor — so this lets your own assistant read what it reads. Listings, exports, sitemaps and
+  `llms.txt` are unaffected.
+- `timeoutMs` on the client config aborts any request that outlives it. Node's `fetch` has no
+  deadline of its own. A request given its own signal uses that instead, and chat streams are
+  never timed out.
+- `help.chatStream(params, signal)` and `help.chat(params, signal)` take an `AbortSignal`, like
+  every read method. Aborting a stream stops the answer: the request is dropped, the server stops
+  generating, and the turn is billed only for what it had already spent.
+- A `truncated` chunk on the chat stream, and `truncated` on the non-streaming `HelpChatResponse`,
+  carrying why an answer stopped early (`length`, `content_filter` or `tool_rounds`). The server
+  used to append an English sentence to the answer itself; the reason now travels beside the text
+  so you can word it yourself. Requires the matching server release.
+
+### Fixed
+
+- `HealthCheckResponse` was missing `projectId`, which `health()` has always returned. TypeScript
+  consumers had to cast to read it.
+
 ## 1.7.0
 
 ### Added

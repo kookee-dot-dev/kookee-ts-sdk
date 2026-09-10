@@ -28,11 +28,20 @@ export interface HelpListParams extends PaginationParams, LocaleOptions {
 export interface HelpSearchParams extends LocaleOptions {
   query: string;
   limit?: number;
+  /** Also search articles marked chatbot-only: unlisted in the help center, not secret. */
+  includeChatbotOnly?: boolean;
 }
 
-export interface HelpGetBySlugParams extends LocaleOptions {}
+export interface HelpGetBySlugParams extends LocaleOptions {
+  /** Also return the body as Markdown, in `contentMarkdown`. */
+  markdown?: boolean;
+  includeChatbotOnly?: boolean;
+}
 
-export interface HelpGetByIdParams extends LocaleOptions {}
+export interface HelpGetByIdParams extends LocaleOptions {
+  markdown?: boolean;
+  includeChatbotOnly?: boolean;
+}
 
 export interface HelpGetCommentsParams extends PaginationParams {}
 
@@ -91,11 +100,18 @@ export class HelpModule {
     return this.entries.react(articleId, params, signal);
   }
 
-  async chat(params: HelpChatParams): Promise<HelpChatResponse> {
-    return this.http.post<HelpChatResponse>('/v1/help/chat', params);
+  async chat(params: HelpChatParams, signal?: AbortSignal): Promise<HelpChatResponse> {
+    return this.http.post<HelpChatResponse>('/v1/help/chat', params, signal);
   }
 
-  chatStream(params: HelpChatParams | HelpChatContinuationParams): AsyncIterable<HelpChatStreamChunk> {
-    return this.http.streamPost<HelpChatStreamChunk>('/v1/help/chat/stream', params);
+  /**
+   * Abort the signal to stop an answer: the request is dropped, the server stops generating,
+   * and the turn is billed for what it had already spent.
+   */
+  chatStream(
+    params: HelpChatParams | HelpChatContinuationParams,
+    signal?: AbortSignal,
+  ): AsyncIterable<HelpChatStreamChunk> {
+    return this.http.streamPost<HelpChatStreamChunk>('/v1/help/chat/stream', params, signal);
   }
 }

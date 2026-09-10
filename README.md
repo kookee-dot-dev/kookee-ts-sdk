@@ -59,6 +59,11 @@ const post = await kookee.blog.getBySlug('hello-world');
 ```typescript
 const kookee = new Kookee({
   apiKey: 'your-api-key',
+  // Optional. Defaults to https://api.kookee.dev
+  baseUrl: 'https://api.kookee.dev',
+  // Optional. Abort any request that takes longer than this. Node's fetch has no deadline of
+  // its own, so a server-side caller waits indefinitely without it. Chat streams are exempt.
+  timeoutMs: 10_000,
 });
 ```
 
@@ -106,10 +111,11 @@ const articles = await kookee.help.list({ page: 1, limit: 10 });
 // Filter by category slug
 const categoryArticles = await kookee.help.list({ category: 'getting-started' });
 
-// Semantic search — results include a matched text snippet when available
+// Semantic search — results include a matched text snippet and its similarity when available
 const results = await kookee.help.search({ query: 'how to reset password', limit: 5 });
 for (const result of results) {
-  console.log(result.title, result.matchedChunk); // matched text snippet or null
+  // Both are null when the server fell back to text search, which orders by date.
+  console.log(result.title, result.matchedChunk, result.score);
 }
 
 // Get single article
@@ -135,6 +141,7 @@ const response = await kookee.help.chat({
 // Streaming chat
 for await (const chunk of kookee.help.chatStream({ messages })) {
   if (chunk.type === 'delta') console.log(chunk.content);
+  if (chunk.type === 'truncated') console.log('Stopped early:', chunk.reason);
   if (chunk.type === 'sources') console.log('Sources:', chunk.sources);
   if (chunk.type === 'done') console.log('Stream finished');
   if (chunk.type === 'error') console.error(chunk.message);
@@ -164,6 +171,47 @@ that article's text (a search hit or a `get_entry`), `false` when it was merely 
 listing, as every entry of a "list all articles" answer is. Show a "Sources" row for the consulted
 ones; keep the whole list for resolving inline citations. A missing `consulted` (servers before
 1.6.2) should be read as `true`.
+
+## Server-side retrieval
+
+Giving your own assistant access to your help center: search, read one article, answer from it.
+This is the one recipe that is not about rendering a page, so it reads a little differently from
+the rest of this README.
+
+```typescript
+const kookee = new Kookee({ apiKey: process.env.KOOKEE_API_KEY, timeoutMs: 10_000 });
+
+async function contextFor(query: string): Promise<string | null> {
+  // 1. Find candidates. `includeChatbotOnly` also searches articles you wrote for an assistant
+  //    rather than for the help center.
+  const hits = await kookee.help.search({ query, limit: 5, includeChatbotOnly: true });
+
+  // `score` is the cosine similarity of the best matching passage. `null` means the server fell
+  // back to text search, whose hits are ordered by publication date — do not threshold those.
+  const [best] = hits.filter((hit) => hit.score === null || hit.score > 0.5);
+  if (!best) return null;
+
+  // 2. Read it as Markdown rather than HTML: fewer tokens, and no tag soup. By id, because an
+  //    entry's slug is nullable.
+  const article = await kookee.help.getById(best.id, { markdown: true, includeChatbotOnly: true });
+
+  // 3. Truncate before it reaches a model.
+  return (article.contentMarkdown ?? '').slice(0, 8_000);
+}
+```
+
+**`chatbot_only` is unlisted, not secret.** Those articles never appear in listings, sitemaps or
+`llms.txt`, and the opt-in above is what lets an assistant holding your key read what the built-in
+chat already reads for any visitor who asks.
+
+**Every call is metered.** A search and a read are one API request each, counted against your
+account's monthly quota — shared by all of that account's projects — and against the project's
+per-minute rate limit. An assistant answering a question therefore spends two or three requests,
+which is what you will hit first; the numbers for your plan are on the dashboard. Exceeding either
+throws a `KookeeApiError` with status 429 and the code `MONTHLY_API_LIMIT_EXCEEDED` or
+`RATE_LIMIT_EXCEEDED`.
+
+A `standard` key grants everything under `/v1`, including chat, so keep it server-side.
 
 ## Changelog
 
@@ -648,8 +696,8 @@ Use `content` (Tiptap JSON) when you want to render with your own Tiptap pipelin
 Entry endpoints come in two flavours with **different shapes**:
 
 - **List responses** (`blog.list()`, `entries.list()`, …) return `*ListItem` types — these do **not** include `contentHtml`. Use `excerptHtml` instead for previews.
-- **Search responses** (`help.search()`) return `HelpSearchResult` which extends the list item with `matchedChunk: string | null` — a plain-text snippet from the best matching section of the article.
-- **Detail responses** (`blog.getBySlug()`, `help.getById()`, …) return `*Detail` types — these include `contentHtml` for full content rendering.
+- **Search responses** (`help.search()`) return `HelpSearchResult` which extends the list item with `matchedChunk: string | null` — a plain-text snippet from the best matching section of the article — and `score: number | null`, that match's similarity. Both are `null` when the server fell back to text search.
+- **Detail responses** (`blog.getBySlug()`, `help.getById()`, …) return `*Detail` types — these include `contentHtml` for full content rendering, and `contentMarkdown` when the request passed `markdown: true`.
 
 ```typescript
 // List: no contentHtml, only excerptHtml
@@ -750,7 +798,12 @@ kookee.blog.list({ limit: 10 }, signal);
 kookee.blog.getBySlug('my-post', { locale: 'en' }, signal);
 kookee.blog.getTags(signal);
 kookee.feedback.getById('post-uuid', signal);
+kookee.help.chat({ messages }, signal);
+kookee.help.chatStream({ messages }, signal);
 ```
+
+Aborting `chatStream` is how you stop an answer: the request is dropped, the server stops
+generating, and the turn is billed only for what it had already spent.
 
 An aborted request rejects with an `AbortError`, which is not a `KookeeApiError` — check
 for it before treating a rejection as a real failure:

@@ -2,6 +2,13 @@ export interface KookeeConfig {
   apiKey?: string;
   projectId?: string;
   baseUrl?: string;
+  /**
+   * Abort a request that takes longer than this many milliseconds. Off by default. Node's
+   * `fetch` has no deadline of its own, so a server-side caller waits indefinitely without it.
+   * A request given its own `AbortSignal` uses that instead, and `chatStream` is never timed
+   * out — an answer legitimately takes a while, so pass a signal to stop one.
+   */
+  timeoutMs?: number;
 }
 
 export interface PaginationParams {
@@ -34,6 +41,8 @@ export interface PublicConfig {
 
 export interface HealthCheckResponse {
   status: 'ok';
+  /** The project the key or project-id header resolved to. */
+  projectId: string;
   timestamp: string;
 }
 
@@ -125,6 +134,8 @@ export interface HelpChatContinuationParams {
 export interface HelpChatResponse {
   message: string;
   sources: HelpChatSource[];
+  /** Present only when the answer stopped early. */
+  truncated?: HelpChatTruncationReason;
 }
 
 export type HelpArticleVisibility = 'public' | 'chatbot_only';
@@ -160,6 +171,9 @@ export interface HelpChatClientToolCall {
   args: Record<string, unknown>;
 }
 
+/** Why an answer stopped early. Sent after the text, so the widget can word it in its own UI. */
+export type HelpChatTruncationReason = 'length' | 'content_filter' | 'tool_rounds';
+
 export type HelpChatStreamChunk =
   | { type: 'conversation_id'; id: string }
   | { type: 'tool_call'; name: string; args: Record<string, unknown> }
@@ -175,6 +189,7 @@ export type HelpChatStreamChunk =
       entries?: HelpChatToolEntry[];
     }
   | { type: 'delta'; content: string }
+  | { type: 'truncated'; reason: HelpChatTruncationReason }
   | { type: 'sources'; sources: HelpChatSource[] }
   | { type: 'done' }
   | { type: 'error'; message: string };
@@ -425,6 +440,11 @@ export interface BaseEntry {
  */
 export interface EntryDetailFields {
   contentHtml: string;
+  /**
+   * The same body as Markdown, present only when the request passed `markdown: true`. `null`
+   * when the entry has no body. Cheaper for a model to read than HTML.
+   */
+  contentMarkdown?: string | null;
 }
 
 /**
@@ -514,11 +534,15 @@ export type AnyEntryDetail = TypedEntryDetail | GenericEntryDetail;
  * Help search result — returned by `GET /v1/help/search`.
  *
  * Extends `HelpArticleListItem` with `matchedChunk` — a plain-text snippet
- * from the article that best matched the search query (via embedding similarity).
- * When the server falls back to text search, `matchedChunk` is `null`.
+ * from the article that best matched the search query (via embedding similarity) — and
+ * `score`, that match's cosine similarity.
+ *
+ * Both are `null` when the server fell back to text search, which orders hits by publication
+ * date rather than relevance. A caller that ranks or thresholds results has to check.
  */
 export interface HelpSearchResult extends HelpArticleListItem {
   matchedChunk: string | null;
+  score: number | null;
 }
 
 /**

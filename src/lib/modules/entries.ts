@@ -24,10 +24,17 @@ export interface EntriesListParams extends PaginationParams, LocaleOptions {
   filter?: Record<string, string>;
 }
 
-export interface EntriesGetByIdParams extends LocaleOptions {}
+export interface EntriesGetByIdParams extends LocaleOptions {
+  /** Also return the body as Markdown, in `contentMarkdown`. */
+  markdown?: boolean;
+  /** Also return articles marked chatbot-only: unlisted in the help center, not secret. */
+  includeChatbotOnly?: boolean;
+}
 
 export interface EntriesGetBySlugParams extends LocaleOptions {
   type: string;
+  markdown?: boolean;
+  includeChatbotOnly?: boolean;
 }
 
 export interface EntriesGetCommentsParams extends PaginationParams {}

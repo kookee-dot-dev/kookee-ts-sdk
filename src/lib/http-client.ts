@@ -20,11 +20,23 @@ export class HttpClient {
   private readonly baseUrl: string;
   private readonly apiKey?: string;
   private readonly projectId?: string;
+  private readonly timeoutMs?: number;
 
-  constructor(options: { apiKey?: string; projectId?: string; baseUrl?: string }) {
+  constructor(options: { apiKey?: string; projectId?: string; baseUrl?: string; timeoutMs?: number }) {
     this.apiKey = options.apiKey;
     this.projectId = options.projectId;
     this.baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
+    this.timeoutMs = options.timeoutMs;
+  }
+
+  /**
+   * A caller's own signal wins: combining the two would need `AbortSignal.any`, which is not
+   * available in every browser the widget still runs in. `chatStream` never times out — an
+   * answer takes as long as it takes.
+   */
+  private signalFor(signal?: AbortSignal): AbortSignal | undefined {
+    if (signal) return signal;
+    return this.timeoutMs ? AbortSignal.timeout(this.timeoutMs) : undefined;
   }
 
   private getHeaders(): Record<string, string> {
@@ -66,7 +78,7 @@ export class HttpClient {
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: this.getHeaders(),
-      signal,
+      signal: this.signalFor(signal),
     });
 
     return this.handleResponse<T>(response);
@@ -77,7 +89,7 @@ export class HttpClient {
       method: 'POST',
       headers: this.getHeaders(),
       body: body ? JSON.stringify(body) : undefined,
-      signal,
+      signal: this.signalFor(signal),
     });
 
     return this.handleResponse<T>(response);
@@ -93,7 +105,7 @@ export class HttpClient {
     return this.handleResponse<T>(response);
   }
 
-  async *streamPost<T>(path: string, body?: unknown): AsyncIterable<T> {
+  async *streamPost<T>(path: string, body?: unknown, signal?: AbortSignal): AsyncIterable<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'POST',
       headers: {
@@ -101,6 +113,7 @@ export class HttpClient {
         Accept: 'text/event-stream',
       },
       body: body ? JSON.stringify(body) : undefined,
+      signal,
     });
 
     if (!response.ok) {

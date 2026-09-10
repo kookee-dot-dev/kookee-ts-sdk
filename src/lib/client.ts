@@ -27,7 +27,12 @@ export class Kookee {
       throw new Error('Either apiKey or projectId is required');
     }
 
-    this.http = new HttpClient({ apiKey: config.apiKey, projectId: config.projectId, baseUrl: config.baseUrl });
+    this.http = new HttpClient({
+      apiKey: config.apiKey,
+      projectId: config.projectId,
+      baseUrl: config.baseUrl,
+      timeoutMs: config.timeoutMs,
+    });
 
     this.entries = new EntriesModule(this.http);
 
