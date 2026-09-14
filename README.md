@@ -204,6 +204,19 @@ async function contextFor(query: string): Promise<string | null> {
 `llms.txt`, and the opt-in above is what lets an assistant holding your key read what the built-in
 chat already reads for any visitor who asks.
 
+**Link only what has a page.** Every search hit and detail read carries `visibility`. A
+`chatbot_only` article has no page on your site, so let the assistant quote it but not link it:
+
+```typescript
+function articleUrl(entry: HelpSearchResult | HelpArticleDetail): string | null {
+  if (entry.visibility !== 'public' || !entry.slug || !entry.category) return null;
+  return `https://example.com/help/${entry.category.slug}/${entry.slug}`;
+}
+```
+
+A public article can still lack a slug or a category, so check all three, as Kookee's own help
+center does.
+
 **Every call is metered.** A search and a read are one API request each, counted against your
 account's monthly quota — shared by all of that account's projects — and against the project's
 per-minute rate limit. An assistant answering a question therefore spends two or three requests,

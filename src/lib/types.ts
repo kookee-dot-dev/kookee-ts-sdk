@@ -424,6 +424,8 @@ export interface BaseEntry {
   views: number;
   metaTitle: string | null;
   metaDescription: string | null;
+  /** `chatbot_only` comes back only with `includeChatbotOnly: true`; such an entry has no page on your site. */
+  visibility: HelpArticleVisibility;
   metadata: Record<string, NonNullable<unknown>> | null;
   reactions: Record<string, number>;
   createdAt: string;

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.4
+
+### Added
+
+- `visibility` (`'public' | 'chatbot_only'`) on every entry response: listings, help search
+  results and detail reads. A request with `includeChatbotOnly: true` can now tell which hits
+  are chatbot-only. Those have no page on your site, so an assistant should quote them without
+  linking them. Without the flag every entry is `'public'`, as before. Requires the matching
+  server release.
+
 ## 1.8.3
 
 No change to this package. Released so the version stays in step with `@kookee/react` 1.8.3.
