@@ -30,7 +30,7 @@ available as a global:
 ```html
 <script src="https://kookee.dev/sdk/latest.js"></script>
 <script>
-  const kookee = new Kookee({ projectId: 'your-project-id' });
+  const kookee = new Kookee({ apiKey: 'your-api-key' });
 
   kookee.blog.list({ limit: 5 }).then((posts) => {
     console.log(posts.data);
@@ -66,6 +66,11 @@ const kookee = new Kookee({
   timeoutMs: 10_000,
 });
 ```
+
+`projectId` can take the place of `apiKey`, but only while the project's hosted portal is
+enabled: without the portal, the API refuses a request that carries only a project id with 403
+`PORTAL_NOT_ENABLED`. A key used in the browser is visible to every visitor, which it is built
+for; restrict it to your domains with the project's allowed origins.
 
 ## Blog
 

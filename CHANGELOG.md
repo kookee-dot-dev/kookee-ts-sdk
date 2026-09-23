@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.1
+
+### Documentation
+
+- The README says that `projectId` authenticates only while the project's hosted portal is
+  enabled; without the portal the API answers 403 `PORTAL_NOT_ENABLED`. The script-tag example
+  uses an API key instead. No code changes.
+
 ## 1.9.0
 
 No change to this package. Released so the version stays in step with `@kookee/react` 1.9.0.
