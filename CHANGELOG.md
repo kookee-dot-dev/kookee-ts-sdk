@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.9.2
+
+### Documentation
+
+No code changes. README corrections:
+
+- Feedback is read-only in the SDK: posting, voting, and commenting happen in the hosted portal.
+  The README used to mention anonymous voting, which the SDK has never offered.
+- The comment examples render every comment, not only the first, and give each one the
+  `kookee-entry-content` class that `styles/content.css` is scoped to.
+
 ## 1.9.1
 
 ### Documentation

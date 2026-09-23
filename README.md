@@ -464,7 +464,7 @@ escapes it); `head().scripts` is injected unescaped.
 
 ## Feedback
 
-The SDK exposes feedback in read-only form, plus anonymous voting. Creating and managing feedback happens in the hosted portal.
+The SDK exposes feedback in read-only form. Posting, voting, and commenting happen in the hosted portal, where visitors sign in.
 
 ```typescript
 // Get kanban columns (for roadmap rendering)
@@ -526,10 +526,14 @@ The simplest render path is `contentHtml`:
 
 ```tsx
 const comments = await kookee.feedback.getComments('post-id');
-for (const comment of comments.data) {
-  return <div dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />;
-}
+
+return comments.data.map((comment) => (
+  <div key={comment.id} className="kookee-entry-content" dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />
+));
 ```
+
+The `kookee-entry-content` class is what `styles/content.css` is scoped to, so code blocks and
+file chips in a comment are styled like those in an entry.
 
 ## Config
 
@@ -700,9 +704,9 @@ interface EntryCommentAttachmentFile {
 The simplest render path is `contentHtml`:
 
 ```tsx
-for (const comment of comments.data) {
-  return <div dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />;
-}
+return comments.data.map((comment) => (
+  <div key={comment.id} className="kookee-entry-content" dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />
+));
 ```
 
 Use `content` (Tiptap JSON) when you want to render with your own Tiptap pipeline, transform the document, or feed it back into an editor.
