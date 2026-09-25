@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.4
+
+No change to this package. Released so the version stays in step with `@kookee/react` 1.9.4.
+
 ## 1.9.3
 
 No change to this package. Released so the version stays in step with `@kookee/react` 1.9.3.
