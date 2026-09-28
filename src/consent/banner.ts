@@ -109,11 +109,15 @@ const STYLES = `
 .switch input:checked + .slider { background: var(--kc-accent); }
 .switch input:checked + .slider::before { transform: translateX(18px); }
 .switch input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+.switch input:focus-visible + .slider { outline: 2px solid var(--kc-accent); outline-offset: 2px; }
 `;
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+// Ids resolve inside the banner's shadow root, so fixed names can't clash with the host page.
+const TITLE_ID = 'kc-title';
 
 const CONTAINED_EVENTS = ['keydown', 'keypress', 'keyup', 'paste'] as const;
 
@@ -177,7 +181,7 @@ export class ConsentBanner {
     shadow.innerHTML = `
       <style>${STYLES}${accent}</style>
       <div class="root" data-theme="${appearance.theme}" data-position="${appearance.position}">
-        <div class="card">${bodyHtml}</div>
+        <div class="card" role="dialog" aria-labelledby="${TITLE_ID}">${bodyHtml}</div>
       </div>
     `;
     this.bindEvents(shadow);
@@ -186,7 +190,7 @@ export class ConsentBanner {
   private renderBannerView(): string {
     const { texts } = this.config;
     return `
-      <div class="title">${escapeHtml(texts.title)}</div>
+      <div class="title" id="${TITLE_ID}">${escapeHtml(texts.title)}</div>
       <div class="description">${escapeHtml(texts.description)}</div>
       <div class="buttons">
         <button type="button" class="btn btn-primary" data-action="reject">${escapeHtml(texts.rejectAll)}</button>
@@ -200,7 +204,8 @@ export class ConsentBanner {
     const { texts, categories } = this.config;
 
     const categoriesHtml = categories
-      .map((category) => {
+      .map((category, index) => {
+        const nameId = `kc-category-${index}`;
         const checked = category.required || Boolean(currentChoices[category.key]);
         const servicesHtml = category.services
           .map((service) => {
@@ -209,7 +214,7 @@ export class ConsentBanner {
             // javascript: URL would still execute on click.
             const link =
               service.policyUrl && /^https?:\/\//i.test(service.policyUrl)
-                ? ` <a href="${escapeHtml(service.policyUrl)}" target="_blank" rel="noopener noreferrer">↗</a>`
+                ? ` <a href="${escapeHtml(service.policyUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(service.name)}">↗</a>`
                 : '';
             const description = service.description ? ` — ${escapeHtml(service.description)}` : '';
             return `<div class="service">${escapeHtml(service.name)}${description}${cookies}${link}</div>`;
@@ -219,9 +224,9 @@ export class ConsentBanner {
         return `
           <div class="category">
             <div class="category-header">
-              <span class="category-name">${escapeHtml(category.name)}</span>
+              <span class="category-name" id="${nameId}">${escapeHtml(category.name)}</span>
               <label class="switch">
-                <input type="checkbox" data-category="${escapeHtml(category.key)}"
+                <input type="checkbox" data-category="${escapeHtml(category.key)}" aria-labelledby="${nameId}"
                   ${checked ? 'checked' : ''} ${category.required ? 'disabled' : ''} />
                 <span class="slider"></span>
               </label>
@@ -234,7 +239,7 @@ export class ConsentBanner {
       .join('');
 
     return `
-      <div class="title">${escapeHtml(texts.preferencesTitle)}</div>
+      <div class="title" id="${TITLE_ID}" tabindex="-1">${escapeHtml(texts.preferencesTitle)}</div>
       ${categoriesHtml}
       <div class="buttons" style="margin-top: 16px;">
         <button type="button" class="btn btn-primary" data-action="reject">${escapeHtml(texts.rejectAll)}</button>
@@ -247,9 +252,11 @@ export class ConsentBanner {
   private bindEvents(shadow: ShadowRoot): void {
     shadow.querySelector('[data-action="accept"]')?.addEventListener('click', () => this.callbacks.onAcceptAll());
     shadow.querySelector('[data-action="reject"]')?.addEventListener('click', () => this.callbacks.onRejectAll());
-    shadow
-      .querySelector('[data-action="customize"]')
-      ?.addEventListener('click', () => this.showPreferences(this.collectChoices(shadow)));
+    shadow.querySelector('[data-action="customize"]')?.addEventListener('click', () => {
+      this.showPreferences(this.collectChoices(shadow));
+      // The clicked button is gone after the re-render, which would drop focus to the page.
+      shadow.querySelector<HTMLElement>(`#${TITLE_ID}`)?.focus();
+    });
     shadow
       .querySelector('[data-action="save"]')
       ?.addEventListener('click', () => this.callbacks.onSave(this.collectChoices(shadow)));

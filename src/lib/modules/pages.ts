@@ -7,6 +7,7 @@ import type {
   PaginatedResponse,
   PaginationParams,
 } from '../types';
+import { getEntryOfType } from './entries';
 import type { EntriesModule } from './entries';
 
 export interface PagesListParams extends PaginationParams, LocaleOptions {
@@ -33,7 +34,7 @@ export class PagesModule {
   }
 
   async getById(id: string, params?: PagesGetByIdParams, signal?: AbortSignal): Promise<PageEntryDetail> {
-    return this.entries.getById(id, params, signal) as unknown as Promise<PageEntryDetail>;
+    return (await getEntryOfType(this.entries, 'page', id, params, signal)) as unknown as PageEntryDetail;
   }
 
   async getTranslationsById(pageId: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {

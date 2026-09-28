@@ -9,6 +9,7 @@ import type {
   PaginatedResponse,
   PaginationParams,
 } from '../types';
+import { getEntryOfType } from './entries';
 import type { EntriesModule } from './entries';
 
 // Read the announcement system field with `fieldOptionKey(entry.fields, 'announcementType')`.
@@ -36,7 +37,7 @@ export class AnnouncementModule {
   }
 
   async getById(id: string, params?: AnnouncementGetByIdParams, signal?: AbortSignal): Promise<AnnouncementDetail> {
-    return toAnnouncementDetail(await this.entries.getById(id, params, signal));
+    return toAnnouncementDetail(await getEntryOfType(this.entries, 'announcement', id, params, signal));
   }
 
   async getTranslationsById(id: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {

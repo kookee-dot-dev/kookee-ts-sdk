@@ -16,6 +16,25 @@ export class KookeeApiError extends Error {
   }
 }
 
+function timeoutError(): Error {
+  if (typeof DOMException === 'function') return new DOMException('The operation timed out.', 'TimeoutError');
+  const error = new Error('The operation timed out.');
+  error.name = 'TimeoutError';
+  return error;
+}
+
+async function apiErrorFrom(response: Response): Promise<KookeeApiError> {
+  let errorData: ApiError | null = null;
+  try {
+    errorData = (await response.json()) as ApiError;
+  } catch {
+    // Response body is not JSON
+  }
+  // The public API answers with `{ code }` alone, so the message names the code.
+  const code = errorData?.code ?? 'UNKNOWN_ERROR';
+  return new KookeeApiError(code, errorData?.message ?? `${code} (HTTP ${response.status})`, response.status);
+}
+
 export class HttpClient {
   private readonly baseUrl: string;
   private readonly apiKey?: string;
@@ -25,18 +44,31 @@ export class HttpClient {
   constructor(options: { apiKey?: string; projectId?: string; baseUrl?: string; timeoutMs?: number }) {
     this.apiKey = options.apiKey;
     this.projectId = options.projectId;
-    this.baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
+    this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
     this.timeoutMs = options.timeoutMs;
   }
 
   /**
-   * A caller's own signal wins: combining the two would need `AbortSignal.any`, which is not
-   * available in every browser the widget still runs in. `chatStream` never times out — an
-   * answer takes as long as it takes.
+   * One signal that aborts on the caller's signal or at the deadline, whichever comes first.
+   * Wired by hand because `AbortSignal.any` and `AbortSignal.timeout` are missing from some
+   * browsers the widget still runs in. `done` must run once the body has been read.
    */
-  private signalFor(signal?: AbortSignal): AbortSignal | undefined {
-    if (signal) return signal;
-    return this.timeoutMs ? AbortSignal.timeout(this.timeoutMs) : undefined;
+  private deadline(signal: AbortSignal | undefined, timed: boolean): { signal?: AbortSignal; done: () => void } {
+    if (!timed || !this.timeoutMs) return { signal, done: () => undefined };
+
+    const controller = new AbortController();
+    const forward = () => controller.abort(signal?.reason);
+    if (signal?.aborted) forward();
+    else signal?.addEventListener('abort', forward, { once: true });
+    const timer = setTimeout(() => controller.abort(timeoutError()), this.timeoutMs);
+
+    return {
+      signal: controller.signal,
+      done: () => {
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', forward);
+      },
+    };
   }
 
   private getHeaders(): Record<string, string> {
@@ -75,24 +107,33 @@ export class HttpClient {
       }
     }
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: this.getHeaders(),
-      signal: this.signalFor(signal),
-    });
-
-    return this.handleResponse<T>(response);
+    const request = this.deadline(signal, true);
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: this.getHeaders(),
+        signal: request.signal,
+      });
+      return await this.handleResponse<T>(response);
+    } finally {
+      request.done();
+    }
   }
 
-  async post<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-    const response = await fetch(`${this.baseUrl}${path}`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: body ? JSON.stringify(body) : undefined,
-      signal: this.signalFor(signal),
-    });
-
-    return this.handleResponse<T>(response);
+  /** `timeout: false` exempts a request whose answer takes as long as it takes, like a chat reply. */
+  async post<T>(path: string, body?: unknown, signal?: AbortSignal, options?: { timeout?: boolean }): Promise<T> {
+    const request = this.deadline(signal, options?.timeout ?? true);
+    try {
+      const response = await fetch(`${this.baseUrl}${path}`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: body ? JSON.stringify(body) : undefined,
+        signal: request.signal,
+      });
+      return await this.handleResponse<T>(response);
+    } finally {
+      request.done();
+    }
   }
 
   async delete<T>(path: string, body?: unknown): Promise<T> {
@@ -117,17 +158,7 @@ export class HttpClient {
     });
 
     if (!response.ok) {
-      let errorData: ApiError | null = null;
-      try {
-        errorData = (await response.json()) as ApiError;
-      } catch {
-        // Response body is not JSON
-      }
-      throw new KookeeApiError(
-        errorData?.code ?? 'UNKNOWN_ERROR',
-        errorData?.message ?? `Request failed with status ${response.status}`,
-        response.status,
-      );
+      throw await apiErrorFrom(response);
     }
 
     if (!response.body) {
@@ -158,25 +189,16 @@ export class HttpClient {
         }
       }
     } finally {
+      // A consumer that stops early (a `break`, a throw) must not leave the connection open:
+      // the server would keep generating, and billing, an answer nobody reads. A no-op once done.
+      await reader.cancel().catch(() => undefined);
       reader.releaseLock();
     }
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      let errorData: ApiError | null = null;
-
-      try {
-        errorData = (await response.json()) as ApiError;
-      } catch {
-        // Response body is not JSON
-      }
-
-      throw new KookeeApiError(
-        errorData?.code ?? 'UNKNOWN_ERROR',
-        errorData?.message ?? `Request failed with status ${response.status}`,
-        response.status,
-      );
+      throw await apiErrorFrom(response);
     }
 
     return response.json() as Promise<T>;

@@ -1,3 +1,4 @@
+import { KookeeApiError } from '../http-client';
 import type { HttpClient } from '../http-client';
 import type {
   EntryCategory,
@@ -62,7 +63,8 @@ export class EntriesModule {
         signal,
       );
       all.push(...response.data);
-      if (page >= response.totalPages) return all;
+      // An empty page ends it too: a missing or malformed totalPages would otherwise loop forever.
+      if (response.data.length === 0 || !(page < response.totalPages)) return all;
       page += 1;
     }
   }
@@ -118,4 +120,22 @@ export class EntriesModule {
   ): Promise<EntryCategory[]> {
     return this.http.get<EntryCategory[]>('/v1/categories', { type, ...params }, signal);
   }
+}
+
+/**
+ * `by-id` serves every entry type, so a typed module checks what came back instead of handing
+ * over another type's entry under its own name. Fails the way the server does for a missing id.
+ */
+export async function getEntryOfType(
+  entries: EntriesModule,
+  type: string,
+  id: string,
+  params?: EntriesGetByIdParams,
+  signal?: AbortSignal,
+): Promise<GenericEntryDetail> {
+  const entry = await entries.getById(id, params, signal);
+  if (entry.type !== type) {
+    throw new KookeeApiError('ENTRY_NOT_FOUND', 'ENTRY_NOT_FOUND (HTTP 404)', 404);
+  }
+  return entry;
 }

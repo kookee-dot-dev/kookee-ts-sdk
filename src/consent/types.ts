@@ -52,8 +52,9 @@ export interface KookeeConsentOptions {
 
 export interface KookeeConsentApi {
   /**
-   * Runs the callback once the category is granted: immediately if the visitor already
-   * consented, or right after they do. The reliable way to load gated scripts from code.
+   * Runs the callback once the category is granted and its gated scripts have run:
+   * immediately if that already happened, otherwise right after. The reliable way to load
+   * gated scripts from code.
    */
   on(category: string, callback: () => void): void;
   /** Runs the callback on every consent change, including withdrawal. */
@@ -64,6 +65,9 @@ export interface KookeeConsentApi {
   get(): ConsentChoices;
   /** Reopens the preferences dialog (for a persistent "Cookie settings" link). */
   show(): void;
-  /** Resolves once the widget has loaded its config and applied any stored consent. */
+  /**
+   * Resolves once the widget has loaded its config and applied any stored consent,
+   * including activating the gated scripts it grants.
+   */
   ready: Promise<void>;
 }

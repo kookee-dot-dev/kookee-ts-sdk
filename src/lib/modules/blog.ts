@@ -10,6 +10,7 @@ import type {
   ReactParams,
   ReactResponse,
 } from '../types';
+import { getEntryOfType } from './entries';
 import type { EntriesModule } from './entries';
 
 export interface BlogListParams extends PaginationParams, LocaleOptions {
@@ -37,7 +38,7 @@ export class BlogModule {
   }
 
   async getById(id: string, params?: BlogGetByIdParams, signal?: AbortSignal): Promise<BlogEntryDetail> {
-    return this.entries.getById(id, params, signal) as unknown as Promise<BlogEntryDetail>;
+    return (await getEntryOfType(this.entries, 'blog', id, params, signal)) as unknown as BlogEntryDetail;
   }
 
   async getTags(signal?: AbortSignal): Promise<EntryTagWithCount[]> {

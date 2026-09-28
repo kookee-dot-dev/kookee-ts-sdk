@@ -61,8 +61,9 @@ const kookee = new Kookee({
   apiKey: 'your-api-key',
   // Optional. Defaults to https://api.kookee.dev
   baseUrl: 'https://api.kookee.dev',
-  // Optional. Abort any request that takes longer than this. Node's fetch has no deadline of
-  // its own, so a server-side caller waits indefinitely without it. Chat streams are exempt.
+  // Optional. Abort any request that takes longer than this, with a `TimeoutError`. Node's fetch
+  // has no deadline of its own, so a server-side caller waits indefinitely without it. Chat
+  // answers (`help.chat`, `help.chatStream`) are exempt.
   timeoutMs: 10_000,
 });
 ```
@@ -394,8 +395,9 @@ export async function generateMetadata({ params }): Promise<Metadata> {
   };
 }
 
-// In the page component:
-// <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(seo.jsonLd) }} />
+// In the page component. Use serializeJsonLd (from '@kookee/sdk'), never plain JSON.stringify:
+// a `</script>` in a title would close the tag and run whatever the title says next.
+// <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(seo.jsonLd) }} />
 ```
 
 ### Sitemap
@@ -556,7 +558,7 @@ import { initKookeeConsent } from '@kookee/sdk/consent';
 
 const consent = initKookeeConsent({ apiKey: 'your-api-key' });
 
-// Runs now if the visitor already consented, or right after they do
+// Runs once the visitor has consented and the scripts gated on that category have loaded
 consent.on('analytics', () => {
   // load gtag / analytics here
 });
@@ -564,7 +566,7 @@ consent.on('analytics', () => {
 consent.onChange((choices) => console.log(choices)); // { analytics: true, marketing: false }
 consent.isGranted('marketing');
 consent.show(); // reopen the preferences dialog, e.g. from a "Cookie settings" link
-await consent.ready; // config loaded and any stored consent applied
+await consent.ready; // config loaded, and any stored consent applied with its scripts loaded
 ```
 
 For a plain HTML page use the `<script>` build instead. It auto-initializes from the tag's
@@ -580,6 +582,14 @@ after consent:
   src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"
 ></script>
 ```
+
+Gated tags run in document order. After a blocking external script (`src` without `async`),
+the next tag waits for it to load, for at most 10 seconds, so an inline snippet can call the
+library above it. The tags keep their CSP `nonce`.
+
+`initKookeeConsent` returns the page's one instance on every call, and the options of later
+calls are ignored. React StrictMode, a remount or the script included twice never show a
+second banner or record the decision twice.
 
 The complete embed snippet (Consent Mode defaults plus a stub that queues API calls made
 before the script loads) is in your project's consent settings in Kookee.
@@ -842,6 +852,10 @@ try {
 Pass the signal as a **parameter**, never as a field on the params object — params are
 serialised into the query string.
 
+With `timeoutMs` configured, a request given its own signal stops at whichever comes first:
+your abort rejects with an `AbortError`, the deadline with a `TimeoutError`. `help.chat` and
+`help.chatStream` are never timed out.
+
 ## Error Handling
 
 ```typescript
@@ -856,6 +870,10 @@ try {
   }
 }
 ```
+
+A typed `getById` (`blog`, `changelog`, `announcements`, `help`, `pages`) rejects with
+`ENTRY_NOT_FOUND` and status 404 when the id belongs to an entry of another type, the same
+error as for an id that does not exist.
 
 ## Styling Entry Content
 

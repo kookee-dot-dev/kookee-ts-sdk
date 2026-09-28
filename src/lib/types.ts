@@ -3,10 +3,11 @@ export interface KookeeConfig {
   projectId?: string;
   baseUrl?: string;
   /**
-   * Abort a request that takes longer than this many milliseconds. Off by default. Node's
-   * `fetch` has no deadline of its own, so a server-side caller waits indefinitely without it.
-   * A request given its own `AbortSignal` uses that instead, and `chatStream` is never timed
-   * out — an answer legitimately takes a while, so pass a signal to stop one.
+   * Abort a request that takes longer than this many milliseconds, rejecting with a
+   * `TimeoutError`. Off by default. Node's `fetch` has no deadline of its own, so a server-side
+   * caller waits indefinitely without it. A request given its own `AbortSignal` stops at
+   * whichever comes first. `chat` and `chatStream` are never timed out — an answer
+   * legitimately takes a while, so pass a signal to stop one.
    */
   timeoutMs?: number;
 }

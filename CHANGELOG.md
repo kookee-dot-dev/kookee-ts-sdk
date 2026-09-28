@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.10.1
+
+### Fixed
+
+- **`timeoutMs` now holds when a request carries its own `AbortSignal`.** The signal used to
+  replace the timeout, so every request made through the React hooks, which always pass one,
+  could wait forever. Now the request stops at whichever comes first: your abort rejects with an
+  `AbortError`, the deadline with a `TimeoutError`. The timeout no longer depends on
+  `AbortSignal.timeout`, so it also works where that is missing. `help.chat` joins
+  `help.chatStream` in never timing out.
+- **Leaving a chat stream early cancels it.** A `break` out of `for await`, or an error thrown
+  in the loop, now cancels the response body, so the server stops generating an answer nobody
+  reads.
+- **A typed `getById` no longer returns an entry of another type.** `blog`, `changelog`,
+  `announcements`, `help` and `pages` reject with `ENTRY_NOT_FOUND` and status 404 when the id
+  belongs to another type, the same error as for an unknown id. They used to return the entry
+  and label it with their own type.
+- A trailing slash in `baseUrl` no longer produces `//v1/...` and a 404, in the client or the
+  consent widget.
+- `KookeeApiError.message` names the server's code, for example `ENTRY_NOT_FOUND (HTTP 404)`,
+  instead of "Request failed with status 404".
+- `entries.export()` stops at an empty page, even when the response has no usable `totalPages`.
+- `buildLlmsTxt` escapes `[` and `]` in titles and `(` and `)` in URLs, so a title like
+  "Arrays [beta]" no longer breaks its link.
+
+### Added
+
+- `serializeJsonLd(value)` serializes JSON-LD for an inline `<script type="application/ld+json">`
+  with `<` escaped. The README used to show `JSON.stringify(seo.jsonLd)` there, which lets a
+  `</script>` in an entry's title close the tag and run what follows. Replace it.
+
+### Cookie consent
+
+- **One instance per page.** `initKookeeConsent` returns the same instance on every call, and
+  options passed to later calls are ignored. React StrictMode, a remount or the script included
+  twice no longer show two banners or record the decision twice.
+- **Gated tags run in document order.** After a blocking external script, the next tag waits
+  for it to load, for at most 10 seconds. A gated inline snippet that calls the library above
+  it no longer runs first and throws.
+- **`on()`, `onChange` and `ready` now wait for the gated scripts.** A callback runs once the
+  scripts of its category have been activated, so it can call the library they load. `ready`
+  resolves once stored consent has been applied that way. `isGranted()` and `get()` still
+  reflect a decision immediately.
+- Gated tags keep their CSP `nonce`. Browsers hide the attribute's value after parsing, so the
+  activated copy used to lose it and be blocked under a nonce-based policy.
+- A listener that throws is logged and no longer stops the others.
+- The consent cookie is `Secure` on https pages.
+- **Banner accessibility.** The banner is a dialog labelled by its title. Each toggle is labelled
+  by its category, and each policy link by its service. Keyboard focus on a toggle is visible.
+  After "Customize", focus moves to the preferences instead of being lost.
+
 ## 1.10.0
 
 No change to this package. Released so the version stays in step with `@kookee/react` 1.10.0.

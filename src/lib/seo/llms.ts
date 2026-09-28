@@ -12,6 +12,11 @@ export interface LlmsOptions {
   full?: boolean;
 }
 
+/** A title's `]` or a URL's `)` would otherwise end the link early. */
+function markdownLink(text: string, url: string): string {
+  return `[${text.replace(/[[\]\\]/g, '\\$&')}](${url.replace(/\(/g, '%28').replace(/\)/g, '%29')})`;
+}
+
 /**
  * Builds an `llms.txt` index (https://llmstxt.org): one `##` section per entry type, one
  * `- [title](url): description` line per entry. With `full`, each entry's markdown follows.
@@ -25,7 +30,7 @@ export function buildLlmsTxt(entries: ExportEntry[], options: LlmsOptions): stri
   for (const { entry, url } of resolved) {
     const lines = sections.get(entry.typeName) ?? [];
     const description = entry.description ? `: ${entry.description.replace(/\s+/g, ' ').trim()}` : '';
-    lines.push(`- [${entry.title}](${url})${description}`);
+    lines.push(`- ${markdownLink(entry.title, url)}${description}`);
     sections.set(entry.typeName, lines);
   }
 

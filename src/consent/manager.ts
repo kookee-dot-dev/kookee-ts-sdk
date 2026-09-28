@@ -12,6 +12,9 @@ import type {
 
 const DEFAULT_BASE_URL = 'https://api.kookee.dev';
 const API_KEY_HEADER = 'Kookee-API-Key';
+const INSTANCE_KEY = Symbol.for('kookee.consent');
+
+type ConsentWindow = Window & { [INSTANCE_KEY]?: KookeeConsentApi };
 
 // crypto.randomUUID is unavailable on non-secure origins (plain-HTTP sites).
 function generateVisitorId(): string {
@@ -33,6 +36,14 @@ function whenDomReady(callback: () => void): void {
   }
 }
 
+function runListener(listener: () => void): void {
+  try {
+    listener();
+  } catch (error) {
+    console.error('[kookee-consent] A consent listener threw', error);
+  }
+}
+
 export class ConsentManager implements KookeeConsentApi {
   readonly ready: Promise<void>;
 
@@ -43,12 +54,13 @@ export class ConsentManager implements KookeeConsentApi {
   private choices: ConsentChoices = {};
   private decided = false;
   private visitorId = '';
+  private activated = new Set<string>();
   private grantListeners = new Map<string, Array<() => void>>();
   private changeListeners: Array<(choices: ConsentChoices) => void> = [];
 
   constructor(options: KookeeConsentOptions) {
     this.apiKey = options.apiKey;
-    this.baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
+    this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
     this.ready = new Promise((resolve) => {
       whenDomReady(() => {
         void this.init().finally(resolve);
@@ -57,7 +69,7 @@ export class ConsentManager implements KookeeConsentApi {
   }
 
   on(category: string, callback: () => void): void {
-    if (this.decided && this.choices[category]) {
+    if (this.activated.has(category)) {
       callback();
       return;
     }
@@ -97,14 +109,14 @@ export class ConsentManager implements KookeeConsentApi {
     const onlyRequired = categories.every((category) => category.required);
     if (onlyRequired) {
       // Nothing to consent to: no banner, no cookie, no event.
-      this.applyChoices(Object.fromEntries(categories.map((c) => [c.key, true])));
+      await this.applyChoices(Object.fromEntries(categories.map((c) => [c.key, true])));
       return;
     }
 
     const stored = readStoredConsent();
     if (stored && stored.configVersionId === config.configVersionId) {
       this.visitorId = stored.visitorId;
-      this.applyChoices(this.normalizeChoices(stored.choices));
+      await this.applyChoices(this.normalizeChoices(stored.choices));
       return;
     }
 
@@ -182,10 +194,10 @@ export class ConsentManager implements KookeeConsentApi {
       return;
     }
 
-    this.applyChoices(choices);
+    void this.applyChoices(choices);
   }
 
-  private applyChoices(choices: ConsentChoices): void {
+  private async applyChoices(choices: ConsentChoices): Promise<void> {
     this.choices = choices;
     this.decided = true;
 
@@ -196,15 +208,21 @@ export class ConsentManager implements KookeeConsentApi {
       fireConsentModeUpdate(choices);
     }
 
-    activateConsentedScripts(choices);
+    // Listeners wait for the gated scripts, so a callback can use the library they load.
+    await activateConsentedScripts(choices);
 
+    for (const [category, granted] of Object.entries(choices)) {
+      if (granted) {
+        this.activated.add(category);
+      }
+    }
     for (const [category, listeners] of this.grantListeners) {
       if (choices[category]) {
         this.grantListeners.delete(category);
-        listeners.forEach((listener) => listener());
+        listeners.forEach(runListener);
       }
     }
-    this.changeListeners.forEach((listener) => listener({ ...choices }));
+    this.changeListeners.forEach((listener) => runListener(() => listener({ ...choices })));
   }
 
   private async recordEvent(action: ConsentAction, choices: ConsentChoices): Promise<void> {
@@ -238,6 +256,11 @@ export class ConsentManager implements KookeeConsentApi {
   }
 }
 
+/**
+ * Returns the page's one consent instance, creating it on the first call. Kept on `window`
+ * so React StrictMode, a remount or the script included twice never stack a second banner
+ * or record the decision twice; later calls' options are ignored.
+ */
 export function initKookeeConsent(options: KookeeConsentOptions): KookeeConsentApi {
-  return new ConsentManager(options);
+  return ((window as ConsentWindow)[INSTANCE_KEY] ??= new ConsentManager(options));
 }

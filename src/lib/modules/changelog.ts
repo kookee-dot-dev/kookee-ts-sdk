@@ -11,6 +11,7 @@ import type {
   ReactParams,
   ReactResponse,
 } from '../types';
+import { getEntryOfType } from './entries';
 import type { EntriesModule } from './entries';
 
 // Read the changelog system fields with `fieldOptionKey(entry.fields, 'changelogType')` and
@@ -52,7 +53,7 @@ export class ChangelogModule {
   }
 
   async getById(id: string, params?: ChangelogGetByIdParams, signal?: AbortSignal): Promise<ChangelogEntryDetail> {
-    return toChangelogDetail(await this.entries.getById(id, params, signal));
+    return toChangelogDetail(await getEntryOfType(this.entries, 'changelog', id, params, signal));
   }
 
   async getTranslationsById(id: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {

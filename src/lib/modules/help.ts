@@ -16,6 +16,7 @@ import type {
   ReactParams,
   ReactResponse,
 } from '../types';
+import { getEntryOfType } from './entries';
 import type { EntriesModule } from './entries';
 
 export interface HelpCategoriesParams extends LocaleOptions {}
@@ -73,7 +74,7 @@ export class HelpModule {
   }
 
   async getById(id: string, params?: HelpGetByIdParams, signal?: AbortSignal): Promise<HelpArticleDetail> {
-    return this.entries.getById(id, params, signal) as unknown as Promise<HelpArticleDetail>;
+    return (await getEntryOfType(this.entries, 'help_article', id, params, signal)) as unknown as HelpArticleDetail;
   }
 
   async search(params: HelpSearchParams, signal?: AbortSignal): Promise<HelpSearchResult[]> {
@@ -101,7 +102,7 @@ export class HelpModule {
   }
 
   async chat(params: HelpChatParams, signal?: AbortSignal): Promise<HelpChatResponse> {
-    return this.http.post<HelpChatResponse>('/v1/help/chat', params, signal);
+    return this.http.post<HelpChatResponse>('/v1/help/chat', params, signal, { timeout: false });
   }
 
   /**

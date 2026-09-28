@@ -36,5 +36,6 @@ export function readStoredConsent(): StoredConsent | null {
 
 export function writeStoredConsent(consent: StoredConsent): void {
   const value = encodeURIComponent(JSON.stringify(consent));
-  document.cookie = `${COOKIE_NAME}=${value}; max-age=${COOKIE_MAX_AGE_SECONDS}; path=/; SameSite=Lax`;
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${COOKIE_NAME}=${value}; max-age=${COOKIE_MAX_AGE_SECONDS}; path=/; SameSite=Lax${secure}`;
 }
