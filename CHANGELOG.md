@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.10.2
+
+### Added
+
+- **`styles/content.css` styles @mentions.** A mention in `contentHtml`
+  (`<span data-type="mention">@Name</span>`) renders as a pill instead of plain text. The pill
+  has no avatar, since the HTML stores only the name. Theme it with `--kookee-mention-bg` and
+  `--kookee-mention-fg`; the default tint comes from the text color, so it also works in a dark
+  theme.
+
 ## 1.10.1
 
 ### Fixed

@@ -894,8 +894,8 @@ The SDK ships two optional stylesheets. Every rule in both is scoped under
 `.kookee-entry-content`, so importing them can never restyle anything else on your page:
 
 - **`styles/content.css`** — content widget styling: syntax-highlighted code blocks
-  (VS Code Dark+ theme), the copy button and language label, inline code, and file
-  attachment chips. Everyone should import this.
+  (VS Code Dark+ theme), the copy button and language label, inline code, file
+  attachment chips, and @mentions. Everyone should import this.
 - **`styles/typography.css`** — baseline text styling (headings, lists, tables, images,
   blockquotes, task lists). Import it if your app has no typography system of its own; it
   inherits your page's font and colors and only adds rhythm and hierarchy. **Tailwind
@@ -953,6 +953,8 @@ can restyle it from `:root` without touching the stylesheet:
   `--kookee-file-chip-hover-bg`, `--kookee-file-chip-muted` — file attachment chip
   background, border, text color (defaults to `inherit`), hover fill, and the muted
   color used for the icon and size label.
+- `--kookee-mention-bg`, `--kookee-mention-fg` — @mention pill background (defaults to a
+  tint of the text color) and text color (defaults to `inherit`).
 
 Map them to your design system's tokens:
 

@@ -17,7 +17,8 @@
  *   <link rel="stylesheet" href="https://unpkg.com/@kookee/sdk/styles/content.css">
  *   <link rel="stylesheet" href="https://kookee.dev/sdk/content.css">
  *
- * Theming: override the --kookee-code-* and --kookee-file-chip-* custom properties on :root.
+ * Theming: override the --kookee-code-*, --kookee-file-chip-* and --kookee-mention-* custom
+ * properties on :root.
  * Pair with styles/typography.css if your app has no typography system of its own.
  */
 
@@ -274,4 +275,17 @@
 .kookee-entry-content ul[data-type='taskList'] input[type='checkbox'] {
   margin: 0;
   transform: translateY(0.125em);
+}
+
+/* @mentions (Tiptap: span[data-type="mention"], text "@Name"). The HTML stores the name only,
+   so the pill has no avatar. The default tint comes from the text color, so it follows a dark
+   theme without any mapping. */
+.kookee-entry-content [data-type='mention'] {
+  display: inline-block;
+  padding: 0 0.375em;
+  border-radius: 9999px;
+  background-color: var(--kookee-mention-bg, color-mix(in srgb, currentColor 12%, transparent));
+  color: var(--kookee-mention-fg, inherit);
+  font-weight: 500;
+  white-space: nowrap;
 }
