@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.11.1
+
+### Added
+
+- **`WidgetConfig.homeImageUrl`**: an image the project uploaded in the dashboard for the top of
+  the widget's Home, shown in place of the accent color. `WidgetBootstrap.project.logoUrl` is now
+  set in the project's settings rather than the portal's.
+
 ## 1.11.0
 
 ### Added

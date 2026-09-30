@@ -220,6 +220,8 @@ export interface WidgetConfig {
   placeholder?: string;
   suggestions?: string[];
   links?: WidgetLink[];
+  /** An image uploaded in the dashboard, shown at the top of Home in place of the accent color. */
+  homeImageUrl?: string;
 }
 
 export type WidgetNewsType = 'announcement' | 'changelog' | 'blog';

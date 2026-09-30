@@ -558,6 +558,8 @@ const { project, config, content } = await kookee.widget.get({ locale: 'en' });
 
 config?.tabs; // ['home', 'ask', 'help'], or null when the project has not set the widget up
 config?.links; // [{ label, url }], the project's own links for Home
+config?.homeImageUrl; // an uploaded image for the top of Home, in place of the accent color
+project.logoUrl; // the project's logo, set in its settings
 content?.announcement; // the newest announcement
 content?.news; // changelog entries, announcements and blog posts, newest first
 content?.articles; // public help articles, most viewed first
