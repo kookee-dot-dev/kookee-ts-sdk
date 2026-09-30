@@ -196,6 +196,72 @@ export type HelpChatStreamChunk =
   | { type: 'error'; message: string };
 
 // =====================
+// Widget Types
+// =====================
+
+export type WidgetTab = 'home' | 'ask' | 'help';
+
+/** A link on the widget's Home, opened in a new tab. */
+export interface WidgetLink {
+  label: string;
+  /** Always `http:` or `https:`. */
+  url: string;
+}
+
+/**
+ * A project's stored settings for the chat widget, edited in the Kookee dashboard. Texts are
+ * single-language.
+ */
+export interface WidgetConfig {
+  /** Ordered. `ask` is always present; `['ask']` alone is the plain chat. */
+  tabs: WidgetTab[];
+  title?: string;
+  greeting?: string;
+  placeholder?: string;
+  suggestions?: string[];
+  links?: WidgetLink[];
+}
+
+export type WidgetNewsType = 'announcement' | 'changelog' | 'blog';
+
+export interface WidgetNewsItem {
+  id: string;
+  type: WidgetNewsType;
+  slug: string | null;
+  title: string;
+  excerptText: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  /** Carries the changelog type and version, and the announcement type. */
+  fields: EntryFieldValue[];
+}
+
+export interface WidgetArticleItem {
+  id: string;
+  slug: string | null;
+  title: string;
+  excerptText: string | null;
+}
+
+export interface WidgetContent {
+  /** The newest announcement. It is not repeated in `news`. */
+  announcement: WidgetNewsItem | null;
+  /** Changelog entries, announcements and blog posts, newest first. */
+  news: WidgetNewsItem[];
+  /** Public help articles, most viewed first. */
+  articles: WidgetArticleItem[];
+}
+
+/** Returned by `GET /v1/widget`. */
+export interface WidgetBootstrap {
+  project: { name: string; logoUrl: string | null };
+  /** `null` when the project has not set the widget up. */
+  config: WidgetConfig | null;
+  /** `null` unless the stored tabs need it or the request asked for it. */
+  content: WidgetContent | null;
+}
+
+// =====================
 // Feedback Types
 // =====================
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.11.0
+
+### Added
+
+- **`kookee.widget.get({ locale, content })`** reads `GET /v1/widget`: the project's stored chat
+  widget settings (`WidgetConfig`) and the content of the widget's Home and Help tabs
+  (`WidgetContent`: the newest announcement, recent changelog entries, announcements and blog
+  posts, and the most viewed help articles). The request is not counted against the monthly API
+  quota. New types: `WidgetBootstrap`, `WidgetConfig`, `WidgetTab`, `WidgetLink`,
+  `WidgetContent`, `WidgetNewsItem`, `WidgetNewsType`, `WidgetArticleItem`.
+
 ## 1.10.2
 
 ### Added

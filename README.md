@@ -547,6 +547,26 @@ const config = await kookee.config.getByKey('feature_flags');
 const configs = await kookee.config.list({ keys: ['feature_flags', 'theme'] });
 ```
 
+## Widget
+
+What the chat widget of `@kookee/react` draws its panel from: the project's stored widget
+settings, and the content of its Home and Help tabs. You only need it to build a widget of
+your own.
+
+```typescript
+const { project, config, content } = await kookee.widget.get({ locale: 'en' });
+
+config?.tabs; // ['home', 'ask', 'help'], or null when the project has not set the widget up
+config?.links; // [{ label, url }], the project's own links for Home
+content?.announcement; // the newest announcement
+content?.news; // changelog entries, announcements and blog posts, newest first
+content?.articles; // public help articles, most viewed first
+```
+
+`content` comes only when the stored tabs include Home or Help. Pass `content: true` to get it
+regardless, for a widget whose tabs are set in code. The request is not counted against the
+monthly API quota, has its own rate limit, and is cacheable for a minute.
+
 ## Cookie Consent
 
 The consent widget ships on its own subpath, so it is only bundled if you use it. Categories,

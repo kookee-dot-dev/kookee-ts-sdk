@@ -49,3 +49,4 @@ export {
   type PagesGetByIdParams,
   type PagesGetCommentsParams,
 } from './pages';
+export { WidgetModule, type WidgetGetParams } from './widget';
