@@ -209,8 +209,8 @@ export interface WidgetLink {
 }
 
 /**
- * A project's stored settings for the chat widget, edited in the Kookee dashboard. Texts are
- * single-language.
+ * A project's stored settings for the chat widget, edited in the Kookee dashboard. Its texts
+ * are in one language; a multi-language site sets them per page in code, which wins.
  */
 export interface WidgetConfig {
   /** Ordered. `ask` is always present; `['ask']` alone is the plain chat. */
@@ -257,6 +257,11 @@ export interface WidgetContent {
 /** Returned by `GET /v1/widget`. */
 export interface WidgetBootstrap {
   project: { name: string; logoUrl: string | null };
+  /**
+   * The project language the content is in: the requested one when the project has it, else
+   * the default. Missing from an API older than the field.
+   */
+  locale?: string;
   /** `null` when the project has not set the widget up. */
   config: WidgetConfig | null;
   /** `null` unless the stored tabs need it or the request asked for it. */

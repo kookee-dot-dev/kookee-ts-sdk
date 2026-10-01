@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.12.0
+
+### Added
+
+- **`WidgetBootstrap.locale`**: the project language the widget's content is in, the requested
+  one when the project has it, else the default.
+
+### Changed (server, no update needed)
+
+- **Language tags are matched leniently** on every public read: case-insensitive, and a
+  regional tag gets the project's base language, so `pt-BR` reads your `pt` content instead of
+  the default language. A tag that matches nothing falls back as before.
+- **Help categories fall back to the default language** where a category has no translation,
+  one per category, and their counts match the article list.
+- **Lists and search show one version of each entry.** With fallback on, an entry translated
+  into the requested language no longer appears a second time in the default language, and a
+  category's list includes its translated entries.
+- **The help chat answers in the visitor's language**: the language of their latest message,
+  else the requested one.
+
 ## 1.11.1
 
 ### Added

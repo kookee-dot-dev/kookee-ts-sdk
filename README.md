@@ -554,8 +554,9 @@ settings, and the content of its Home and Help tabs. You only need it to build a
 your own.
 
 ```typescript
-const { project, config, content } = await kookee.widget.get({ locale: 'en' });
+const { project, locale, config, content } = await kookee.widget.get({ locale: 'fr-CA' });
 
+locale; // 'fr': the project language the content is in, or the default when it has no match
 config?.tabs; // ['home', 'ask', 'help'], or null when the project has not set the widget up
 config?.links; // [{ label, url }], the project's own links for Home
 config?.homeImageUrl; // an uploaded image for the top of Home, in place of the accent color
@@ -565,7 +566,9 @@ content?.news; // changelog entries, announcements and blog posts, newest first
 content?.articles; // public help articles, most viewed first
 ```
 
-`content` comes only when the stored tabs include Home or Help. Pass `content: true` to get it
+The stored texts (`title`, `greeting`, `placeholder`, `suggestions`, `links`) are in one
+language; a multi-language site sets them per page in code. `content` comes only when the
+stored tabs include Home or Help. Pass `content: true` to get it
 regardless, for a widget whose tabs are set in code. The request is not counted against the
 monthly API quota, has its own rate limit, and is cacheable for a minute.
 
@@ -659,6 +662,9 @@ const posts = await kookee.blog.list({ locale: 'de' });
 
 // With fallback to default locale if translation doesn't exist
 const post = await kookee.blog.getBySlug('hello-world', { locale: 'de', fallback: true });
+
+// A regional tag gets the project's language: 'pt-BR' reads your 'pt' content
+const help = await kookee.help.list({ locale: 'pt-BR' });
 ```
 
 Translation endpoints return a narrow `EntryTranslationsMap` keyed by locale code. Each value is a lightweight summary (`id`, `slug`, `locale`, `title`) — **not** a full entry. To load the full body of a translation, fetch it with `getBySlug` / `getById` using the target locale:
