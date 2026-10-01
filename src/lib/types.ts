@@ -213,7 +213,7 @@ export interface WidgetLink {
  * are in one language; a multi-language site sets them per page in code, which wins.
  */
 export interface WidgetConfig {
-  /** Ordered. `ask` is always present; `['ask']` alone is the plain chat. */
+  /** Ordered, never empty. `['ask']` alone is the plain chat. */
   tabs: WidgetTab[];
   title?: string;
   greeting?: string;

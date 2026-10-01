@@ -557,7 +557,7 @@ your own.
 const { project, locale, config, content } = await kookee.widget.get({ locale: 'fr-CA' });
 
 locale; // 'fr': the project language the content is in, or the default when it has no match
-config?.tabs; // ['home', 'ask', 'help', 'feedback'], or null when the project has not set the widget up
+config?.tabs; // ['home', 'ask', 'help', 'feedback'] in order, any of them; null when the project has not set the widget up
 config?.links; // [{ label, url }], the project's own links for Home
 config?.homeImageUrl; // an uploaded image for the top of Home, in place of the accent color
 project.logoUrl; // the project's logo, set in its settings

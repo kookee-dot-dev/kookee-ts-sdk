@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.14.0
+
+No change to this package; released alongside `@kookee/react` 1.14.0. `WidgetConfig.tabs` may
+now leave out `'ask'`: it is any non-empty set of tabs.
+
 ## 1.13.0
 
 ### Added
