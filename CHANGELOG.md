@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.1
+
+No change to this package; released alongside `@kookee/react` 1.12.1.
+
 ## 1.12.0
 
 ### Added
