@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.13.0
+
+### Added
+
+- **`widget.sendFeedback(input)`** sends the team a message from the site widget's Feedback tab
+  (`POST /v1/widget/feedback`): a category, the message, and optionally an email, the visitor's
+  name and id as the site knows them, and the page's address. It waits for review on the
+  dashboard's Feedback page and is public only once a team member adds it to the board. Not
+  counted against the monthly API quota; limited per address and per project
+  (`RATE_LIMIT_EXCEEDED`, `WIDGET_FEEDBACK_LIMIT_REACHED`).
+- **`WidgetTab` gains `'feedback'`**, and the types `WidgetFeedbackInput` and
+  `WidgetFeedbackReceipt`.
+
 ## 1.12.1
 
 No change to this package; released alongside `@kookee/react` 1.12.1.

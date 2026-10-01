@@ -1,5 +1,5 @@
 import type { HttpClient } from '../http-client';
-import type { WidgetBootstrap } from '../types';
+import type { WidgetBootstrap, WidgetFeedbackInput, WidgetFeedbackReceipt } from '../types';
 
 export interface WidgetGetParams {
   locale?: string;
@@ -25,5 +25,13 @@ export class WidgetModule {
     if (params?.locale) query.locale = params.locale;
     if (params?.content) query.content = true;
     return this.http.get<WidgetBootstrap>('/v1/widget', query, signal);
+  }
+
+  /**
+   * Sends the team a message from the widget's Feedback tab. It waits for review in the
+   * dashboard; nothing is public until a team member adds it to the board.
+   */
+  async sendFeedback(input: WidgetFeedbackInput): Promise<WidgetFeedbackReceipt> {
+    return this.http.post<WidgetFeedbackReceipt>('/v1/widget/feedback', input);
   }
 }

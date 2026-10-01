@@ -466,7 +466,7 @@ escapes it); `head().scripts` is injected unescaped.
 
 ## Feedback
 
-The SDK exposes feedback in read-only form. Posting, voting, and commenting happen in the hosted portal, where visitors sign in.
+The SDK exposes feedback in read-only form. Posting, voting, and commenting happen in the hosted portal, where visitors sign in. The one exception is the site widget's Feedback tab, which sends a message for review (see [Widget](#widget)); it never becomes a post on its own.
 
 ```typescript
 // Get kanban columns (for roadmap rendering)
@@ -557,7 +557,7 @@ your own.
 const { project, locale, config, content } = await kookee.widget.get({ locale: 'fr-CA' });
 
 locale; // 'fr': the project language the content is in, or the default when it has no match
-config?.tabs; // ['home', 'ask', 'help'], or null when the project has not set the widget up
+config?.tabs; // ['home', 'ask', 'help', 'feedback'], or null when the project has not set the widget up
 config?.links; // [{ label, url }], the project's own links for Home
 config?.homeImageUrl; // an uploaded image for the top of Home, in place of the accent color
 project.logoUrl; // the project's logo, set in its settings
@@ -571,6 +571,21 @@ language; a multi-language site sets them per page in code. `content` comes only
 stored tabs include Home or Help. Pass `content: true` to get it
 regardless, for a widget whose tabs are set in code. The request is not counted against the
 monthly API quota, has its own rate limit, and is cacheable for a minute.
+
+The widget's Feedback tab sends the team a message:
+
+```typescript
+await kookee.widget.sendFeedback({
+  category: 'bug', // 'feature' | 'improvement' | 'bug' | 'other'
+  message: 'The export button does nothing',
+  email: 'visitor@example.com', // optional, for a follow-up; never verified
+  pageUrl: 'https://example.com/billing', // optional
+});
+```
+
+It waits for review on the dashboard's Feedback page and is public only once a team member adds
+it to the board. Sending is limited per address and per project: `RATE_LIMIT_EXCEEDED` and
+`WIDGET_FEEDBACK_LIMIT_REACHED` say so.
 
 ## Cookie Consent
 

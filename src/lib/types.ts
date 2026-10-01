@@ -199,7 +199,7 @@ export type HelpChatStreamChunk =
 // Widget Types
 // =====================
 
-export type WidgetTab = 'home' | 'ask' | 'help';
+export type WidgetTab = 'home' | 'ask' | 'help' | 'feedback';
 
 /** A link on the widget's Home, opened in a new tab. */
 export interface WidgetLink {
@@ -252,6 +252,29 @@ export interface WidgetContent {
   news: WidgetNewsItem[];
   /** Public help articles, most viewed first. */
   articles: WidgetArticleItem[];
+}
+
+/**
+ * A message for the team from the widget's Feedback tab. It waits for review in the dashboard
+ * and becomes public only if a team member adds it to the board.
+ */
+export interface WidgetFeedbackInput {
+  category: FeedbackPostCategory;
+  /** 1 to 5,000 characters. */
+  message: string;
+  /** For the team to follow up. Not verified. */
+  email?: string;
+  /** The visitor's name and id as the site knows them. Not verified. */
+  name?: string;
+  visitorId?: string;
+  /** The page the message was sent from; `http:` or `https:`. */
+  pageUrl?: string;
+}
+
+/** Returned by `POST /v1/widget/feedback`. */
+export interface WidgetFeedbackReceipt {
+  id: string;
+  createdAt: string;
 }
 
 /** Returned by `GET /v1/widget`. */
