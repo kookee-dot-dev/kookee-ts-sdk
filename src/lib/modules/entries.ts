@@ -42,6 +42,23 @@ export interface EntriesGetCommentsParams extends PaginationParams {}
 
 export interface EntriesGetCategoriesParams extends LocaleOptions {}
 
+export interface EntriesGetTranslationsBySlugParams {
+  /** The entry type slug (`blog`, `help_article`, …), for a slug that several types use. */
+  type?: string;
+  /** The locale of the entry the slug belongs to, for a slug that entries in several locales use. */
+  locale?: string;
+}
+
+// Duck-typed: `instanceof AbortSignal` misses a polyfill's signal and throws where there is no global.
+function isAbortSignal(value: unknown): value is AbortSignal {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'aborted' in value &&
+    typeof (value as AbortSignal).addEventListener === 'function'
+  );
+}
+
 export class EntriesModule {
   constructor(private readonly http: HttpClient) {}
 
@@ -85,11 +102,22 @@ export class EntriesModule {
     );
   }
 
-  async getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
+  getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap>;
+  getTranslationsBySlug(
+    slug: string,
+    params?: EntriesGetTranslationsBySlugParams,
+    signal?: AbortSignal,
+  ): Promise<EntryTranslationsMap>;
+  async getTranslationsBySlug(
+    slug: string,
+    paramsOrSignal?: EntriesGetTranslationsBySlugParams | AbortSignal,
+    signal?: AbortSignal,
+  ): Promise<EntryTranslationsMap> {
+    const signalFirst = isAbortSignal(paramsOrSignal);
     return this.http.get<EntryTranslationsMap>(
       `/v1/entries/${encodeURIComponent(slug)}/translations`,
-      undefined,
-      signal,
+      signalFirst ? undefined : paramsOrSignal,
+      signalFirst ? paramsOrSignal : signal,
     );
   }
 

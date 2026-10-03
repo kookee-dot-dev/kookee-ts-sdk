@@ -1,6 +1,7 @@
 import type {
   BlogEntryDetail,
   BlogEntryListItem,
+  EntryCategory,
   EntryComment,
   EntryTagWithCount,
   EntryTranslationsMap,
@@ -13,8 +14,12 @@ import type {
 import { getEntryOfType } from './entries';
 import type { EntriesModule } from './entries';
 
+export interface BlogCategoriesParams extends LocaleOptions {}
+
 export interface BlogListParams extends PaginationParams, LocaleOptions {
   tags?: string[];
+  /** A category slug. */
+  category?: string;
   search?: string;
 }
 
@@ -26,6 +31,10 @@ export interface BlogGetCommentsParams extends PaginationParams {}
 
 export class BlogModule {
   constructor(private readonly entries: EntriesModule) {}
+
+  async categories(params?: BlogCategoriesParams, signal?: AbortSignal): Promise<EntryCategory[]> {
+    return this.entries.getCategories('blog', params, signal);
+  }
 
   async list(params?: BlogListParams, signal?: AbortSignal): Promise<PaginatedResponse<BlogEntryListItem>> {
     return this.entries.list({ type: 'blog', ...params }, signal) as unknown as Promise<
@@ -50,7 +59,7 @@ export class BlogModule {
   }
 
   async getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsBySlug(slug, signal);
+    return this.entries.getTranslationsBySlug(slug, { type: 'blog' }, signal);
   }
 
   async getComments(

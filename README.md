@@ -82,6 +82,9 @@ const posts = await kookee.blog.list({ page: 1, limit: 10 });
 // Filter by tag slugs
 const taggedPosts = await kookee.blog.list({ tags: ['news'] });
 
+// Filter by category slug
+const releasePosts = await kookee.blog.list({ category: 'releases' });
+
 // Search posts
 const searchResults = await kookee.blog.list({ search: 'tutorial' });
 
@@ -93,6 +96,9 @@ const postById = await kookee.blog.getById('post-uuid');
 
 // Get all tags with post counts
 const tags = await kookee.blog.getTags();
+
+// List categories with post counts, in the project's default locale unless you pass one
+const categories = await kookee.blog.categories({ locale: 'de' });
 
 // Get comments on a post
 const comments = await kookee.blog.getComments('post-id', { page: 1, limit: 20 });
@@ -108,7 +114,7 @@ const translationsById = await kookee.blog.getTranslationsById('post-uuid');
 ## Help Center
 
 ```typescript
-// List categories
+// List categories, in the project's default locale unless you pass one
 const categories = await kookee.help.categories();
 
 // List articles with pagination
@@ -315,6 +321,8 @@ const entryById = await kookee.entries.getById('entry-uuid');
 // Get translations
 const translationsBySlug = await kookee.entries.getTranslationsBySlug('my-post');
 const translationsById = await kookee.entries.getTranslationsById('entry-uuid');
+// Narrow the lookup when several types, or entries in several locales, share the slug
+const blogTranslations = await kookee.entries.getTranslationsBySlug('my-post', { type: 'blog', locale: 'en' });
 
 // Get comments
 const comments = await kookee.entries.getComments('entry-id', { page: 1, limit: 20 });
@@ -357,14 +365,23 @@ export const getPath: GetPath = (entry) => {
 
 `getEntrySeo` turns an entry into the facts a `<head>` needs. The description falls back
 `metaDescription → excerptText (160 chars) → title`; `type` is `article` for blog and changelog
-entries; pass the translations map to get `hreflang` alternates.
+entries; the JSON-LD's `inLanguage` is the entry's locale. Pass the translations map to get
+`hreflang` alternates, each built with its translation's own category, and `defaultLocale` to
+add an `x-default` alternate, last, pointing at the translation in your default locale (none
+when the entry has no translation in it).
 
 ```typescript
 import { getEntrySeo } from '@kookee/sdk';
 
 const post = await kookee.blog.getBySlug(slug);
 const translations = await kookee.blog.getTranslationsBySlug(slug);
-const seo = getEntrySeo(post, { baseUrl: 'https://example.com', getPath, siteName: 'Example', translations });
+const seo = getEntrySeo(post, {
+  baseUrl: 'https://example.com',
+  getPath,
+  siteName: 'Example',
+  translations,
+  defaultLocale: 'en',
+});
 // seo.title, seo.description, seo.canonical, seo.image, seo.type, seo.publishedAt,
 // seo.updatedAt, seo.alternates ([{ hreflang, href }]), seo.jsonLd (schema.org Article)
 ```
@@ -682,19 +699,21 @@ const post = await kookee.blog.getBySlug('hello-world', { locale: 'de', fallback
 const help = await kookee.help.list({ locale: 'pt-BR' });
 ```
 
-Translation endpoints return a narrow `EntryTranslationsMap` keyed by locale code. Each value is a lightweight summary (`id`, `slug`, `locale`, `title`) — **not** a full entry. To load the full body of a translation, fetch it with `getBySlug` / `getById` using the target locale:
+Translation endpoints return a narrow `EntryTranslationsMap` keyed by locale code. Each value is a lightweight summary (`id`, `slug`, `locale`, `title`, and the translation's own `category` as `{ slug }` or `null`) — **not** a full entry. To load the full body of a translation, fetch it with `getBySlug` / `getById` using the target locale. `blog`, `help`, `changelog` and `pages` look the slug up among their own type's entries:
 
 ```typescript
 const translations = await kookee.blog.getTranslationsBySlug('hello-world');
 // {
-//   en: { id, slug, locale: 'en', title },
-//   de: { id, slug, locale: 'de', title },
+//   en: { id, slug, locale: 'en', title, category },
+//   de: { id, slug, locale: 'de', title, category },
 //   ...
 // }
 
 // To load the full German version:
 const germanPost = await kookee.blog.getBySlug('hello-world', { locale: 'de' });
 ```
+
+Categories are per locale too. `help.categories()`, `blog.categories()` and `entries.getCategories()` return the categories of the requested locale, falling back to the default locale per category, and of the default locale when you pass no `locale`. Each `EntryCategory` carries its `locale` and the `translationGroupId` it shares with its translations, so you can map a category across locales.
 
 ## Paginated Response
 
@@ -1155,6 +1174,8 @@ import type {
   EntriesGetBySlugParams,
   EntriesGetCommentsParams,
   EntriesGetCategoriesParams,
+  EntriesGetTranslationsBySlugParams,
+  BlogCategoriesParams,
   BlogListParams,
   BlogGetBySlugParams,
   BlogGetByIdParams,

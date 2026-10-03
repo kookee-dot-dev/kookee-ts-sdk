@@ -42,7 +42,7 @@ export class PagesModule {
   }
 
   async getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsBySlug(slug, signal);
+    return this.entries.getTranslationsBySlug(slug, { type: 'page' }, signal);
   }
 
   async getComments(

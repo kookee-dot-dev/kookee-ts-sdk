@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.15.0
+
+### Added
+
+- **`blog.categories(params?)`** reads the blog's categories (`GET /v1/categories?type=blog`)
+  with their post counts, like `help.categories()`, and **`blog.list({ category })`** lists the
+  posts of one category, by its slug.
+- **`entries.getTranslationsBySlug(slug, { type, locale })`**: `type` and the slug's `locale`
+  pick the entry when several types, or entries in several locales, share a slug.
+  `getTranslationsBySlug(slug, signal)` works as before. `blog`, `help`, `changelog` and `pages`
+  now send their own type, so their `getTranslationsBySlug(slug)` no longer finds another type's
+  entry with the same slug.
+- **Translations carry their own category**: `EntryTranslationSummary.category`, `{ slug }` or
+  `null`, so a help article's translation links to its own locale's category.
+- **`getEntrySeo` takes `defaultLocale`**, which adds an `x-default` alternate, last, pointing
+  at the translation in that locale when the entry has one. Each alternate is built with its
+  translation's own category, or the entry's on an API that sends none, and the JSON-LD gains
+  `inLanguage`.
+- **`EntryCategory.locale` and `EntryCategory.translationGroupId`**: a category's translations
+  in other locales share its group id.
+- The types `BlogCategoriesParams` and `EntriesGetTranslationsBySlugParams`.
+
+### Changed (server, no update needed)
+
+- **Categories without a `locale` come in the project's default locale.** `help.categories()`
+  and `entries.getCategories()` used to return every locale's categories when you passed none.
+- **A category slug filters lists in the requested locale, or else the default one.** A slug
+  that exists only in a third locale no longer matches.
+
 ## 1.14.0
 
 No change to this package; released alongside `@kookee/react` 1.14.0. `WidgetConfig.tabs` may

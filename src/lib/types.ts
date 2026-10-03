@@ -413,6 +413,9 @@ export interface EntryCategory {
   description: string | null;
   icon: string | null;
   articleCount: number;
+  locale: string;
+  /** Shared by the category's translations in other locales. */
+  translationGroupId: string;
 }
 
 /**
@@ -647,7 +650,7 @@ export interface HelpSearchResult extends HelpArticleListItem {
 /**
  * Translation summary returned by the translations endpoints.
  *
- * The server returns a narrow { id, slug, locale, title } shape keyed by
+ * The server returns a narrow { id, slug, locale, title, category } shape keyed by
  * locale — NOT a full entry. Consumers that need the full body should
  * fetch each translation individually via getBySlug / getById.
  */
@@ -656,6 +659,8 @@ export interface EntryTranslationSummary {
   slug: string | null;
   locale: string;
   title: string;
+  /** The translation's own category; `undefined` from an API that predates it. */
+  category?: { slug: string } | null;
 }
 
 export type EntryTranslationsMap = Record<string, EntryTranslationSummary>;

@@ -15,6 +15,8 @@ export interface EntrySeoOptions {
   titleSuffix?: string;
   /** From `getTranslationsBySlug()` / `getTranslationsById()`; enables `alternates`. */
   translations?: EntryTranslationsMap;
+  /** Your site's default locale: adds an `x-default` alternate when the entry has a translation in it. */
+  defaultLocale?: string;
 }
 
 export interface EntrySeoAlternate {
@@ -31,7 +33,10 @@ export interface EntrySeo {
   type: 'article' | 'website';
   publishedAt: string | null;
   updatedAt: string;
-  /** Every locale of the entry including itself, or empty when there are no translations. */
+  /**
+   * Every locale of the entry including itself, then `x-default` with `defaultLocale`, or empty
+   * when there are no translations.
+   */
   alternates: EntrySeoAlternate[];
   /** A schema.org `Article`, or `null` when the entry has no page. */
   jsonLd: Record<string, unknown> | null;
@@ -62,11 +67,15 @@ export function getEntrySeo(entry: BaseEntry, options: EntrySeoOptions): EntrySe
         id: translation.id,
         slug: translation.slug,
         locale,
-        category: entry.category,
+        category: translation.category === undefined ? entry.category : translation.category,
       });
       if (href) alternates.push({ hreflang: locale, href });
     }
-    if (alternates.length > 0) alternates.unshift({ hreflang: entry.locale, href: canonical });
+    if (alternates.length > 0) {
+      alternates.unshift({ hreflang: entry.locale, href: canonical });
+      const defaultAlternate = alternates.find((alternate) => alternate.hreflang === options.defaultLocale);
+      if (defaultAlternate) alternates.push({ hreflang: 'x-default', href: defaultAlternate.href });
+    }
   }
 
   const jsonLd: Record<string, unknown> | null = canonical
@@ -81,6 +90,7 @@ export function getEntrySeo(entry: BaseEntry, options: EntrySeoOptions): EntrySe
         ...(entry.author.name ? { author: { '@type': 'Person', name: entry.author.name } } : {}),
         ...(options.siteName ? { publisher: { '@type': 'Organization', name: options.siteName } } : {}),
         mainEntityOfPage: canonical,
+        inLanguage: entry.locale,
       }
     : null;
 

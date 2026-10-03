@@ -5,6 +5,7 @@ export {
   type EntriesGetBySlugParams,
   type EntriesGetCommentsParams,
   type EntriesGetCategoriesParams,
+  type EntriesGetTranslationsBySlugParams,
 } from './entries';
 export {
   AnnouncementModule,
@@ -14,6 +15,7 @@ export {
 } from './announcement';
 export {
   BlogModule,
+  type BlogCategoriesParams,
   type BlogListParams,
   type BlogGetBySlugParams,
   type BlogGetByIdParams,

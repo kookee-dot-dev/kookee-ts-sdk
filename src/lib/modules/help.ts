@@ -86,7 +86,7 @@ export class HelpModule {
   }
 
   async getTranslationsBySlug(slug: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {
-    return this.entries.getTranslationsBySlug(slug, signal);
+    return this.entries.getTranslationsBySlug(slug, { type: 'help_article' }, signal);
   }
 
   async getComments(
