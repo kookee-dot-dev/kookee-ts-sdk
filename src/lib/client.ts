@@ -36,7 +36,7 @@ export class Kookee {
       timeoutMs: config.timeoutMs,
     });
 
-    this.entries = new EntriesModule(this.http);
+    this.entries = new EntriesModule(this.http, config.getPath);
 
     this.announcements = new AnnouncementModule(this.entries);
     this.blog = new BlogModule(this.entries);

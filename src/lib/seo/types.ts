@@ -16,6 +16,21 @@ export interface PathEntry {
  */
 export type GetPath = (entry: PathEntry) => string | null;
 
+/**
+ * The entry an entry link in a body points to, in the requested locale or else the default one.
+ * `fallback` is the default-locale row, sent only when the target is in another locale, for a
+ * site with no page in that locale.
+ */
+export interface EntryLinkTarget extends PathEntry {
+  fallback?: PathEntry;
+}
+
+/**
+ * The targets of the entry links (`<a data-entry-id>`, `[text](entry:<id>)`) in a response's
+ * bodies, by entry id. An id the API could not resolve to a published entry is left out.
+ */
+export type EntryLinks = Record<string, EntryLinkTarget>;
+
 /** One row of `GET /v1/entries/export`. */
 export interface ExportEntry {
   type: string;
@@ -29,6 +44,8 @@ export interface ExportEntry {
   publishedAt: string;
   updatedAt: string;
   markdown: string | null;
+  /** The targets of the entry links in `markdown`. Missing from an API older than the field. */
+  links?: EntryLinks;
 }
 
 export interface ExportParams {

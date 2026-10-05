@@ -4,3 +4,4 @@ export * from './types';
 export * from './fields';
 export * from './modules';
 export * from './seo';
+export { resolveEntryLinks, resolveEntryLinksInMarkdown } from './entry-links';

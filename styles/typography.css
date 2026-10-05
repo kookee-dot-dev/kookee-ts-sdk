@@ -71,7 +71,9 @@
 }
 
 /* Links - inherit the page's text color, rely on underline for affordance */
-.kookee-entry-content a {
+/* An entry link from a client without `getPath` has no href and reads as text; `:where` keeps
+   the selector as specific as a customer's `.kookee-entry-content a`. */
+.kookee-entry-content a:where([href]) {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 0.2em;

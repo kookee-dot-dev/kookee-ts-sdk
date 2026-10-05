@@ -1,3 +1,4 @@
+import { resolveEntryLinks, resolveEntryLinksInMarkdown } from '../entry-links';
 import { KookeeApiError } from '../http-client';
 import type { HttpClient } from '../http-client';
 import type {
@@ -13,7 +14,7 @@ import type {
   ReactParams,
   ReactResponse,
 } from '../types';
-import type { ExportEntry, ExportParams } from '../seo/types';
+import type { EntryLinks, ExportEntry, ExportParams, GetPath } from '../seo/types';
 
 const EXPORT_PAGE_SIZE = 200;
 
@@ -49,6 +50,29 @@ export interface EntriesGetTranslationsBySlugParams {
   locale?: string;
 }
 
+interface EntryBodies {
+  links?: EntryLinks;
+  contentHtml?: string | null;
+  excerptHtml?: string | null;
+  contentMarkdown?: string | null;
+  markdown?: string | null;
+}
+
+function withResolvedLinks<T extends EntryBodies>(entry: T, getPath: GetPath): T {
+  const { links } = entry;
+  const resolved: EntryBodies = { ...entry };
+  if (typeof entry.contentHtml === 'string')
+    resolved.contentHtml = resolveEntryLinks(entry.contentHtml, links, getPath);
+  if (typeof entry.excerptHtml === 'string')
+    resolved.excerptHtml = resolveEntryLinks(entry.excerptHtml, links, getPath);
+  if (typeof entry.contentMarkdown === 'string') {
+    resolved.contentMarkdown = resolveEntryLinksInMarkdown(entry.contentMarkdown, links, getPath);
+  }
+  if (typeof entry.markdown === 'string')
+    resolved.markdown = resolveEntryLinksInMarkdown(entry.markdown, links, getPath);
+  return resolved as T;
+}
+
 // Duck-typed: `instanceof AbortSignal` misses a polyfill's signal and throws where there is no global.
 function isAbortSignal(value: unknown): value is AbortSignal {
   return (
@@ -60,10 +84,18 @@ function isAbortSignal(value: unknown): value is AbortSignal {
 }
 
 export class EntriesModule {
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly getPath?: GetPath,
+  ) {}
+
+  private resolveLinks<T extends EntryBodies>(entry: T): T {
+    return this.getPath ? withResolvedLinks(entry, this.getPath) : entry;
+  }
 
   async list(params: EntriesListParams, signal?: AbortSignal): Promise<PaginatedResponse<GenericEntryListItem>> {
-    return this.http.get<PaginatedResponse<GenericEntryListItem>>('/v1/entries', params, signal);
+    const response = await this.http.get<PaginatedResponse<GenericEntryListItem>>('/v1/entries', params, signal);
+    return this.getPath ? { ...response, data: response.data.map((entry) => this.resolveLinks(entry)) } : response;
   }
 
   /**
@@ -79,7 +111,7 @@ export class EntriesModule {
         { ...params, page, limit: EXPORT_PAGE_SIZE },
         signal,
       );
-      all.push(...response.data);
+      all.push(...response.data.map((entry) => this.resolveLinks(entry)));
       // An empty page ends it too: a missing or malformed totalPages would otherwise loop forever.
       if (response.data.length === 0 || !(page < response.totalPages)) return all;
       page += 1;
@@ -87,11 +119,15 @@ export class EntriesModule {
   }
 
   async getById(id: string, params?: EntriesGetByIdParams, signal?: AbortSignal): Promise<GenericEntryDetail> {
-    return this.http.get<GenericEntryDetail>(`/v1/entries/by-id/${encodeURIComponent(id)}`, params, signal);
+    return this.resolveLinks(
+      await this.http.get<GenericEntryDetail>(`/v1/entries/by-id/${encodeURIComponent(id)}`, params, signal),
+    );
   }
 
   async getBySlug(slug: string, params: EntriesGetBySlugParams, signal?: AbortSignal): Promise<GenericEntryDetail> {
-    return this.http.get<GenericEntryDetail>(`/v1/entries/${encodeURIComponent(slug)}`, params, signal);
+    return this.resolveLinks(
+      await this.http.get<GenericEntryDetail>(`/v1/entries/${encodeURIComponent(slug)}`, params, signal),
+    );
   }
 
   async getTranslationsById(id: string, signal?: AbortSignal): Promise<EntryTranslationsMap> {

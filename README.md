@@ -65,6 +65,8 @@ const kookee = new Kookee({
   // has no deadline of its own, so a server-side caller waits indefinitely without it. Chat
   // answers (`help.chat`, `help.chatStream`) are exempt.
   timeoutMs: 10_000,
+  // Optional. Your entries' paths on your site, so links between entries arrive resolved.
+  getPath,
 });
 ```
 
@@ -72,6 +74,37 @@ const kookee = new Kookee({
 enabled: without the portal, the API refuses a request that carries only a project id with 403
 `PORTAL_NOT_ENABLED`. A key used in the browser is visible to every visitor, which it is built
 for; restrict it to your domains with the project's allowed origins.
+
+### Entry links
+
+An entry body can link to another entry by its id rather than its URL, so the link survives a
+changed slug or a translation. The API sends such a link with no `href`
+(`<a data-entry-id="…">`, or `[text](entry:<id>)` in markdown) and lists its target in the
+response's [`links`](#list-vs-detail-responses). Give the client `getPath`, the same function
+the [SEO](#seo) builders take, and bodies arrive resolved:
+
+```typescript
+const kookee = new Kookee({ apiKey: 'your-api-key', getPath });
+
+const article = await kookee.help.getBySlug('refunds');
+// article.contentHtml: … <a href="/help/billing/invoices" data-entry-id="…">invoices</a> …
+```
+
+- `contentHtml`, `excerptHtml` and `contentMarkdown` from `entries` and every typed module
+  (list rows' `excerptHtml` included), and `markdown` from `entries.export()`, are resolved.
+- A link gets the path `getPath` returns for its target. When that is `null`, say for a
+  translation your site has no page for, it gets the path of the target's default-locale
+  version (`links[id].fallback`). The anchor keeps `data-entry-id`.
+- A link with no path (its target is unpublished or gone, or `getPath` returns `null` for both)
+  becomes `<span data-entry-id="…">` around its text; in markdown, `[text](entry:<id>)` becomes
+  `text`.
+- `help.search()` results are not resolved.
+- Without `getPath`, bodies come exactly as the API sent them. `@kookee/react`'s stylesheet shows
+  a link without an `href` as text.
+
+For bodies the client did not fetch, `resolveEntryLinks(html, links, getPath)` and
+`resolveEntryLinksInMarkdown(markdown, links, getPath)` do the same. Resolving twice changes
+nothing.
 
 ## Blog
 
@@ -806,6 +839,24 @@ const post = await kookee.blog.getBySlug('hello-world');
 renderFull(post.contentHtml); // ✅ available on detail
 ```
 
+Both carry `links` (`EntryLinks`): the targets of the entry links in their bodies, keyed by
+entry id, each with the `type`, `id`, `slug`, `locale` and `category` a `getPath` reads, and a
+`fallback` (the default-locale version) when the target is in another locale. An id the API
+could not resolve to a published entry is left out. Export rows carry it too. A client created
+with [`getPath`](#entry-links) has already applied it.
+
+Bodies are HTML from the Kookee editor. Besides the usual elements, they hold three of its own:
+
+- `<a data-entry-id="…">` — a link to another entry. It has no `href` until resolved, and keeps
+  `data-entry-id` after.
+- `<a data-button="primary" href="…">` — a link shown as a button, a call to action. One to an
+  entry has `data-entry-id` in place of the `href` until resolved.
+- `<aside data-callout="note">` — a callout around one or more blocks; the variants are `note`,
+  `tip`, `important`, `warning` and `caution`. In markdown it is a GitHub alert (`> [!TIP]`).
+
+`@kookee/react`'s `content.css` styles callouts and buttons; with a stylesheet of your own,
+target these selectors.
+
 ## Categories on entries
 
 Every entry response (list _and_ detail) includes both `categoryId: string | null` **and** a resolved `category: EntryCategoryRef | null`. No client-side join required:
@@ -1066,6 +1117,8 @@ import type {
   EntryCommentAttachmentFile,
   EntryTranslationSummary,
   EntryTranslationsMap,
+  EntryLinks,
+  EntryLinkTarget,
 
   // SEO
   GetPath,

@@ -1,3 +1,5 @@
+import type { EntryLinks, GetPath } from './seo/types';
+
 export interface KookeeConfig {
   apiKey?: string;
   projectId?: string;
@@ -10,6 +12,15 @@ export interface KookeeConfig {
    * legitimately takes a while, so pass a signal to stop one.
    */
   timeoutMs?: number;
+  /**
+   * Maps an entry to its path on your site, as the SEO builders take it. With it, the entry links
+   * in the bodies that `entries` and the typed modules return (`contentHtml`, `excerptHtml`,
+   * `contentMarkdown`, export `markdown`) arrive resolved: each gets the path of its target, or
+   * of the target's default-locale row when `getPath` returns `null` for it, and one with no
+   * path becomes plain text (`<span data-entry-id>`). Without it, bodies come as the API sent
+   * them. `help.search` results are never resolved.
+   */
+  getPath?: GetPath;
 }
 
 export interface PaginationParams {
@@ -533,6 +544,8 @@ export interface BaseEntry {
   author: EntryAuthor;
   tags: EntryTag[];
   fields: EntryFieldValue[];
+  /** The targets of the entry links in `excerptHtml`. Missing from an API older than the field. */
+  links?: EntryLinks;
 }
 
 /**
@@ -547,6 +560,11 @@ export interface EntryDetailFields {
    * when the entry has no body. Cheaper for a model to read than HTML.
    */
   contentMarkdown?: string | null;
+  /**
+   * The targets of the entry links in `contentHtml`, `excerptHtml` and `contentMarkdown`.
+   * Missing from an API older than the field.
+   */
+  links?: EntryLinks;
 }
 
 /**

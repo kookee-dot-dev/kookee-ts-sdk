@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.16.0
+
+### Added
+
+- **Entry links resolve to your site's paths.** A body can link to another entry by its id, so
+  the link survives a changed slug or a translation: `<a data-entry-id="…">` with no `href`, and
+  `[text](entry:<id>)` in markdown. Create the client with **`getPath`**, the function the SEO
+  builders take (`new Kookee({ apiKey, getPath })`), and `contentHtml`, `excerptHtml`,
+  `contentMarkdown` and export `markdown` from `entries` and every typed module arrive resolved.
+  A link gets its target's path, or the path of the target's default-locale version when
+  `getPath` returns `null` for it, and keeps `data-entry-id`; a link with no path becomes
+  `<span data-entry-id>` around its text, or bare text in markdown. Without `getPath`, bodies
+  come as the API sent them. `help.search()` results are not resolved.
+- **`links`** on entry responses and export rows: the targets of the entry links in the bodies,
+  by entry id, each with a `fallback` default-locale version when the target is in another
+  locale. Missing from an API older than the field.
+- **`resolveEntryLinks(html, links, getPath)`** and
+  **`resolveEntryLinksInMarkdown(markdown, links, getPath)`** do the same for bodies the client
+  did not fetch. Resolving twice changes nothing.
+- The types `EntryLinkTarget` and `EntryLinks`.
+
+### Changed
+
+- **`styles/typography.css` underlines only links with an `href`**, so an entry link from a
+  client without `getPath` reads as text.
+
+### Changed (server, no update needed)
+
+- **Bodies may hold callouts and button links**: `<aside data-callout="note">` (`tip`,
+  `important`, `warning`, `caution`) around one or more blocks, and `<a data-button="primary">`.
+  `@kookee/react` 1.16 styles both.
+
 ## 1.15.0
 
 ### Added
