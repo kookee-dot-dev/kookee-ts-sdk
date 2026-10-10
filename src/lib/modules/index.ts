@@ -51,4 +51,5 @@ export {
   type PagesGetByIdParams,
   type PagesGetCommentsParams,
 } from './pages';
+export { ProjectModule } from './project';
 export { WidgetModule, type WidgetGetParams } from './widget';

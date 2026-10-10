@@ -51,6 +51,17 @@ export interface PublicConfig {
   value: unknown;
 }
 
+/** Returned by `GET /v1/project`. */
+export interface PublicProject {
+  name: string;
+  /** The language content reads answer in when they send no `locale`. */
+  defaultLocale: string;
+  /** The hosted portal's home page, or `null` while the portal is off. */
+  portalUrl: string | null;
+  /** Whether the project saved its widget settings in the dashboard. */
+  widgetConfigured: boolean;
+}
+
 export interface HealthCheckResponse {
   status: 'ok';
   /** The project the key or project-id header resolved to. */

@@ -106,6 +106,17 @@ For bodies the client did not fetch, `resolveEntryLinks(html, links, getPath)` a
 `resolveEntryLinksInMarkdown(markdown, links, getPath)` do the same. Resolving twice changes
 nothing.
 
+## Project
+
+```typescript
+const project = await kookee.project.get();
+// { name: 'Lumen', defaultLocale: 'en', portalUrl: 'https://kookee.dev/p/lumen', widgetConfigured: true }
+```
+
+`defaultLocale` is the language content reads answer in when they send no `locale`.
+`portalUrl` is `null` while the project's hosted portal is off, and `widgetConfigured` says
+whether the project saved its widget settings in the dashboard. Each call is one API request.
+
 ## Blog
 
 ```typescript
@@ -393,6 +404,20 @@ export const getPath: GetPath = (entry) => {
   }
 };
 ```
+
+`entries.export()` returns every locale. A `getPath` that ignores `entry.locale`, like the one
+above, would list each translation at its original's URL in the sitemap and `llms.txt`, so a
+site with pages in its default locale only keeps the rows in that locale first:
+
+```typescript
+const { defaultLocale } = await kookee.project.get();
+const rows = (await kookee.entries.export()).filter((row) => row.locale === defaultLocale);
+```
+
+A site with pages per locale returns a prefixed path for the other locales instead
+(`/de/blog/{slug}`). Feeds built from list reads need neither, since a read that sends no
+`locale` holds the default locale only. The same goes for the client's own `getPath` for
+[entry links](#entry-links): such a read gets its link targets in the default locale too.
 
 ### Page metadata
 
@@ -1209,6 +1234,7 @@ import type {
   // Common
   ApiError,
   PublicConfig,
+  PublicProject,
   PaginatedResponse,
   PaginationParams,
   LocaleOptions,

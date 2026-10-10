@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.17.0
+
+### Added
+
+- **`project.get()`** reads `GET /v1/project`: the project's `name`, its `defaultLocale` (the
+  language content reads answer in when they send no `locale`), `portalUrl` (the hosted
+  portal's home page, or `null` while the portal is off) and `widgetConfigured` (whether the
+  project saved its widget settings in the dashboard). One API request per call. The type
+  `PublicProject`.
+
+### Documentation
+
+- The README's SEO section says that `entries.export()` returns every locale, and shows how a
+  site with pages in its default locale only keeps those rows before the builders.
+
 ## 1.16.0
 
 ### Added

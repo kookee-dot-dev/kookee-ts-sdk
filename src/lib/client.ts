@@ -7,6 +7,7 @@ import { EntriesModule } from './modules/entries';
 import { FeedbackModule } from './modules/feedback';
 import { HelpModule } from './modules/help';
 import { PagesModule } from './modules/pages';
+import { ProjectModule } from './modules/project';
 import { WidgetModule } from './modules/widget';
 import type { KookeeConfig, HealthCheckResponse } from './types';
 
@@ -22,6 +23,7 @@ export class Kookee {
   public readonly feedback: FeedbackModule;
   public readonly help: HelpModule;
   public readonly pages: PagesModule;
+  public readonly project: ProjectModule;
   public readonly widget: WidgetModule;
 
   constructor(config: KookeeConfig) {
@@ -45,6 +47,7 @@ export class Kookee {
     this.feedback = new FeedbackModule(this.http);
     this.help = new HelpModule(this.http, this.entries);
     this.pages = new PagesModule(this.entries);
+    this.project = new ProjectModule(this.http);
     this.widget = new WidgetModule(this.http);
   }
 
