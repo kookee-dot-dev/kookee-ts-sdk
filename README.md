@@ -622,6 +622,36 @@ const config = await kookee.config.getByKey('feature_flags');
 const configs = await kookee.config.list({ keys: ['feature_flags', 'theme'] });
 ```
 
+## Status
+
+The project's status page, to show it on your own site. The hosted portal shows the same page
+at `/p/{slug}/status` once its Status module is on.
+
+```typescript
+const status = await kookee.status.get();
+
+status.indicator; // 'operational' | 'minor' | 'major' | 'maintenance', for the page's banner
+status.components; // [{ id, name, description, status, uptime, days }], in the page's order
+status.activeIncidents; // open incidents, newest first, each with its latestUpdate
+status.maintenanceInProgress; // maintenance whose window is open now
+status.upcomingMaintenance; // scheduled maintenance, soonest first
+status.resolvedIncidents; // closed in the last 90 days, newest first, at most 50
+
+const incident = await kookee.status.getIncident(status.activeIncidents[0].id);
+incident.updates; // the whole timeline, newest first: [{ id, status, body, bodyHtml, createdAt }]
+```
+
+A component's `status` is `operational`, `degraded_performance`, `partial_outage`,
+`major_outage`, or `under_maintenance` while a maintenance on it is in progress. `uptime` is the
+share of the last 90 days not in major outage, from 0 to 1, and `null` when the component hides
+it or is too new; `days` lists only the days that were not operational all day. An update's
+`body` is its Markdown and `bodyHtml` the same rendered, which `styles/content.css` styles
+inside an element with the `kookee-entry-content` class. Drafts are never returned:
+`getIncident` answers an unknown or unpublished incident with `INCIDENT_NOT_FOUND`.
+
+Both reads are not counted against the monthly API quota, have a rate limit of their own, and
+are cacheable for 30 seconds.
+
 ## Widget
 
 What the chat widget of `@kookee/react` draws its panel from: the project's stored widget
@@ -629,17 +659,23 @@ settings, and the content of its Home and Help tabs. You only need it to build a
 your own.
 
 ```typescript
-const { project, locale, config, content } = await kookee.widget.get({ locale: 'fr-CA' });
+const { project, locale, config, content, status } = await kookee.widget.get({ locale: 'fr-CA' });
 
 locale; // 'fr': the project language the content is in, or the default when it has no match
 config?.tabs; // ['home', 'ask', 'help', 'feedback'] in order, any of them; null when the project has not set the widget up
 config?.links; // [{ label, url }], the project's own links for Home
 config?.homeImageUrl; // an uploaded image for the top of Home, in place of the accent color
+config?.statusBanner; // false when the project turned off Home's incident banner
 project.logoUrl; // the project's logo, set in its settings
 content?.announcement; // the newest announcement
 content?.news; // changelog entries, announcements and blog posts, newest first
 content?.articles; // public help articles, most viewed first
+status?.incidents; // active incidents and maintenance in progress, for Home's banner
 ```
+
+Each of `status.incidents` has its `id`, `title`, `kind`, `impact`, `status` and `url`, its page
+on the hosted status page (`null` while that page is not public). The whole page is in
+[Status](#status).
 
 The stored texts (`title`, `greeting`, `placeholder`, `suggestions`, `links`) are in one
 language; a multi-language site sets them per page in code. `content` comes only when the
@@ -1230,6 +1266,19 @@ import type {
   ReactionType,
   ReactParams,
   ReactResponse,
+
+  // Status
+  StatusPage,
+  StatusIndicator,
+  StatusComponent,
+  ComponentStatus,
+  StatusUptimeDay,
+  StatusIncident,
+  StatusIncidentDetail,
+  IncidentUpdate,
+  IncidentKind,
+  IncidentStatus,
+  IncidentImpact,
 
   // Common
   ApiError,

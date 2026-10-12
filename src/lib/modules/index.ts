@@ -52,4 +52,5 @@ export {
   type PagesGetCommentsParams,
 } from './pages';
 export { ProjectModule } from './project';
+export { StatusModule } from './status';
 export { WidgetModule, type WidgetGetParams } from './widget';

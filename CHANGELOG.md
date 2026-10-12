@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.18.0
+
+### Added
+
+- **`status.get()`** reads `GET /v1/status`: the project's status page, with its `indicator`,
+  its `components` (each with its status, its 90-day `uptime` and the days it was not
+  operational), the `activeIncidents`, `maintenanceInProgress` and `upcomingMaintenance`, and
+  the `resolvedIncidents` of the last 90 days. **`status.getIncident(id)`** reads
+  `GET /v1/status/incidents/:id`: one published incident or maintenance with its whole
+  timeline, each update in Markdown (`body`) and HTML (`bodyHtml`). Neither counts against the
+  monthly API quota; they have a rate limit of their own and are cacheable for 30 seconds. The
+  types `StatusPage`, `StatusComponent`, `StatusUptimeDay`, `StatusIncident`,
+  `StatusIncidentDetail`, `IncidentUpdate`, `StatusIndicator`, `ComponentStatus`,
+  `IncidentKind`, `IncidentStatus` and `IncidentImpact`.
+- **`status` in `widget.get()`**: the status page's `indicator`, and its active incidents and
+  maintenance in progress, each with its `url` on the hosted status page (`null` while that
+  page is not public). Missing from an API older than the field. The types `WidgetStatus` and
+  `WidgetStatusIncident`.
+- **`statusBanner` in `WidgetConfig`**: `false` when the project turned off the widget's
+  incident banner in the dashboard.
+
 ## 1.17.0
 
 ### Added

@@ -244,6 +244,8 @@ export interface WidgetConfig {
   links?: WidgetLink[];
   /** An image uploaded in the dashboard, shown at the top of Home in place of the accent color. */
   homeImageUrl?: string;
+  /** Home's banner for active incidents and maintenance. On unless `false`. */
+  statusBanner?: boolean;
 }
 
 export type WidgetNewsType = 'announcement' | 'changelog' | 'blog';
@@ -311,6 +313,120 @@ export interface WidgetBootstrap {
   config: WidgetConfig | null;
   /** `null` unless the stored tabs need it or the request asked for it. */
   content: WidgetContent | null;
+  /** The project's status page, for the banner on Home. Missing from an API older than the field. */
+  status?: WidgetStatus;
+}
+
+/** An active incident or a maintenance in progress, as the widget's Home banner shows it. */
+export interface WidgetStatusIncident {
+  id: string;
+  title: string;
+  impact: IncidentImpact;
+  kind: IncidentKind;
+  status: IncidentStatus;
+  /** The incident on the project's hosted status page; `null` while that page is not public. */
+  url: string | null;
+}
+
+export interface WidgetStatus {
+  indicator: StatusIndicator;
+  /** Active incidents, then maintenance in progress. Empty when all is well. */
+  incidents: WidgetStatusIncident[];
+}
+
+// =====================
+// Status Types
+// =====================
+
+/** The state of the whole status page, for its banner. */
+export type StatusIndicator = 'operational' | 'minor' | 'major' | 'maintenance';
+
+/** A component's status as visitors see it: `under_maintenance` while a maintenance on it is in progress. */
+export type ComponentStatus =
+  'operational' | 'degraded_performance' | 'partial_outage' | 'major_outage' | 'under_maintenance';
+
+export type IncidentKind = 'incident' | 'maintenance';
+
+/**
+ * An incident goes `investigating`, `identified`, `monitoring`, `resolved`; a maintenance goes
+ * `scheduled`, `in_progress`, `completed`.
+ */
+export type IncidentStatus =
+  'investigating' | 'identified' | 'monitoring' | 'resolved' | 'scheduled' | 'in_progress' | 'completed';
+
+export type IncidentImpact = 'none' | 'minor' | 'major' | 'critical';
+
+/** A day, of the last 90, on which a component was not operational all day. */
+export interface StatusUptimeDay {
+  /** `YYYY-MM-DD`, UTC. */
+  date: string;
+  /** The worst status of the day. */
+  status: Exclude<ComponentStatus, 'under_maintenance'>;
+  /** Time in major outage that day. */
+  downtimeSeconds: number;
+}
+
+export interface StatusComponent {
+  id: string;
+  name: string;
+  description: string | null;
+  status: ComponentStatus;
+  showUptime: boolean;
+  createdAt: string;
+  /** The share of the last 90 days not in major outage, from 0 to 1; `null` when hidden or too new. */
+  uptime: number | null;
+  /** The days that were not operational all day; empty when uptime is hidden. */
+  days: StatusUptimeDay[];
+}
+
+/** One update on an incident's timeline. */
+export interface IncidentUpdate {
+  id: string;
+  status: IncidentStatus;
+  /** Markdown, as written. */
+  body: string;
+  /** `body` rendered to HTML. */
+  bodyHtml: string;
+  createdAt: string;
+}
+
+export interface StatusIncident {
+  id: string;
+  kind: IncidentKind;
+  title: string;
+  impact: IncidentImpact;
+  status: IncidentStatus;
+  publishedAt: string | null;
+  /** The maintenance window; `null` for an incident. */
+  scheduledStartAt: string | null;
+  scheduledEndAt: string | null;
+  resolvedAt: string | null;
+  /** The components it affects, in the page's order. */
+  components: Array<{ id: string; name: string }>;
+  /** The newest update of an open incident; `null` on resolved ones. */
+  latestUpdate: IncidentUpdate | null;
+}
+
+/** Returned by `GET /v1/status`. */
+export interface StatusPage {
+  projectSlug: string;
+  indicator: StatusIndicator;
+  /** In the page's order. */
+  components: StatusComponent[];
+  /** Open incidents, newest first. */
+  activeIncidents: StatusIncident[];
+  maintenanceInProgress: StatusIncident[];
+  /** Soonest first. */
+  upcomingMaintenance: StatusIncident[];
+  /** Closed in the last 90 days, newest first, at most 50. */
+  resolvedIncidents: StatusIncident[];
+  generatedAt: string;
+}
+
+/** Returned by `GET /v1/status/incidents/:id`. */
+export interface StatusIncidentDetail extends Omit<StatusIncident, 'latestUpdate'> {
+  /** The whole timeline, newest first. */
+  updates: IncidentUpdate[];
 }
 
 // =====================
