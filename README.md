@@ -652,6 +652,9 @@ inside an element with the `kookee-entry-content` class. Drafts are never return
 Both reads are not counted against the monthly API quota, have a rate limit of their own, and
 are cacheable for 30 seconds.
 
+`@kookee/react/status` renders both as the hosted page does (`StatusHeadline`,
+`StatusOverview`, `StatusIncidentArticle`, `StatusBadge`); see the `@kookee/react` README.
+
 ## Widget
 
 What the chat widget of `@kookee/react` draws its panel from: the project's stored widget

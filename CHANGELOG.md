@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.19.0
+
+### Documentation
+
+- The Status section points to the status page components of `@kookee/react` 1.19.0. No code
+  change; released so the version stays in step with `@kookee/react`.
+
 ## 1.18.0
 
 ### Added
