@@ -185,6 +185,14 @@
   font-size: 0.9375em;
 }
 
+.kookee-entry-content .kookee-table-scroll {
+  margin: 1em 0;
+}
+
+.kookee-entry-content .kookee-table-scroll > table {
+  margin: 0;
+}
+
 .kookee-entry-content th,
 .kookee-entry-content td {
   padding: 0.5em 0.75em;

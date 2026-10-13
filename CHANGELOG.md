@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.19.1
+
+### Fixed
+
+- **`styles/content.css`** scrolls the `kookee-table-scroll` box that `EntryContent` from
+  `@kookee/react` 1.19.1 puts around each table, so a wide table no longer widens the page.
+  `styles/typography.css` moves the table's margin to the box.
+
 ## 1.19.0
 
 ### Documentation

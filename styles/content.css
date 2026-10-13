@@ -247,6 +247,13 @@
   color: #d4d4d4;
 }
 
+/* Tables: `<EntryContent>` from @kookee/react puts each table in a `kookee-table-scroll` box,
+   so a table wider than the column scrolls inside it instead of widening the page. Structural,
+   like the task lists below: typography systems style the table but not this box. */
+.kookee-entry-content .kookee-table-scroll {
+  overflow-x: auto;
+}
+
 /* Task lists (Tiptap: ul[data-type="taskList"] > li[data-checked] > label + div).
    Structural, not typographic: typography systems like Tailwind prose style plain lists
    but know nothing about this markup, so without these rules task items render as

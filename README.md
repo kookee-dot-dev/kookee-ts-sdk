@@ -110,7 +110,7 @@ nothing.
 
 ```typescript
 const project = await kookee.project.get();
-// { name: 'Lumen', defaultLocale: 'en', portalUrl: 'https://kookee.dev/p/lumen', widgetConfigured: true }
+// { name: 'Lumen', defaultLocale: 'en', portalUrl: 'https://lumen.kookee.dev', widgetConfigured: true }
 ```
 
 `defaultLocale` is the language content reads answer in when they send no `locale`.
@@ -625,7 +625,7 @@ const configs = await kookee.config.list({ keys: ['feature_flags', 'theme'] });
 ## Status
 
 The project's status page, to show it on your own site. The hosted portal shows the same page
-at `/p/{slug}/status` once its Status module is on.
+at `https://{slug}.kookee.dev/status` once its Status module is on.
 
 ```typescript
 const status = await kookee.status.get();
