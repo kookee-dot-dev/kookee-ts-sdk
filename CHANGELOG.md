@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.20.0
+
+### Documentation
+
+- The Announcements section points to the announcement components of `@kookee/react` 1.20.0. No
+  code change; released so the version stays in step with `@kookee/react`.
+
 ## 1.19.1
 
 ### Fixed

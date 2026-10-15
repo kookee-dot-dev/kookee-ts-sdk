@@ -325,6 +325,10 @@ const translations = await kookee.announcements.getTranslationsById('announcemen
 const comments = await kookee.announcements.getComments('announcement-id', { page: 1, limit: 20 });
 ```
 
+`@kookee/react/announcements` renders them as a pill, a list and the full announcement
+(`AnnouncementPill`, `AnnouncementList`, `AnnouncementArticle`), with the visitor's dismissals
+kept by `useDismissedAnnouncements`; see the `@kookee/react` README.
+
 ## Pages
 
 ```typescript
