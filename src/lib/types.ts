@@ -181,6 +181,11 @@ export interface HelpChatSource {
    * 1.6.2 — treat a missing value as `true`.
    */
   consulted?: boolean;
+  /**
+   * The entry's system type: `help_article`, or `faq` for a FAQ item, which has no page of its
+   * own. Absent from servers older than 1.21.0.
+   */
+  type?: string | null;
 }
 
 export interface HelpChatToolEntry {
@@ -511,7 +516,7 @@ export interface FeedbackTopContributor {
 // Unified Entry Types
 // =====================
 
-export type EntryType = 'blog' | 'page' | 'help_article' | 'changelog' | 'announcement';
+export type EntryType = 'blog' | 'page' | 'help_article' | 'changelog' | 'announcement' | 'faq';
 
 export type EntryStatus = 'draft' | 'published' | 'archived';
 
@@ -619,7 +624,8 @@ export interface EntryComment {
 // (from e.g. `GET /v1/entries/:slug`, `GET /v1/entries/by-id/:id`).
 //
 // The *only* difference is `contentHtml`: the server NEVER returns
-// `contentHtml` on list responses — only on detail responses. Reading
+// `contentHtml` on list responses — only on detail responses, and on the
+// lists of FAQ items (`FaqItem`), whose answers a FAQ shows. Reading
 // `entry.contentHtml` on a list item was the root cause of several crashes
 // in SDK <= 0.0.36, where the single `BaseEntry` shape lied about this.
 //
@@ -678,7 +684,7 @@ export interface BaseEntry {
 /**
  * Fields added on entry DETAIL responses only.
  *
- * `contentHtml` is NOT returned on list endpoints.
+ * `contentHtml` is NOT returned on list endpoints, except for FAQ items.
  */
 export interface EntryDetailFields {
   contentHtml: string;
@@ -766,13 +772,31 @@ export interface AnnouncementDetail extends BaseEntry, EntryDetailFields {
   type: 'announcement';
 }
 
+// ---- FAQ ----
+
+/**
+ * A FAQ item from `faq.list()`. The question is `title` and the answer is the body. Unlike other
+ * list responses, a FAQ list carries the body: `contentHtml`, `contentText` and its `links`. A
+ * FAQ item has no page of its own, so its `slug` is `null`.
+ */
+export interface FaqItem extends BaseEntry, EntryDetailFields {
+  type: 'faq';
+  /** The answer as plain text, which `getFaqJsonLd` puts in the FAQPage markup. */
+  contentText: string | null;
+}
+
+/** A FAQ item from `faq.getById()`. A detail response carries no `contentText`. */
+export interface FaqItemDetail extends BaseEntry, EntryDetailFields {
+  type: 'faq';
+}
+
 // ---- Unions ----
 
 export type TypedEntryListItem =
-  BlogEntryListItem | PageEntryListItem | HelpArticleListItem | ChangelogEntryListItem | AnnouncementListItem;
+  BlogEntryListItem | PageEntryListItem | HelpArticleListItem | ChangelogEntryListItem | AnnouncementListItem | FaqItem;
 
 export type TypedEntryDetail =
-  BlogEntryDetail | PageEntryDetail | HelpArticleDetail | ChangelogEntryDetail | AnnouncementDetail;
+  BlogEntryDetail | PageEntryDetail | HelpArticleDetail | ChangelogEntryDetail | AnnouncementDetail | FaqItemDetail;
 
 export type AnyEntryListItem = TypedEntryListItem | GenericEntryListItem;
 export type AnyEntryDetail = TypedEntryDetail | GenericEntryDetail;

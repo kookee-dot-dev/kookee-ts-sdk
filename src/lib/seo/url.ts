@@ -6,6 +6,8 @@ export function joinUrl(baseUrl: string, path: string): string {
 }
 
 export function resolveUrl(baseUrl: string, getPath: GetPath, entry: PathEntry): string | null {
+  // A FAQ item has no page of its own, whatever `getPath` makes of it.
+  if (entry.type === 'faq') return null;
   const path = getPath(entry);
   return path === null ? null : joinUrl(baseUrl, path);
 }

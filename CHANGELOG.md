@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.21.0
+
+### Added
+
+- **`faq`**, a module for the new FAQ entry type. A FAQ item's question is its `title` and its
+  answer is its body. **`faq.list({ category, locale, limit, page })`** returns the items of a
+  category in the order the team set in the dashboard. `category` is the category's slug in the
+  project's default locale, and it finds the category in every locale. Unlike other lists, each
+  item carries its answer, `contentHtml` and `contentText`, with the `links` of its entry links,
+  resolved by a client created with `getPath`. **`faq.getById(id)`** reads one item, and
+  **`faq.categories()`** the categories. The types `FaqItem`, `FaqItemDetail`, `FaqListParams`,
+  `FaqGetByIdParams` and `FaqCategoriesParams`, and `'faq'` in `EntryType`.
+- **`getFaqJsonLd(items)`** returns a schema.org `FAQPage` for the FAQ items a page shows: one
+  `Question` per item, with its `contentText` as the `acceptedAnswer`. It leaves out an item with
+  an empty question or answer, and returns `null` when no item is left.
+- **`type` on `HelpChatSource`**: the cited entry's type, `help_article` or `faq`. A FAQ item has
+  no page of its own. Missing from an API older than the field.
+
+### Changed
+
+- `buildSitemap`, `buildFeed` and `buildLlmsTxt` leave out FAQ items, which have no page, whatever
+  `getPath` returns for them.
+
+### Documentation
+
+- `help.list()` returns articles in the order the team set in the dashboard, newest first until
+  a member drags one. The order comes from the API, so every SDK version gets it.
+
 ## 1.20.0
 
 ### Documentation

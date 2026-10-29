@@ -29,6 +29,7 @@ export {
   type ChangelogGetCommentsParams,
 } from './changelog';
 export { ConfigModule, type ConfigListParams } from './config';
+export { FaqModule, type FaqCategoriesParams, type FaqListParams, type FaqGetByIdParams } from './faq';
 export {
   FeedbackModule,
   type FeedbackGetCommentsParams,

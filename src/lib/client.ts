@@ -4,6 +4,7 @@ import { BlogModule } from './modules/blog';
 import { ChangelogModule } from './modules/changelog';
 import { ConfigModule } from './modules/config';
 import { EntriesModule } from './modules/entries';
+import { FaqModule } from './modules/faq';
 import { FeedbackModule } from './modules/feedback';
 import { HelpModule } from './modules/help';
 import { PagesModule } from './modules/pages';
@@ -21,6 +22,7 @@ export class Kookee {
   public readonly blog: BlogModule;
   public readonly changelog: ChangelogModule;
   public readonly config: ConfigModule;
+  public readonly faq: FaqModule;
   public readonly feedback: FeedbackModule;
   public readonly help: HelpModule;
   public readonly pages: PagesModule;
@@ -46,6 +48,7 @@ export class Kookee {
     this.blog = new BlogModule(this.entries);
     this.changelog = new ChangelogModule(this.entries);
     this.config = new ConfigModule(this.http);
+    this.faq = new FaqModule(this.entries);
     this.feedback = new FeedbackModule(this.http);
     this.help = new HelpModule(this.http, this.entries);
     this.pages = new PagesModule(this.entries);

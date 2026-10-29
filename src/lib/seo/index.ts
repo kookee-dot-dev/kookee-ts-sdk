@@ -4,4 +4,5 @@ export * from './entry-seo';
 export * from './sitemap';
 export * from './feed';
 export * from './llms';
+export { getFaqJsonLd } from './faq';
 export { serializeJsonLd } from './json-ld';

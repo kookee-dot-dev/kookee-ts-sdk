@@ -164,7 +164,8 @@ const categories = await kookee.help.categories();
 // List articles with pagination
 const articles = await kookee.help.list({ page: 1, limit: 10 });
 
-// Filter by category slug
+// Filter by category slug. Articles come in the order the team set, newest first until a member
+// drags one.
 const categoryArticles = await kookee.help.list({ category: 'getting-started' });
 
 // Semantic search — results include a matched text snippet and its similarity when available
@@ -226,7 +227,9 @@ nothing carries an empty list. Each source carries `consulted`: `true` when the 
 that article's text (a search hit or a `get_entry`), `false` when it was merely linked out of a
 listing, as every entry of a "list all articles" answer is. Show a "Sources" row for the consulted
 ones; keep the whole list for resolving inline citations. A missing `consulted` (servers before
-1.6.2) should be read as `true`.
+1.6.2) should be read as `true`. Each source also carries its entry `type`: `help_article`, or
+`faq` for a [FAQ item](#faq), which has no page of its own, so link it to the page that shows
+the FAQ or open it with `entries.getById`. Servers before 1.21.0 send no `type`.
 
 ## Server-side retrieval
 
@@ -328,6 +331,27 @@ const comments = await kookee.announcements.getComments('announcement-id', { pag
 `@kookee/react/announcements` renders them as a pill, a list and the full announcement
 (`AnnouncementPill`, `AnnouncementList`, `AnnouncementArticle`), with the visitor's dismissals
 kept by `useDismissedAnnouncements`; see the `@kookee/react` README.
+
+## FAQ
+
+A FAQ item's question is its `title` and its answer is its body. Items sit in categories, and a
+list comes in the order the team set in the dashboard. Unlike other lists, a FAQ list carries
+each answer: `contentHtml`, `contentText` and the `links` of its entry links, which a client
+created with [`getPath`](#entry-links) has already resolved.
+
+```typescript
+// The items of one category, named by its slug in the project's default locale
+const faq = await kookee.faq.list({ category: 'pricing', locale: 'de', limit: 50 });
+
+// The categories, and one item
+const categories = await kookee.faq.categories({ locale: 'de' });
+const item = await kookee.faq.getById('faq-item-uuid', { locale: 'de' });
+```
+
+`category` finds the category by its default-locale slug in every locale, so a page names its
+category once in code. A FAQ item has no page of its own: its `slug` is `null`, and the
+sitemap, feed and `llms.txt` builders leave it out. `getFaqJsonLd` turns the items into
+[FAQPage markup](#faq-markup), and `@kookee/react/faq` renders them with `FaqList`.
 
 ## Pages
 
@@ -542,6 +566,22 @@ export const Route = createFileRoute('/llms.txt')({
 
 For JSON-LD in TanStack use the `{ 'script:ld+json': seo.jsonLd }` meta descriptor (the router
 escapes it); `head().scripts` is injected unescaped.
+
+### FAQ markup
+
+`getFaqJsonLd(items)` returns a schema.org `FAQPage` for the [FAQ items](#faq) a page shows, in
+their order: one `Question` per item, named by its title, with its `contentText` as the
+`acceptedAnswer`. It leaves out an item with an empty question or answer, and returns `null`
+when no item is left. Google shows FAQ rich results only for well-known government and health
+sites, but the markup still tells search engines and AI assistants what the page answers.
+
+```typescript
+import { getFaqJsonLd, serializeJsonLd } from '@kookee/sdk';
+
+const faq = await kookee.faq.list({ category: 'pricing' });
+const faqJsonLd = getFaqJsonLd(faq.data);
+// {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }} />}
+```
 
 ## Feedback
 
@@ -890,7 +930,7 @@ Use `content` (Tiptap JSON) when you want to render with your own Tiptap pipelin
 
 Entry endpoints come in two flavours with **different shapes**:
 
-- **List responses** (`blog.list()`, `entries.list()`, …) return `*ListItem` types — these do **not** include `contentHtml`. Use `excerptHtml` instead for previews.
+- **List responses** (`blog.list()`, `entries.list()`, …) return `*ListItem` types — these do **not** include `contentHtml`. Use `excerptHtml` instead for previews. The exception is `faq.list()`: a FAQ shows every answer, so its `FaqItem`s carry `contentHtml` and `contentText`.
 - **Search responses** (`help.search()`) return `HelpSearchResult` which extends the list item with `matchedChunk: string | null` — a plain-text snippet from the best matching section of the article — and `score: number | null`, that match's similarity. Both are `null` when the server fell back to text search.
 - **Detail responses** (`blog.getBySlug()`, `help.getById()`, …) return `*Detail` types — these include `contentHtml` for full content rendering, and `contentMarkdown` when the request passed `markdown: true`.
 
@@ -1207,6 +1247,7 @@ import type {
   HelpArticleListItem,
   ChangelogEntryListItem,
   AnnouncementListItem,
+  FaqItem, // with contentHtml and contentText: a FAQ list carries the answers
   TypedEntryListItem,
   AnyEntryListItem,
 
@@ -1217,6 +1258,7 @@ import type {
   HelpArticleDetail,
   ChangelogEntryDetail,
   AnnouncementDetail,
+  FaqItemDetail,
   TypedEntryDetail,
   AnyEntryDetail,
 
@@ -1332,6 +1374,9 @@ import type {
   AnnouncementListParams,
   AnnouncementGetByIdParams,
   AnnouncementGetCommentsParams,
+  FaqListParams,
+  FaqGetByIdParams,
+  FaqCategoriesParams,
   ConfigListParams,
   FeedbackListParams,
   FeedbackVoteParams,
