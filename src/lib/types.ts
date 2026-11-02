@@ -505,6 +505,30 @@ export interface FeedbackPost extends FeedbackPostListItem {
   contentHtml: string | null;
 }
 
+export type FeedbackVoteAction = 'upvote' | 'downvote';
+
+/** A vote from a public page, with no sign-in. */
+export interface FeedbackVoteInput {
+  /**
+   * Who votes: one vote per post for each id. Not verified, and anyone who knows it can read and
+   * remove that visitor's votes, so a site that passes its own id should pass an opaque one.
+   */
+  visitorId: string;
+  /** `upvote` casts the vote, `downvote` withdraws it. Repeating either changes nothing. */
+  action: FeedbackVoteAction;
+}
+
+/** Returned by `POST /v1/feedback/:id/vote`. */
+export interface FeedbackVoteResult {
+  voteCount: number;
+  voted: boolean;
+}
+
+/** Returned by `GET /v1/feedback/votes`: the visitor's newest 1,000 votes. */
+export interface FeedbackVisitorVotes {
+  postIds: string[];
+}
+
 export interface FeedbackTopContributor {
   id: string;
   name: string | null;

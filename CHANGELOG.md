@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.23.0
+
+### Added
+
+- **`feedback.vote(postId, { visitorId, action })`** casts or withdraws a visitor's vote on a
+  feedback post, with no sign-in. `upvote` casts it and `downvote` withdraws it, and repeating
+  either changes nothing. It returns `{ voteCount, voted }`. Only a published post takes votes.
+  Nothing verifies `visitorId`, and anyone who knows it can read and remove that visitor's votes,
+  so pass a random id, or an opaque one from your own accounts.
+- **`feedback.getVisitorVotes(visitorId)`** returns `{ postIds }`: the posts a visitor voted for,
+  newest vote first, at most 1,000.
+- The types `FeedbackVoteAction`, `FeedbackVoteInput`, `FeedbackVoteResult` and
+  `FeedbackVisitorVotes`.
+
 ## 1.22.1
 
 No change to this package; released alongside `@kookee/react` 1.22.1.

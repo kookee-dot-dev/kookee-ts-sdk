@@ -7,6 +7,9 @@ import type {
   FeedbackPostListItem,
   FeedbackSortOption,
   FeedbackTopContributor,
+  FeedbackVisitorVotes,
+  FeedbackVoteInput,
+  FeedbackVoteResult,
   PaginatedResponse,
   PaginationParams,
 } from '../types';
@@ -57,5 +60,15 @@ export class FeedbackModule {
     signal?: AbortSignal,
   ): Promise<FeedbackTopContributor[]> {
     return this.http.get<FeedbackTopContributor[]>('/v1/feedback/top-contributors', params, signal);
+  }
+
+  /** Casts or withdraws a visitor's vote, with no sign-in. Only published posts take votes. */
+  async vote(postId: string, input: FeedbackVoteInput): Promise<FeedbackVoteResult> {
+    return this.http.post<FeedbackVoteResult>(`/v1/feedback/${encodeURIComponent(postId)}/vote`, input);
+  }
+
+  /** The posts a visitor voted for. */
+  async getVisitorVotes(visitorId: string, signal?: AbortSignal): Promise<FeedbackVisitorVotes> {
+    return this.http.get<FeedbackVisitorVotes>('/v1/feedback/votes', { visitorId }, signal);
   }
 }

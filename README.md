@@ -585,7 +585,7 @@ const faqJsonLd = getFaqJsonLd(faq.data);
 
 ## Feedback
 
-The SDK exposes feedback in read-only form. Posting, voting, and commenting happen in the hosted portal, where visitors sign in. The one exception is the site widget's Feedback tab, which sends a message for review (see [Widget](#widget)); it never becomes a post on its own.
+The SDK reads the feedback board, and lets a visitor vote with no sign-in. Posting to the board and commenting happen in the hosted portal, where visitors sign in. A visitor can also send a message for review with `widget.sendFeedback` (see [Widget](#widget)); it never becomes a post on its own.
 
 ```typescript
 // Get kanban columns (for roadmap rendering)
@@ -617,7 +617,15 @@ const comments = await kookee.feedback.getComments('post-uuid', { page: 1, limit
 
 // Get top contributors
 const contributors = await kookee.feedback.getTopContributors({ limit: 10 });
+
+// Cast a visitor's vote: one per post for each visitorId. `downvote` withdraws it.
+const { voteCount, voted } = await kookee.feedback.vote('post-uuid', { visitorId: 'visitor-id', action: 'upvote' });
+
+// The posts a visitor voted for, newest vote first (at most 1,000)
+const { postIds } = await kookee.feedback.getVisitorVotes('visitor-id');
 ```
+
+Nothing verifies `visitorId`, and anyone who knows it can read and remove that visitor's votes. Pass a random id, or an opaque one from your own accounts, not an email or a public user id. Only published posts take votes.
 
 ### Feedback comment shape
 
@@ -1296,7 +1304,9 @@ import type {
   FeedbackComment,
   FeedbackCommentAttachment,
   FeedbackTopContributor,
-  FeedbackVoteResponse,
+  FeedbackVoteInput,
+  FeedbackVoteResult,
+  FeedbackVisitorVotes,
   CreateFeedbackPostParams,
   CreateFeedbackCommentParams,
   CreatedFeedbackPost,
@@ -1379,7 +1389,6 @@ import type {
   FaqCategoriesParams,
   ConfigListParams,
   FeedbackListParams,
-  FeedbackVoteParams,
   FeedbackTopContributorsParams,
   FeedbackGetCommentsParams,
 } from '@kookee/sdk';
