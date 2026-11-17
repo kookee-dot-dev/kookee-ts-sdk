@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.24.0
+
+No change to this package; released alongside `@kookee/react` 1.24.0.
+
 ## 1.23.0
 
 ### Added
